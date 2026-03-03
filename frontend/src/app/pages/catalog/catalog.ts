@@ -77,8 +77,18 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
+  // Supported categories with icons
+  supportedCategories = SUPPORTED_CATEGORIES;
+
   loadFilters() {
-    this.cs.getAll().subscribe({ next: (c: any) => this.categories.set(Array.isArray(c) ? c : c?.items || []), error: () => {} });
+    // Use only supported categories
+    this.categories.set(SUPPORTED_CATEGORIES.map(c => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      icon: c.icon
+    } as any)));
+    
     this.bs.getAll().subscribe({ next: (b: any) => this.brands.set(Array.isArray(b) ? b : b?.items || []), error: () => {} });
   }
 
