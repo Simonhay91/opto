@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, Request, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -17,6 +17,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 EXTERNAL_API = "https://dev.planetworkspace.com/api"
+EXTERNAL_BASE = "https://dev.planetworkspace.com"
 PARTNER_KEY = os.environ.get('PARTNER_KEY', '')
 
 from contextlib import asynccontextmanager
