@@ -79,7 +79,7 @@ API: `https://dev.planetworkspace.com/api` — proxied through FastAPI backend.
 ## Prioritized Backlog
 
 ### P0 — Partner Key Setup
-- [x] DONE: `PARTNER_KEY=94fa5fc3-9534-4bb5-8722-f724f84a5594` added to `/app/backend/.env`
+- [x] DONE: `PARTNER_KEY=planet-catalog` added to `/app/backend/.env`
 - Note: Dev API returns 0 products (catalog likely not yet populated in dev environment)
   - Categories, Brands load correctly
   - Sliders return empty (fallback Unsplash images used)
