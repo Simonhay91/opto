@@ -60,7 +60,7 @@
                 <button (click)="activeImageIdx.set(i)"
                         [class]="'w-16 h-16 border-2 overflow-hidden transition-colors ' + (activeImageIdx() === i ? 'border-cyan-500' : 'border-slate-200 dark:border-slate-700 hover:border-cyan-300')"
                         [attr.data-testid]="'thumb-' + i">
-                  <img [src]="img.url" [alt]="product()!.name + ' ' + (i+1)"
+                  <img [src]="getThumbUrl(img)" [alt]="product()!.name + ' ' + (i+1)"
                        class="w-full h-full object-contain p-1"
                        (error)="$any($event.target).src='/assets/no-image.png'">
                 </button>
