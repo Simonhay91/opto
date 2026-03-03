@@ -122,7 +122,7 @@
                   @for (cat of categories(); track cat.id) {
                     <button (click)="onCategoryChange(cat.id); sidebarOpen = false"
                             [class]="'flex items-center gap-2 w-full text-left px-2 py-2 text-sm transition-colors rounded ' + (selectedCategoryId === cat.id ? 'text-cyan-500 font-medium bg-cyan-50 dark:bg-cyan-900/20' : 'text-slate-700 dark:text-slate-300')">
-                      <img [src]="cat.icon" [alt]="cat.name" class="w-5 h-5 object-contain">
+                      <img [src]="$any(cat).icon" [alt]="cat.name" class="w-5 h-5 object-contain">
                       {{cat.name}}
                     </button>
                   }
