@@ -71,6 +71,9 @@ export class HomeComponent implements OnInit {
     { id: '4', name: 'IoT Solutions', icon: 'I', desc: '物联网 · Smart Devices, Sensors' },
   ];
 
+  // Supported categories with icons
+  supportedCategories = SUPPORTED_CATEGORIES;
+
   ngOnInit() {
     this.seo.setOrganizationSchema();
     this.seo.setPage('Fiber Optic & Network Equipment', 'Leading fiber optic manufacturer in Qingdao, China. Shop telecom cables, network equipment, IoT & security solutions.');
@@ -98,13 +101,13 @@ export class HomeComponent implements OnInit {
   }
 
   loadCategories() {
-    this.cs.getAll().subscribe({
-      next: (data: any) => {
-        const arr = Array.isArray(data) ? data : data?.items || [];
-        this.categories.set(arr.slice(0, 8));
-      },
-      error: () => this.categories.set(this.fallbackCategories as any)
-    });
+    // Use only supported categories
+    this.categories.set(SUPPORTED_CATEGORIES.map(c => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      icon: c.icon
+    } as any)));
   }
 
   loadSections() {
