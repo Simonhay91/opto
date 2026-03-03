@@ -1,72 +1,190 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request, Query
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import httpx
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
-
+from typing import Optional, Any
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
+EXTERNAL_API = "https://dev.planetworkspace.com/api"
+PARTNER_KEY = os.environ.get('PARTNER_KEY', '')
 
-# Create a router with the /api prefix
+app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+def partner_headers(extra: dict = None):
+    h = {"x-partner-key": PARTNER_KEY, "Content-Type": "application/json"}
+    if extra:
+        h.update(extra)
+    return h
 
-# Add your routes to the router instead of directly to app
-@api_router.get("/")
-async def root():
-    return {"message": "Hello World"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+async def proxy_get(path: str, params: dict = None, extra_headers: dict = None):
+    async with httpx.AsyncClient(timeout=30) as c:
+        resp = await c.get(
+            f"{EXTERNAL_API}{path}",
+            headers=partner_headers(extra_headers),
+            params={k: v for k, v in (params or {}).items() if v is not None}
+        )
+        return resp.json()
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
 
-# Include the router in the main app
+async def proxy_post(path: str, body: Any = None, params: dict = None, extra_headers: dict = None):
+    async with httpx.AsyncClient(timeout=30) as c:
+        resp = await c.post(
+            f"{EXTERNAL_API}{path}",
+            headers=partner_headers(extra_headers),
+            json=body or {},
+            params={k: v for k, v in (params or {}).items() if v is not None}
+        )
+        return resp.json()
+
+
+# ── Partner Info ────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/partner/self")
+async def get_partner():
+    return await proxy_get("/web/partner/self")
+
+
+# ── Sliders ──────────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/sliders")
+async def get_sliders():
+    return await proxy_get("/web/sliders")
+
+
+# ── Promotional Units ────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/promotional-unit")
+async def get_promo_units(startDate: Optional[str] = None, endDate: Optional[str] = None):
+    return await proxy_get("/web/promotional-unit", {"startDate": startDate, "endDate": endDate})
+
+
+# ── Sections ─────────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/section")
+async def get_sections():
+    return await proxy_get("/web/section")
+
+
+@api_router.post("/proxy/web/product/section/{section_id}")
+async def get_section_products(section_id: str, request: Request, customerId: Optional[str] = None):
+    body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    return await proxy_post(f"/web/product/section/{section_id}", body, {"customerId": customerId})
+
+
+# ── Product Explore ──────────────────────────────────────────────────────────
+@api_router.post("/proxy/web/product/explore")
+async def explore_products(request: Request, customerId: Optional[str] = None):
+    body = await request.json()
+    return await proxy_post("/web/product/explore", body, {"customerId": customerId})
+
+
+# ── Product Detail ───────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/product/{slug}")
+async def get_product(slug: str):
+    return await proxy_get(f"/web/product/{slug}")
+
+
+# ── Categories ───────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/category")
+async def get_categories(locale: Optional[str] = None):
+    headers = {"x-locale-code": locale} if locale else {}
+    return await proxy_get("/web/category", extra_headers=headers)
+
+
+@api_router.get("/proxy/web/category/{slug}/attributes")
+async def get_category_attributes(slug: str, locale: Optional[str] = None):
+    headers = {"x-locale-code": locale} if locale else {}
+    return await proxy_get(f"/web/category/{slug}/attributes", extra_headers=headers)
+
+
+# ── Brands ────────────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/brand")
+async def get_brands():
+    return await proxy_get("/web/brand")
+
+
+@api_router.get("/proxy/web/brand/category/{category_id}")
+async def get_brands_by_category(category_id: str):
+    return await proxy_get(f"/web/brand/category/{category_id}")
+
+
+@api_router.get("/proxy/web/brand/{slug}")
+async def get_brand_detail(slug: str, locale: Optional[str] = None):
+    headers = {"x-locale-code": locale} if locale else {}
+    return await proxy_get(f"/web/brand/{slug}", extra_headers=headers)
+
+
+# ── Currency ─────────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/currency")
+async def get_currencies():
+    return await proxy_get("/web/currency")
+
+
+# ── Blog ─────────────────────────────────────────────────────────────────────
+@api_router.get("/proxy/web/blog/paged")
+async def get_blogs(page: int = 1, limit: int = 12, name: Optional[str] = None):
+    return await proxy_get("/web/blog/paged", {"page": page, "limit": limit, "name": name})
+
+
+@api_router.get("/proxy/web/blog/slug/{slug}")
+async def get_blog(slug: str):
+    return await proxy_get(f"/web/blog/slug/{slug}")
+
+
+# ── Auth ─────────────────────────────────────────────────────────────────────
+@api_router.post("/auth/login")
+async def login(request: Request):
+    body = await request.json()
+    async with httpx.AsyncClient(timeout=30) as c:
+        resp = await c.post(f"{EXTERNAL_API}/web/auth/customer/login", json=body)
+        return resp.json()
+
+
+@api_router.post("/auth/refresh")
+async def refresh_token(request: Request):
+    body = await request.json()
+    async with httpx.AsyncClient(timeout=30) as c:
+        resp = await c.post(f"{EXTERNAL_API}/web/auth/customer/refresh", json=body)
+        return resp.json()
+
+
+@api_router.post("/auth/logout")
+async def logout(request: Request):
+    auth = request.headers.get("authorization", "")
+    async with httpx.AsyncClient(timeout=30) as c:
+        resp = await c.post(
+            f"{EXTERNAL_API}/web/auth/customer/logout",
+            headers={"Authorization": auth}
+        )
+        return resp.json()
+
+
+# ── Customer ──────────────────────────────────────────────────────────────────
+@api_router.get("/customer/self")
+async def get_customer(request: Request):
+    auth = request.headers.get("authorization", "")
+    return await proxy_get("/web/customer/self", extra_headers={"Authorization": auth})
+
+
+# ── Health ────────────────────────────────────────────────────────────────────
+@api_router.get("/health")
+async def health():
+    return {"status": "ok", "partner_key_set": bool(PARTNER_KEY)}
+
+
 app.include_router(api_router)
 
 app.add_middleware(
@@ -77,12 +195,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

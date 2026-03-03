@@ -1,0 +1,225 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950" data-testid="product-detail-page">
+
+  @if (loading()) {
+    <div class="container mx-auto px-4 md:px-8 max-w-7xl py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div class="space-y-4">
+          <div class="skeleton aspect-square"></div>
+          <div class="flex gap-2">
+            @for (t of [1,2,3,4]; track t) { <div class="skeleton w-16 h-16"></div> }
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="skeleton h-8 w-3/4"></div>
+          <div class="skeleton h-5 w-1/2"></div>
+          <div class="skeleton h-24 w-full"></div>
+          <div class="skeleton h-10 w-40"></div>
+        </div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="container mx-auto px-4 py-16 text-center">
+      <p class="text-slate-500 text-lg">Product not found</p>
+      <a routerLink="/catalog" class="text-cyan-500 hover:underline mt-4 block">← Back to Catalog</a>
+    </div>
+  } @else if (product()) {
+    <!-- Breadcrumb -->
+    <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <div class="container mx-auto px-4 md:px-8 max-w-7xl py-3">
+        <nav class="flex items-center gap-2 text-xs text-slate-500 flex-wrap" data-testid="product-breadcrumb">
+          <a routerLink="/" class="hover:text-cyan-500 transition-colors">{{lang.t('breadcrumbHome')}}</a>
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <a routerLink="/catalog" class="hover:text-cyan-500 transition-colors">{{lang.t('catalog')}}</a>
+          @if (product()!.categoryName) {
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <span>{{product()!.categoryName}}</span>
+          }
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          <span class="text-slate-900 dark:text-slate-100 truncate max-w-xs">{{product()!.name}}</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 md:px-8 max-w-7xl py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+
+        <!-- Image Gallery -->
+        <div data-testid="product-gallery">
+          <!-- Main Image -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 aspect-square flex items-center justify-center overflow-hidden mb-3">
+            <img [src]="activeImage" [alt]="product()!.name"
+                 class="max-w-full max-h-full object-contain p-6 transition-all duration-300"
+                 (error)="$any($event.target).src='/assets/no-image.png'"
+                 data-testid="product-main-image">
+          </div>
+          <!-- Thumbnails -->
+          @if (images.length > 1) {
+            <div class="flex gap-2 flex-wrap">
+              @for (img of images; track img.id; let i = $index) {
+                <button (click)="activeImageIdx.set(i)"
+                        [class]="'w-16 h-16 border-2 overflow-hidden transition-colors ' + (activeImageIdx() === i ? 'border-cyan-500' : 'border-slate-200 dark:border-slate-700 hover:border-cyan-300')"
+                        [attr.data-testid]="'thumb-' + i">
+                  <img [src]="img.url" [alt]="product()!.name + ' ' + (i+1)"
+                       class="w-full h-full object-contain p-1"
+                       (error)="$any($event.target).src='/assets/no-image.png'">
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Product Info -->
+        <div class="flex flex-col gap-4" data-testid="product-info">
+          <!-- Badges -->
+          <div class="flex gap-2 flex-wrap">
+            @if (product()!.isHot) { <span class="badge-hot">HOT</span> }
+            @if (product()!.isNew) { <span class="badge-new">NEW</span> }
+            @if (product()!.isDiscontinued) { <span class="badge-disc">DISCONTINUED</span> }
+            <span [class]="inStock ? 'text-xs font-bold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-xs font-bold uppercase px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
+                  data-testid="stock-status">
+              {{inStock ? lang.t('inStock') : lang.t('outOfStock')}}
+            </span>
+          </div>
+
+          <!-- CRM Code -->
+          @if (product()!.crmCode) {
+            <p class="text-xs font-mono text-slate-400 uppercase tracking-widest" data-testid="product-crm-code">#{{product()!.crmCode}}</p>
+          }
+
+          <!-- Name -->
+          <h1 class="text-2xl md:text-3xl font-heading font-bold text-slate-900 dark:text-slate-50 leading-tight" data-testid="product-name">
+            {{product()!.name}}
+          </h1>
+
+          <!-- Model -->
+          @if (product()!.model) {
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500 uppercase tracking-wider">{{lang.t('model')}}:</span>
+              <span class="text-sm font-mono font-semibold text-cyan-500" data-testid="product-model">{{product()!.model}}</span>
+            </div>
+          }
+
+          <!-- Brand -->
+          @if (product()!.brandName) {
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500 uppercase tracking-wider">Brand:</span>
+              <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{product()!.brandName}}</span>
+            </div>
+          }
+
+          <!-- Pricing -->
+          @if (product()!.pricingInfo?.tiers?.length) {
+            <div class="border border-slate-200 dark:border-slate-700 p-4" data-testid="pricing-table">
+              <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('pricing')}}</h3>
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-100 dark:border-slate-800">
+                    <th class="text-left py-1 text-xs text-slate-500 font-medium">{{lang.t('minQty')}}</th>
+                    <th class="text-right py-1 text-xs text-slate-500 font-medium">{{lang.t('pricing')}} ({{product()!.pricingInfo?.currency || 'USD'}})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (tier of product()!.pricingInfo!.tiers; track tier.minQty) {
+                    <tr class="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                      <td class="py-1.5 font-mono text-slate-700 dark:text-slate-300">{{tier.minQty}}+</td>
+                      <td class="py-1.5 text-right font-bold text-slate-900 dark:text-slate-100">{{tier.price | number:'1.2-2'}}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else if (product()!.pricingInfo?.basePrice) {
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-slate-900 dark:text-slate-50">
+                {{product()!.pricingInfo?.currency || 'USD'}} {{product()!.pricingInfo?.basePrice | number:'1.2-2'}}
+              </span>
+              <span class="text-sm text-slate-500">/ {{lang.t('perUnit')}}</span>
+            </div>
+          }
+
+          <!-- Get Quote CTA -->
+          <div class="flex gap-3 mt-2">
+            <a routerLink="/contact"
+               class="flex-1 flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold uppercase tracking-wide py-3 px-6 transition-colors"
+               data-testid="get-quote-btn">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              {{lang.t('requestQuote')}}
+            </a>
+          </div>
+
+          <!-- Stock Amount -->
+          @if (product()!.stockAmount !== undefined) {
+            <p class="text-xs text-slate-500 font-mono">
+              {{lang.t('stock')}}: <span [class]="inStock ? 'text-emerald-500' : 'text-red-500'" data-testid="stock-amount">{{product()!.stockAmount}}</span>
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Tabs: Specs & Description -->
+      <div class="mt-10">
+        <div class="flex border-b border-slate-200 dark:border-slate-800 gap-0">
+          @for (tab of ['specs', 'description']; track tab) {
+            <button (click)="activeTab.set($any(tab))"
+                    [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ' + (activeTab() === tab ? 'border-cyan-500 text-cyan-500' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300')"
+                    [attr.data-testid]="'tab-' + tab">
+              {{tab === 'specs' ? lang.t('specifications') : lang.t('productDetails')}}
+            </button>
+          }
+        </div>
+
+        <div class="mt-6">
+          @if (activeTab() === 'specs') {
+            @if (mainAttrs.length) {
+              <div class="border border-slate-200 dark:border-slate-800 overflow-hidden" data-testid="specs-table">
+                <table class="w-full text-sm">
+                  <tbody>
+                    @for (attr of mainAttrs; track attr.id; let even = $even) {
+                      <tr [class]="even ? 'bg-white dark:bg-slate-900' : 'bg-slate-50/50 dark:bg-slate-800/30'">
+                        <td class="py-2.5 px-4 text-slate-500 dark:text-slate-400 font-medium w-1/3">{{attr.name}}</td>
+                        <td class="py-2.5 px-4 text-slate-900 dark:text-slate-100">
+                          {{(attr.values || []).map(v => v.value || v.label).join(', ')}}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="text-slate-400 text-sm">No specifications available.</p>
+            }
+          }
+
+          @if (activeTab() === 'description') {
+            @if (product()!.description) {
+              <div class="prose prose-slate dark:prose-invert max-w-none text-sm leading-relaxed"
+                   [innerHTML]="product()!.description"
+                   data-testid="product-description">
+              </div>
+            } @else {
+              <p class="text-slate-400 text-sm">No description available.</p>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Related Products -->
+      @if (relatedProducts().length) {
+        <div class="mt-12" data-testid="related-products">
+          <div class="flex items-center gap-2 mb-6">
+            <div class="h-px w-6 bg-cyan-500"></div>
+            <h2 class="text-xl font-heading font-bold text-slate-900 dark:text-slate-50">{{lang.t('related')}}</h2>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @for (p of relatedProducts(); track p.id || p.slug) {
+              <app-product-card [product]="p" />
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

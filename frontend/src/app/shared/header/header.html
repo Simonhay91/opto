@@ -1,0 +1,123 @@
+<header
+  [class]="scrolled() ? 'fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 shadow-sm' :
+           'fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800'"
+  style="transition: background-color 0.3s ease, box-shadow 0.3s ease;"
+  data-testid="header">
+
+  <div class="container mx-auto px-4 md:px-8 max-w-7xl">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2 group" data-testid="header-logo">
+        @if (partnerLogo()) {
+          <img [src]="partnerLogo()" [alt]="partnerName()" class="h-9 w-auto object-contain">
+        } @else {
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-cyan-500 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <span class="font-heading font-bold text-lg text-slate-900 dark:text-slate-50 tracking-tight">{{partnerName()}}</span>
+          </div>
+        }
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden lg:flex items-center gap-1" data-testid="desktop-nav">
+        @for (link of navLinks; track link.key) {
+          <a [routerLink]="link.path" routerLinkActive="text-cyan-500"
+             [routerLinkActiveOptions]="{exact: link.path === '/'}"
+             class="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors"
+             [attr.data-testid]="'nav-' + link.key">
+            {{lang.t(link.key)}}
+          </a>
+        }
+      </nav>
+
+      <!-- Right Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Search (Desktop) -->
+        <div class="hidden md:flex items-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 gap-2 w-52">
+          <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" [placeholder]="lang.t('searchPlaceholder')"
+                 [(ngModel)]="searchQuery"
+                 (keydown)="onSearchKey($event)"
+                 class="bg-transparent text-sm outline-none w-full text-slate-700 dark:text-slate-300 placeholder:text-slate-400"
+                 data-testid="header-search-input">
+        </div>
+
+        <!-- Lang Toggle -->
+        <button (click)="lang.toggle()" data-testid="lang-toggle"
+                class="flex items-center gap-1 px-2 py-1.5 text-xs font-mono font-bold uppercase border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-cyan-500 hover:text-cyan-500 transition-colors">
+          {{lang.lang() === 'en' ? '中文' : 'EN'}}
+        </button>
+
+        <!-- Theme Toggle -->
+        <button (click)="theme.toggle()" data-testid="theme-toggle"
+                class="p-2 text-slate-600 dark:text-slate-400 hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors">
+          @if (theme.isDark()) {
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          } @else {
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          }
+        </button>
+
+        <!-- Quote Button (desktop) -->
+        <a routerLink="/contact" data-testid="header-quote-btn"
+           class="hidden md:flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-2 transition-colors">
+          {{lang.t('getQuote')}}
+        </a>
+
+        <!-- Mobile Menu -->
+        <button (click)="menuOpen.set(!menuOpen())" class="lg:hidden p-2 text-slate-700 dark:text-slate-300" data-testid="mobile-menu-btn">
+          @if (menuOpen()) {
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          } @else {
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  @if (menuOpen()) {
+    <div class="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" data-testid="mobile-menu">
+      <div class="container mx-auto px-4 py-3 flex flex-col gap-1">
+        <!-- Mobile Search -->
+        <div class="flex items-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 gap-2 mb-2">
+          <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" [placeholder]="lang.t('searchPlaceholder')" [(ngModel)]="searchQuery"
+                 (keydown)="onSearchKey($event)"
+                 class="bg-transparent text-sm outline-none w-full text-slate-700 dark:text-slate-300">
+        </div>
+        @for (link of navLinks; track link.key) {
+          <a [routerLink]="link.path" (click)="menuOpen.set(false)"
+             class="px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-cyan-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            {{lang.t(link.key)}}
+          </a>
+        }
+        <a routerLink="/contact" (click)="menuOpen.set(false)"
+           class="mt-2 flex justify-center bg-cyan-500 text-white text-sm font-bold uppercase py-2.5">
+          {{lang.t('getQuote')}}
+        </a>
+      </div>
+    </div>
+  }
+</header>
+
+<!-- Header spacer -->
+<div class="h-16"></div>
