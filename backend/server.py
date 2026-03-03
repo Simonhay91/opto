@@ -19,7 +19,14 @@ db = client[os.environ['DB_NAME']]
 EXTERNAL_API = "https://dev.planetworkspace.com/api"
 PARTNER_KEY = os.environ.get('PARTNER_KEY', '')
 
-app = FastAPI()
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    client.close()
+
+app = FastAPI(lifespan=lifespan)
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
