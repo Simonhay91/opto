@@ -41,7 +41,8 @@ export class ProductCardComponent {
   navigateToProduct(event: Event) {
     event.preventDefault();
     if (this.product?.slug) {
-      this.router.navigateByUrl(`/product/${this.product.slug}`);
+      // Force page reload for proper navigation
+      window.location.href = `/product/${this.product.slug}`;
     }
   }
 }
