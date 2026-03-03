@@ -125,14 +125,14 @@ export class CatalogComponent implements OnInit, OnDestroy {
     
     // Ensure categoryId is a number if provided
     if (this.selectedCategoryId) {
-      criteria.categoryId = typeof this.selectedCategoryId === 'string' 
+      (criteria as any).categoryId = typeof this.selectedCategoryId === 'string' 
         ? parseInt(this.selectedCategoryId, 10) 
         : this.selectedCategoryId;
     }
     
     // Ensure brandId is a number if provided
     if (this.selectedBrandId) {
-      criteria.brandId = typeof this.selectedBrandId === 'string' 
+      (criteria as any).brandId = typeof this.selectedBrandId === 'string' 
         ? parseInt(this.selectedBrandId, 10) 
         : this.selectedBrandId;
     }
