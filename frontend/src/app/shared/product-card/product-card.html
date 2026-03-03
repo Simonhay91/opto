@@ -1,24 +1,17 @@
 <div class="product-card group border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all duration-300 overflow-hidden flex flex-col h-full"
      [attr.data-testid]="'product-card-' + product.slug">
 
-  <!-- Image -->
-  <a [routerLink]="['/product', product.slug]" class="block overflow-hidden aspect-square bg-slate-50 dark:bg-slate-800 relative">
-    <img [src]="mainImage" [alt]="product.name"
-         class="card-img w-full h-full object-contain p-4 transition-transform duration-500"
-         loading="lazy"
-         (error)="$any($event.target).src='/assets/no-image.png'">
+  <!-- Image placeholder -->
+  <a [routerLink]="['/product', product.slug]" class="block overflow-hidden aspect-square bg-slate-100 dark:bg-slate-800 relative flex items-center justify-center">
+    <div class="text-4xl font-bold text-slate-300 dark:text-slate-600">
+      {{product.name?.charAt(0) || 'P'}}
+    </div>
     <!-- Badges -->
     <div class="absolute top-2 left-2 flex flex-col gap-1">
       @if (product.isHot) { <span class="badge-hot">HOT</span> }
       @if (product.isNew) { <span class="badge-new">NEW</span> }
       @if (product.isDiscontinued) { <span class="badge-disc">DISC</span> }
     </div>
-    <!-- Stock overlay -->
-    @if (!inStock) {
-      <div class="absolute inset-0 bg-slate-900/40 flex items-center justify-center">
-        <span class="text-xs font-bold uppercase text-white bg-slate-700 px-2 py-1">{{lang.t('outOfStock')}}</span>
-      </div>
-    }
   </a>
 
   <!-- Info -->
@@ -36,10 +29,6 @@
        class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2 hover:text-cyan-500 transition-colors flex-1">
       {{product.name}}
     </a>
-    <!-- Price -->
-    @if (price) {
-      <p class="text-sm font-bold text-slate-900 dark:text-slate-100 mt-1">{{price}}</p>
-    }
 
     <!-- CTA -->
     <button (click)="quoteOpen.set(true); $event.preventDefault()"
