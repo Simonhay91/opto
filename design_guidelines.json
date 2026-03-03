@@ -1,0 +1,156 @@
+{
+  "design_system": {
+    "identity": {
+      "name": "Optowire / Planet Fiber",
+      "archetype": "The Performance Pro (Industrial Precision)",
+      "tone": "Reliable, Global, High-Speed, Technical",
+      "keywords": ["Connectivity", "Infrastructure", "Precision", "Scale"]
+    },
+    "typography": {
+      "font_family": {
+        "headings": "Manrope, sans-serif",
+        "body": "Public Sans, sans-serif",
+        "mono": "JetBrains Mono, monospace"
+      },
+      "scale": {
+        "h1": "text-4xl md:text-6xl font-bold tracking-tight",
+        "h2": "text-3xl md:text-4xl font-semibold tracking-tight",
+        "h3": "text-2xl font-semibold",
+        "body": "text-base leading-relaxed",
+        "small": "text-sm text-muted-foreground",
+        "tiny": "text-xs font-mono uppercase tracking-wider"
+      },
+      "instructions": "Import 'Manrope' and 'Public Sans' from Google Fonts. Use Manrope for all Headings to give a geometric, industrial feel. Use Public Sans for body text and especially data tables for maximum legibility. Ensure Chinese character fallback (Noto Sans SC)."
+    },
+    "colors": {
+      "palette": {
+        "primary": {
+          "default": "#0F172A",
+          "light": "#1E293B",
+          "dark": "#020617",
+          "foreground": "#F8FAFC"
+        },
+        "accent": {
+          "default": "#06B6D4",
+          "glow": "#22D3EE",
+          "dim": "#0891B2"
+        },
+        "technical": {
+          "success": "#10B981",
+          "warning": "#F59E0B",
+          "error": "#EF4444",
+          "info": "#3B82F6"
+        },
+        "neutral": {
+          "50": "#F8FAFC",
+          "100": "#F1F5F9",
+          "200": "#E2E8F0",
+          "800": "#1E293B",
+          "900": "#0F172A",
+          "950": "#020617"
+        }
+      },
+      "usage": {
+        "light_mode": {
+          "background": "bg-slate-50",
+          "card": "bg-white",
+          "text_primary": "text-slate-900",
+          "text_secondary": "text-slate-500",
+          "border": "border-slate-200"
+        },
+        "dark_mode": {
+          "background": "bg-slate-950",
+          "card": "bg-slate-900",
+          "text_primary": "text-slate-50",
+          "text_secondary": "text-slate-400",
+          "border": "border-slate-800"
+        }
+      }
+    },
+    "layout": {
+      "container": "container mx-auto px-4 md:px-8 max-w-7xl",
+      "grid_system": {
+        "catalog": "grid grid-cols-1 md:grid-cols-4 gap-6",
+        "bento": "grid grid-cols-1 md:grid-cols-3 gap-4"
+      },
+      "spacing": {
+        "section": "py-16 md:py-24",
+        "element": "space-y-4"
+      }
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-primary text-primary-foreground hover:bg-primary/90 rounded-none h-11 px-8 uppercase tracking-wide font-bold text-sm transition-all shadow-sm",
+        "secondary": "border border-input bg-background hover:bg-accent hover:text-accent-foreground rounded-none h-11 px-8 uppercase tracking-wide font-medium text-sm transition-all",
+        "outline": "border-2 border-primary/20 hover:border-accent hover:text-accent rounded-none h-11 px-6 font-mono text-xs uppercase"
+      },
+      "cards": {
+        "product": "group relative border border-border bg-card hover:shadow-lg transition-all duration-300 overflow-hidden",
+        "feature": "p-6 border border-border/50 bg-gradient-to-br from-card to-card/50 hover:border-accent/50 transition-colors"
+      },
+      "inputs": {
+        "default": "rounded-none border-input focus:ring-1 focus:ring-accent focus:border-accent bg-background"
+      }
+    },
+    "visual_enhancers": {
+      "glassmorphism": "backdrop-blur-md bg-white/70 dark:bg-slate-900/70 border-b border-white/20 dark:border-slate-800/50",
+      "shadows": "shadow-[0_2px_8px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]",
+      "gradients": "bg-gradient-to-r from-slate-900 to-slate-800",
+      "tech_lines": "Decoration using 1px lines with accent color to simulate fiber optics"
+    }
+  },
+  "assets": {
+    "images": {
+      "hero_slider": [
+        {
+          "url": "https://images.unsplash.com/photo-1642999754574-e8c4709f4169?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwzfHxmaWJlciUyMG9wdGljJTIwY2FibGUlMjBjbG9zZSUyMHVwJTIwZ2xvd2luZ3xlbnwwfHx8fDE3NzI1NDQ1MzN8MA&ixlib=rb-4.1.0&q=85",
+          "alt": "Glowing fiber optic cables in macro view",
+          "position": "center"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1663932210347-164a05ed0ccd?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxuZXR3b3JrJTIwc2VydmVyJTIwcm9vbSUyMGJsdWUlMjBsaWdodHN8ZW58MHx8fHwxNzcyNTQ0NTM0fDA&ixlib=rb-4.1.0&q=85",
+          "alt": "Data center server room with blue illumination",
+          "position": "center"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1469289759076-d1484757abc3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2ODl8MHwxfHNlYXJjaHw0fHxpbmR1c3RyaWFsJTIwd2FyZWhvdXNlJTIwdGVsZWNvbW11bmljYXRpb25zJTIwZXF1aXBtZW50fGVufDB8fHx8MTc3MjU0NDUzNHww&ixlib=rb-4.1.0&q=85",
+          "alt": "Industrial manufacturing equipment parts",
+          "position": "center"
+        }
+      ],
+      "categories": {
+        "cables": "https://images.unsplash.com/photo-1607862195121-fd56da766674?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwyfHxmaWJlciUyMG9wdGljJTIwY2FibGUlMjBjbG9zZSUyMHVwJTIwZ2xvd2luZ3xlbnwwfHx8fDE3NzI1NDQ1MzN8MA&ixlib=rb-4.1.0&q=85",
+        "equipment": "https://images.unsplash.com/photo-1548544027-1a96c4c24c7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwzfHxuZXR3b3JrJTIwc2VydmVyJTIwcm9vbSUyMGJsdWUlMjBsaWdodHN8ZW58MHx8fHwxNzcyNTQ0NTM0fDA&ixlib=rb-4.1.0&q=85",
+        "warehouse": "https://images.unsplash.com/photo-1770910195585-825a1181a704?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2ODl8MHwxfHNlYXJjaHwyfHxpbmR1c3RyaWFsJTIwd2FyZWhvdXNlJTIwdGVsZWNvbW11bmljYXRpb25zJTIwZXF1aXBtZW50fGVufDB8fHx8MTc3MjU0NDUzNHww&ixlib=rb-4.1.0&q=85"
+      },
+      "team": {
+        "engineer_main": "https://images.unsplash.com/photo-1565350552203-b68085b104df?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMGZlbWFsZSUyMHRlbGVjb21tdW5pY2F0aW9ucyUyMGVuZ2luZWVyJTIwdGFibGV0fGVufDB8fHx8MTc3MjU0NDUzNXww&ixlib=rb-4.1.0&q=85"
+      },
+      "icons": "Use 'lucide-react' for all UI icons. Use 'Square' variants for a technical look (e.g. SquareActivity instead of Activity)."
+    }
+  },
+  "implementation_instructions": {
+    "universal_rules": [
+      "Use 'Manrope' for all headings and 'Public Sans' for body.",
+      "Implement a Light/Dark toggle in the header. Default to Light mode for professional look.",
+      "Ensure all borders are 1px and subtle (slate-200 in light, slate-800 in dark).",
+      "Buttons should be rectangular (rounded-none or rounded-sm) to emphasize industrial precision.",
+      "Use a 'Sheet' component for mobile filters.",
+      "Do not use generic 'teal' colors. Stick to the defined Slate/Cyan palette."
+    ],
+    "pages": {
+      "homepage": {
+        "structure": "Hero Slider -> Brand Value Props (Grid) -> Featured Products (Carousel) -> Categories (Bento Grid) -> About/Global Reach -> Newsletter",
+        "hero_style": "Full height minus header (h-[calc(100vh-64px)]). Dark, immersive even in light mode."
+      },
+      "catalog": {
+        "structure": "Sidebar (Filters: Category Tree, Brands, Tech Specs) + Main Content (Sort Bar, Product Grid, Pagination)",
+        "card_style": "Minimalist. Image top, Model Number (Mono font), Title, Price/Quote Button. Hover effect: Border glow."
+      },
+      "product_detail": {
+        "structure": "Breadcrumbs -> Two Column Layout (Gallery Left, Info Right) -> Tabs (Specs, Downloads, Related) -> Related Products",
+        "key_features": "Sticky 'Get Quote' bar on mobile. Detailed technical table with zebra striping."
+      }
+    }
+  }
+}
