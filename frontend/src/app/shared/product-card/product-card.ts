@@ -26,7 +26,7 @@ export class ProductCardComponent {
   }
 
   get isInCart(): boolean {
-    return this.cart.isInCart(this.product?.id);
+    return this.product?.id ? this.cart.isInCart(this.product.id) : false;
   }
 
   addToCart(event: Event) {
