@@ -57,11 +57,15 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": ["planet-catalog.preview.emergentagent.com", "localhost"]
+              "allowedHosts": [
+                "planet-catalog.preview.emergentagent.com",
+                "localhost"
+              ]
             },
             "ssr": {
               "entry": "src/server.ts"
-            }
+            },
+            "baseHref": "/"
           },
           "configurations": {
             "production": {
