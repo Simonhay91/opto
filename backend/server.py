@@ -99,7 +99,7 @@ async def explore_products(request: Request, customerId: Optional[str] = None):
 
 
 # ── Product Detail ───────────────────────────────────────────────────────────
-@api_router.get("/proxy/web/product/{slug}")
+@api_router.get("/proxy/web/product/{slug:path}")
 async def get_product(slug: str):
     return await proxy_get(f"/web/product/{slug}")
 
