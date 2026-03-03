@@ -85,6 +85,12 @@ API: `https://dev.planetworkspace.com/api` — proxied through FastAPI backend.
   - Sliders return empty (fallback Unsplash images used)
   - Product explore returns `{"products":[], "total":0}` — fixed frontend to handle `products` key
 
+### P1 — Done in v1.3
+- [x] Contact page — телефон +86 150 9215 7630, email info@optowire.net, адрес Qingdao, форма с API
+- [x] Terms & Conditions page (10 разделов)
+- [x] Footer обновлён с реальными контактами
+- [x] About page обновлена с реальными контактами
+
 ### P1 — Future Releases
 - [ ] Customer auth (register, login, profile, addresses)
 - [ ] Checkout flow (in-stock order, preorder)

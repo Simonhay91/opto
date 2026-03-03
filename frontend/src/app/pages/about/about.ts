@@ -40,12 +40,15 @@ export class AboutComponent implements OnInit {
 
   ngOnInit() {
     this.seo.setPage('About Optowire', 'Optowire is a leading fiber optic cable manufacturer headquartered in Qingdao, China. ISO certified, serving 50+ countries.');
-    this.ps.getPartner().subscribe({
-      next: (p: any) => this.partner.set(p),
-      error: () => {}
-    });
     this.injectAboutSchema();
   }
+
+  contact = {
+    phone: '+86 150 9215 7630',
+    email: 'info@optowire.net',
+    address: '2/F, East Office Building, No. 45 Beijing Road, Qianwan Free Trade Port Area, Qingdao, China',
+    addressZh: '青岛前湾自由贸易港区北京路45号东办公楼2楼',
+  };
 
   private injectAboutSchema() {
     const schema = {
