@@ -35,17 +35,26 @@ export class ProductDetailComponent implements OnInit {
   addedToCart = signal(false);
 
   ngOnInit() {
-    // Get slug from URL - handle both /product/:slug and /product/**
-    let s = this.slug;
-    if (!s) {
-      const url = this.router.url;
-      if (url.startsWith('/product/')) {
-        s = url.substring('/product/'.length);
-      } else {
-        s = this.route.snapshot.paramMap.get('slug') || '';
+    // Subscribe to router events for reloading on same route navigation
+    this.router.events.subscribe(event => {
+      if (event.constructor.name === 'NavigationEnd') {
+        this.loadFromUrl();
+      }
+    });
+    
+    // Initial load
+    this.loadFromUrl();
+  }
+  
+  private loadFromUrl() {
+    // Get slug from URL - handle /product/**
+    const url = this.router.url.split('?')[0]; // Remove query params
+    if (url.startsWith('/product/')) {
+      const slug = url.substring('/product/'.length);
+      if (slug && slug !== this.product()?.slug) {
+        this.loadProduct(slug);
       }
     }
-    if (s) this.loadProduct(s);
   }
 
   loadProduct(slug: string) {
