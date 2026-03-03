@@ -50,7 +50,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   loadRelated(product: ProductDto) {
-    this.ps.explore({ categoryId: product.categoryId, limit: 4, page: 1 }).subscribe({
+    this.ps.explore({ categoryId: product.categoryId, limit: 4, page: 1, sortBy: 'newest' }).subscribe({
       next: (r: any) => {
         const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
         this.relatedProducts.set(items.filter((p: any) => p.slug !== product.slug).slice(0, 4));
@@ -66,7 +66,11 @@ export class ProductDetailComponent implements OnInit {
   get activeImage(): string {
     const imgs = this.images;
     if (!imgs.length) return '/assets/no-image.png';
-    return imgs[this.activeImageIdx()]?.url || '/assets/no-image.png';
+    return getImageUrl(imgs[this.activeImageIdx()], 'large');
+  }
+
+  getThumbUrl(img: any): string {
+    return getImageUrl(img, 'thumb');
   }
 
   get inStock(): boolean {
