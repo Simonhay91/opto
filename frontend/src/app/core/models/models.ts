@@ -1,9 +1,55 @@
 // Core models for Optowire product catalog
 
+// Base URL for images from the API
+export const API_IMAGE_BASE = 'https://dev.planetworkspace.com/';
+
 export interface Image {
-  id: string;
-  url: string;
+  id: number | string;
+  url?: string;
+  path?: string;
+  optimizedPath?: string;
+  path128px?: string;
+  path160px?: string;
+  path208px?: string;
+  path636px?: string;
+  path1092px?: string;
+  filename?: string;
   alt?: string;
+}
+
+// Helper to get image URL from various path formats
+export function getImageUrl(img: Image | undefined, size: 'thumb' | 'medium' | 'large' | 'full' = 'medium'): string {
+  if (!img) return '/assets/no-image.png';
+  
+  // If url is already provided, use it
+  if (img.url) return img.url;
+  
+  // Select path based on size
+  let path: string | undefined;
+  switch (size) {
+    case 'thumb':
+      path = img.path160px || img.path128px || img.path208px;
+      break;
+    case 'medium':
+      path = img.path636px || img.path208px || img.optimizedPath;
+      break;
+    case 'large':
+      path = img.path1092px || img.path636px || img.optimizedPath;
+      break;
+    case 'full':
+      path = img.optimizedPath || img.path;
+      break;
+  }
+  
+  // Fallback to any available path
+  if (!path) {
+    path = img.optimizedPath || img.path636px || img.path208px || img.path;
+  }
+  
+  if (!path) return '/assets/no-image.png';
+  
+  // Build full URL
+  return `${API_IMAGE_BASE}${path}`;
 }
 
 export interface PricingTier {
