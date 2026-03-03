@@ -23,11 +23,11 @@ export class ProductDetailComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   lang = inject(LangService);
 
-  product = signal<ProductDto | null>(null);
+  product = signal<any | null>(null);
   loading = signal(true);
   error = signal(false);
   activeImageIdx = signal(0);
-  activeTab = signal<'specs' | 'description'>('specs');
+  activeTab = signal<'description' | 'specs' | 'attributes'>('description');
   relatedProducts = signal<ProductDto[]>([]);
   quoteOpen = signal(false);
 
@@ -62,8 +62,11 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  loadRelated(product: ProductDto) {
-    this.ps.explore({ categoryId: product.categoryId, limit: 4, page: 1, sortBy: 'newest' }).subscribe({
+  loadRelated(product: any) {
+    const categoryId = product.category_id || product.categoryId;
+    if (!categoryId) return;
+    
+    this.ps.explore({ categoryId, limit: 4, page: 1, sortBy: 'newest' }).subscribe({
       next: (r: any) => {
         const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
         this.relatedProducts.set(items.filter((p: any) => p.slug !== product.slug).slice(0, 4));
@@ -86,8 +89,22 @@ export class ProductDetailComponent implements OnInit {
     return getImageUrl(img, 'thumb');
   }
 
-  get inStock(): boolean {
-    return (this.product()?.stockAmount ?? 0) > 0;
+  getDatasheetUrl(ds: any): string {
+    if (!ds?.path) return '#';
+    return `https://dev.planetworkspace.com/${ds.path}`;
+  }
+
+  get quickSpecs(): { name: string; value: string }[] {
+    const p = this.product();
+    if (!p?.attributeValues?.length) return [];
+    
+    return p.attributeValues
+      .filter((av: any) => av.value && av.attribute?.name)
+      .slice(0, 6)
+      .map((av: any) => ({
+        name: av.attribute.name,
+        value: av.value
+      }));
   }
 
   get mainAttrs() {
