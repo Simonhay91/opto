@@ -34,6 +34,30 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
+# ── Image Proxy (FIRST - to avoid route conflicts) ────────────────────────────
+@api_router.get("/images/{image_path:path}")
+async def proxy_image(image_path: str):
+    """Proxy images from the external API to avoid CORS issues"""
+    image_url = f"{EXTERNAL_BASE}/public/{image_path}"
+    logger.info(f"Proxying image: {image_url}")
+    try:
+        async with httpx.AsyncClient(timeout=30, follow_redirects=True) as http_client:
+            resp = await http_client.get(image_url)
+            if resp.status_code == 200:
+                return Response(
+                    content=resp.content,
+                    media_type=resp.headers.get('content-type', 'image/webp'),
+                    headers={
+                        'Cache-Control': 'public, max-age=31536000',
+                        'Access-Control-Allow-Origin': '*'
+                    }
+                )
+            logger.error(f"Image not found: {image_url}, status: {resp.status_code}")
+    except Exception as e:
+        logger.error(f"Error proxying image: {e}")
+    return JSONResponse({"error": "Image not found"}, status_code=404)
+
+
 def partner_headers(extra: dict = None):
     h = {"x-partner-key": PARTNER_KEY, "Content-Type": "application/json"}
     if extra:
