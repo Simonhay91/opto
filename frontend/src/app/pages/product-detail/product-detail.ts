@@ -5,11 +5,12 @@ import { ProductService } from '../../core/services/product.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
+import { QuoteModalComponent } from '../../shared/quote-modal/quote-modal';
 import { ProductDto } from '../../core/models/models';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, RouterLink, ProductCardComponent],
+  imports: [CommonModule, RouterLink, ProductCardComponent, QuoteModalComponent],
   templateUrl: './product-detail.html',
 })
 export class ProductDetailComponent implements OnInit {
@@ -26,6 +27,7 @@ export class ProductDetailComponent implements OnInit {
   activeImageIdx = signal(0);
   activeTab = signal<'specs' | 'description'>('specs');
   relatedProducts = signal<ProductDto[]>([]);
+  quoteOpen = signal(false);
 
   ngOnInit() {
     const s = this.slug || this.route.snapshot.paramMap.get('slug') || '';

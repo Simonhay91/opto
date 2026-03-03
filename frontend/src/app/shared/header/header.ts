@@ -6,10 +6,11 @@ import { LangService } from '../../core/services/lang.service';
 import { ProductService } from '../../core/services/product.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { QuoteModalComponent } from '../quote-modal/quote-modal';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, QuoteModalComponent],
   templateUrl: './header.html',
   styles: [`
     :host { display: block; }
@@ -28,6 +29,7 @@ export class HeaderComponent implements OnInit {
   menuOpen = signal(false);
   searchQuery = signal('');
   mobileSearchOpen = signal(false);
+  quoteOpen = signal(false);
 
   navLinks = [
     { key: 'home', path: '/' },

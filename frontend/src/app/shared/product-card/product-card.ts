@@ -3,16 +3,18 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductDto } from '../../core/models/models';
 import { LangService } from '../../core/services/lang.service';
-import { inject } from '@angular/core';
+import { inject, signal } from '@angular/core';
+import { QuoteModalComponent } from '../quote-modal/quote-modal';
 
 @Component({
   selector: 'app-product-card',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, QuoteModalComponent],
   templateUrl: './product-card.html',
 })
 export class ProductCardComponent {
   @Input() product!: ProductDto;
   lang = inject(LangService);
+  quoteOpen = signal(false);
 
   get mainImage(): string {
     if (!this.product?.images?.length) return '/assets/no-image.png';

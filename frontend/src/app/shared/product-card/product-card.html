@@ -42,10 +42,15 @@
     }
 
     <!-- CTA -->
-    <a [routerLink]="['/product', product.slug]"
+    <button (click)="quoteOpen.set(true); $event.preventDefault()"
        class="mt-2 w-full text-center text-xs font-bold uppercase tracking-wide py-2 border border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-white transition-all duration-200"
        data-testid="product-card-quote-btn">
       {{lang.t('getQuote')}}
-    </a>
+    </button>
   </div>
 </div>
+
+<!-- Quote Modal -->
+@if (quoteOpen()) {
+  <app-quote-modal [product]="product" (closed)="quoteOpen.set(false)" />
+}

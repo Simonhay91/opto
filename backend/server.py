@@ -186,7 +186,22 @@ async def get_customer(request: Request):
     return await proxy_get("/web/customer/self", extra_headers={"Authorization": auth})
 
 
-# ── Health ────────────────────────────────────────────────────────────────────
+# ── Project Inquiry / Quote ───────────────────────────────────────────────────
+@api_router.post("/proxy/web/project-inquiry")
+async def project_inquiry(request: Request):
+    body = await request.json()
+    if 'type' not in body:
+        body['type'] = 'product'
+    async with httpx.AsyncClient(timeout=30) as c:
+        resp = await c.post(
+            f"{EXTERNAL_API}/web/project-inquiry",
+            headers=partner_headers(),
+            json=body
+        )
+        return resp.json()
+
+
+
 @api_router.get("/health")
 async def health():
     return {"status": "ok", "partner_key_set": bool(PARTNER_KEY)}
