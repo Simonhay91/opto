@@ -41,13 +41,30 @@
     <div class="container mx-auto px-4 md:px-8 max-w-7xl py-8">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-        <!-- Left Column: Image placeholder -->
+        <!-- Left Column: Image Gallery -->
         <div data-testid="product-gallery">
-          <div class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 aspect-square flex items-center justify-center mb-4">
-            <div class="text-8xl font-bold text-slate-300 dark:text-slate-600">
-              {{product()!.name?.charAt(0) || 'P'}}
-            </div>
+          <!-- Main Image -->
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 aspect-square flex items-center justify-center overflow-hidden mb-4">
+            <img [src]="activeImage" [alt]="product()!.name"
+                 class="max-w-full max-h-full object-contain p-6"
+                 (error)="$any($event.target).src='/assets/no-image.png'"
+                 data-testid="product-main-image">
           </div>
+          
+          <!-- Thumbnails -->
+          @if (images.length > 1) {
+            <div class="flex gap-2 flex-wrap mb-4">
+              @for (img of images; track img.id; let i = $index) {
+                <button (click)="activeImageIdx.set(i)"
+                        [class]="'w-16 h-16 border-2 overflow-hidden transition-colors ' + (activeImageIdx() === i ? 'border-cyan-500' : 'border-slate-200 dark:border-slate-700 hover:border-cyan-300')"
+                        [attr.data-testid]="'thumb-' + i">
+                  <img [src]="getThumbUrl(img)" [alt]="product()!.name + ' ' + (i+1)"
+                       class="w-full h-full object-contain p-1"
+                       (error)="$any($event.target).src='/assets/no-image.png'">
+                </button>
+              }
+            </div>
+          }
           
           <!-- Datasheets Download -->
           @if (product()!.publicDatasheets?.length) {
