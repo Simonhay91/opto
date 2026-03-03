@@ -38,7 +38,8 @@ logger = logging.getLogger(__name__)
 @api_router.get("/images/{image_path:path}")
 async def proxy_image(image_path: str):
     """Proxy images from the external API to avoid CORS issues"""
-    image_url = f"{EXTERNAL_BASE}/public/{image_path}"
+    # Use /api/public/ path for images
+    image_url = f"{EXTERNAL_API}/public/{image_path}"
     logger.info(f"Proxying image: {image_url}")
     try:
         async with httpx.AsyncClient(timeout=30, follow_redirects=True) as http_client:
