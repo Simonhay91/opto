@@ -61,9 +61,19 @@ export class CatalogComponent implements OnInit, OnDestroy {
     // Handle route query params
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(p => {
       if (p['q']) { this.searchQuery = p['q']; this.criteria.productName = p['q']; }
+      if (p['category']) { 
+        this.selectedCategoryId = p['category']; 
+        this.criteria.categoryId = p['category']; 
+        this.loadProducts();
+      }
+      if (p['brand']) {
+        this.selectedBrandId = p['brand'];
+        this.criteria.brandId = p['brand'];
+        this.loadProducts();
+      }
     });
 
-    // Apply URL inputs
+    // Apply URL inputs (from route params)
     if (this.categoryId) { this.selectedCategoryId = this.categoryId; this.criteria.categoryId = this.categoryId; }
     if (this.brandId) { this.selectedBrandId = this.brandId; this.criteria.brandId = this.brandId; }
 
