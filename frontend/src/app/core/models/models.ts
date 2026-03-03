@@ -1,7 +1,8 @@
 // Core models for Optowire product catalog
 
-// Use proxy URL for images to avoid CORS issues
-export const API_IMAGE_PROXY = '/api/images/';
+// External API URL for static files (images, datasheets)
+// Note: apiUrl includes /api as the production API will be on a different origin
+export const EXTERNAL_API_URL = 'https://dev.planetworkspace.com/api';
 
 export interface Image {
   id: number | string;
@@ -18,6 +19,7 @@ export interface Image {
 }
 
 // Helper to get image URL from various path formats
+// Uses ${apiUrl}/public/${path} pattern for static files
 export function getImageUrl(img: Image | undefined, size: 'thumb' | 'medium' | 'large' | 'full' = 'medium'): string {
   if (!img) return '/assets/no-image.png';
   
@@ -48,13 +50,23 @@ export function getImageUrl(img: Image | undefined, size: 'thumb' | 'medium' | '
   
   if (!path) return '/assets/no-image.png';
   
-  // Remove public/ prefix if present (our proxy adds it)
+  // Build URL: ${apiUrl}/public/${path} or ${apiUrl}/${path} if path already contains public/
   if (path.startsWith('public/')) {
-    path = path.substring(7);
+    return `${EXTERNAL_API_URL}/${path}`;
   }
+  return `${EXTERNAL_API_URL}/public/${path}`;
+}
+
+// Helper to get file URL (datasheets, documents)
+// Uses ${apiUrl}/${path} pattern for files that already have full path
+export function getFileUrl(filePath: string | undefined): string {
+  if (!filePath) return '#';
   
-  // Build proxy URL
-  return `${API_IMAGE_PROXY}${path}`;
+  // If already a full URL, return as-is
+  if (filePath.startsWith('http')) return filePath;
+  
+  // Build URL: ${apiUrl}/${path}
+  return `${EXTERNAL_API_URL}/${filePath}`;
 }
 
 export interface PricingTier {
