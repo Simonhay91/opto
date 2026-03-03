@@ -40,7 +40,7 @@ API: `https://dev.planetworkspace.com/api` — proxied through FastAPI backend.
 
 ---
 
-## What's Been Implemented (v1.0 — 2026-03-03)
+## What's Been Implemented (v1.1 — 2026-03-03)
 
 ### Pages
 - **Homepage**: Hero slider carousel (API + fallback), feature strip, category grid (real API data), product sections (API with fallback), company about section
@@ -79,8 +79,11 @@ API: `https://dev.planetworkspace.com/api` — proxied through FastAPI backend.
 ## Prioritized Backlog
 
 ### P0 — Partner Key Setup
-- [ ] Add `PARTNER_KEY` to `/app/backend/.env` (user to provide)
-- [ ] Test all API endpoints with real partner key
+- [x] DONE: `PARTNER_KEY=94fa5fc3-9534-4bb5-8722-f724f84a5594` added to `/app/backend/.env`
+- Note: Dev API returns 0 products (catalog likely not yet populated in dev environment)
+  - Categories, Brands load correctly
+  - Sliders return empty (fallback Unsplash images used)
+  - Product explore returns `{"products":[], "total":0}` — fixed frontend to handle `products` key
 
 ### P1 — Future Releases
 - [ ] Customer auth (register, login, profile, addresses)

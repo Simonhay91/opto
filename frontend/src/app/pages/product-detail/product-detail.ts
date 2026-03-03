@@ -50,7 +50,7 @@ export class ProductDetailComponent implements OnInit {
   loadRelated(product: ProductDto) {
     this.ps.explore({ categoryId: product.categoryId, limit: 4, page: 1 }).subscribe({
       next: (r: any) => {
-        const items = r?.items || (Array.isArray(r) ? r : []);
+        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
         this.relatedProducts.set(items.filter((p: any) => p.slug !== product.slug).slice(0, 4));
       },
       error: () => {}

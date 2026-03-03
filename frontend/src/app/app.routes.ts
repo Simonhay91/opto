@@ -26,6 +26,16 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/product-detail/product-detail').then(m => m.ProductDetailComponent),
   },
   {
+    path: 'about',
+    loadComponent: () => import('./pages/about/about').then(m => m.AboutComponent),
+    title: 'About Optowire',
+  },
+  {
+    path: 'brands',
+    loadComponent: () => import('./pages/brands/brands').then(m => m.BrandsComponent),
+    title: 'Our Brands - Optowire',
+  },
+  {
     path: '**',
     redirectTo: '',
   },

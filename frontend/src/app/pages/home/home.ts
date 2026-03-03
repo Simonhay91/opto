@@ -134,14 +134,14 @@ export class HomeComponent implements OnInit {
     this.sections.set(sections);
     this.ps.explore({ page: 1, limit: 8, sortBy: 'popular' }).subscribe({
       next: (r: any) => {
-        const items = r?.items || r || [];
+        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
         this.sections.update(s => { s[0].products = Array.isArray(items) ? items.slice(0, 8) : []; s[0].loading = false; return [...s]; });
       },
       error: () => { this.sections.update(s => { s[0].loading = false; return [...s]; }); }
     });
     this.ps.explore({ page: 1, limit: 8, sortBy: 'newest' }).subscribe({
       next: (r: any) => {
-        const items = r?.items || r || [];
+        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
         this.sections.update(s => { if (s[1]) { s[1].products = Array.isArray(items) ? items.slice(0, 8) : []; s[1].loading = false; } return [...s]; });
       },
       error: () => { this.sections.update(s => { if (s[1]) s[1].loading = false; return [...s]; }); }
@@ -151,7 +151,7 @@ export class HomeComponent implements OnInit {
   loadSectionProducts(section: ProductSection) {
     this.ps.getSectionProducts(section.id, { page: 1, limit: 8 }).subscribe({
       next: (r: any) => {
-        const items = r?.items || r || [];
+        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
         this.sections.update(secs => {
           const idx = secs.findIndex(s => s.id === section.id);
           if (idx >= 0) { secs[idx].products = Array.isArray(items) ? items.slice(0, 8) : []; secs[idx].loading = false; }

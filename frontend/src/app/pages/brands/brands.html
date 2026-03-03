@@ -1,0 +1,74 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950" data-testid="brands-page">
+
+  <!-- Header -->
+  <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+    <div class="container mx-auto px-4 md:px-8 max-w-7xl py-8">
+      <nav class="flex items-center gap-2 text-xs text-slate-500 mb-3">
+        <a routerLink="/" class="hover:text-cyan-500 transition-colors">{{lang.t('breadcrumbHome')}}</a>
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-slate-900 dark:text-slate-100">{{lang.t('brands')}}</span>
+      </nav>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="h-px w-6 bg-cyan-500"></div>
+        <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">Brands · 品牌</span>
+      </div>
+      <h1 class="text-3xl font-heading font-bold text-slate-900 dark:text-slate-50">{{lang.t('ourBrands')}}</h1>
+      <p class="text-slate-500 text-sm mt-1 font-chinese">我们的合作品牌</p>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 md:px-8 max-w-7xl py-10">
+
+    @if (loading()) {
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        @for (sk of [1,2,3,4,5,6,7,8]; track sk) {
+          <div class="skeleton h-40"></div>
+        }
+      </div>
+    } @else if (brands().length) {
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" data-testid="brands-grid">
+        @for (brand of brands(); track brand.id) {
+          <a [routerLink]="['/catalog/brand', brand.id]"
+             class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all flex flex-col items-center gap-4 text-center"
+             [attr.data-testid]="'brand-card-' + brand.id">
+
+            <!-- Logo or Placeholder -->
+            <div class="w-20 h-20 flex items-center justify-center bg-slate-50 dark:bg-slate-800 overflow-hidden shrink-0">
+              @if (getBrandLogo(brand)) {
+                <img [src]="getBrandLogo(brand)" [alt]="brand.name"
+                     class="max-w-full max-h-full object-contain"
+                     (error)="$any($event.target).style.display='none'">
+              } @else {
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/10 to-slate-200 dark:to-slate-700">
+                  <span class="text-2xl font-heading font-bold text-cyan-500">{{brand.name?.charAt(0)}}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Name -->
+            <div>
+              <h3 class="font-heading font-semibold text-slate-900 dark:text-slate-50 group-hover:text-cyan-500 transition-colors">
+                {{brand.name}}
+              </h3>
+              @if (brand.description) {
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{{brand.description}}</p>
+              }
+            </div>
+
+            <!-- CTA -->
+            <span class="text-xs font-bold uppercase text-cyan-500 group-hover:text-cyan-600 flex items-center gap-1 mt-auto">
+              View Products
+              <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </span>
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="text-center py-20">
+        <p class="text-slate-400 text-sm">No brands available.</p>
+      </div>
+    }
+  </div>
+</div>
