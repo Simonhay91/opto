@@ -44,29 +44,13 @@
     <div class="container mx-auto px-4 md:px-8 max-w-7xl py-8">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-        <!-- Image Gallery -->
+        <!-- Image placeholder -->
         <div data-testid="product-gallery">
-          <!-- Main Image -->
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 aspect-square flex items-center justify-center overflow-hidden mb-3">
-            <img [src]="activeImage" [alt]="product()!.name"
-                 class="max-w-full max-h-full object-contain p-6 transition-all duration-300"
-                 (error)="$any($event.target).src='/assets/no-image.png'"
-                 data-testid="product-main-image">
-          </div>
-          <!-- Thumbnails -->
-          @if (images.length > 1) {
-            <div class="flex gap-2 flex-wrap">
-              @for (img of images; track img.id; let i = $index) {
-                <button (click)="activeImageIdx.set(i)"
-                        [class]="'w-16 h-16 border-2 overflow-hidden transition-colors ' + (activeImageIdx() === i ? 'border-cyan-500' : 'border-slate-200 dark:border-slate-700 hover:border-cyan-300')"
-                        [attr.data-testid]="'thumb-' + i">
-                  <img [src]="getThumbUrl(img)" [alt]="product()!.name + ' ' + (i+1)"
-                       class="w-full h-full object-contain p-1"
-                       (error)="$any($event.target).src='/assets/no-image.png'">
-                </button>
-              }
+          <div class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 aspect-square flex items-center justify-center">
+            <div class="text-6xl font-bold text-slate-300 dark:text-slate-600">
+              {{product()!.name?.charAt(0) || 'P'}}
             </div>
-          }
+          </div>
         </div>
 
         <!-- Product Info -->
@@ -76,10 +60,6 @@
             @if (product()!.isHot) { <span class="badge-hot">HOT</span> }
             @if (product()!.isNew) { <span class="badge-new">NEW</span> }
             @if (product()!.isDiscontinued) { <span class="badge-disc">DISCONTINUED</span> }
-            <span [class]="inStock ? 'text-xs font-bold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'text-xs font-bold uppercase px-2 py-0.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'"
-                  data-testid="stock-status">
-              {{inStock ? lang.t('inStock') : lang.t('outOfStock')}}
-            </span>
           </div>
 
           <!-- CRM Code -->
@@ -108,38 +88,8 @@
             </div>
           }
 
-          <!-- Pricing -->
-          @if (product()!.pricingInfo?.tiers?.length) {
-            <div class="border border-slate-200 dark:border-slate-700 p-4" data-testid="pricing-table">
-              <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('pricing')}}</h3>
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="border-b border-slate-100 dark:border-slate-800">
-                    <th class="text-left py-1 text-xs text-slate-500 font-medium">{{lang.t('minQty')}}</th>
-                    <th class="text-right py-1 text-xs text-slate-500 font-medium">{{lang.t('pricing')}} ({{product()!.pricingInfo?.currency || 'USD'}})</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (tier of product()!.pricingInfo!.tiers; track tier.minQty) {
-                    <tr class="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                      <td class="py-1.5 font-mono text-slate-700 dark:text-slate-300">{{tier.minQty}}+</td>
-                      <td class="py-1.5 text-right font-bold text-slate-900 dark:text-slate-100">{{tier.price | number:'1.2-2'}}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          } @else if (product()!.pricingInfo?.basePrice) {
-            <div class="flex items-baseline gap-2">
-              <span class="text-3xl font-bold text-slate-900 dark:text-slate-50">
-                {{product()!.pricingInfo?.currency || 'USD'}} {{product()!.pricingInfo?.basePrice | number:'1.2-2'}}
-              </span>
-              <span class="text-sm text-slate-500">/ {{lang.t('perUnit')}}</span>
-            </div>
-          }
-
           <!-- Get Quote CTA -->
-          <div class="flex gap-3 mt-2">
+          <div class="flex gap-3 mt-4">
             <button (click)="quoteOpen.set(true)"
                class="flex-1 flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white font-bold uppercase tracking-wide py-3 px-6 transition-colors"
                data-testid="get-quote-btn">
@@ -149,13 +99,6 @@
               {{lang.t('requestQuote')}}
             </button>
           </div>
-
-          <!-- Stock Amount -->
-          @if (product()!.stockAmount !== undefined) {
-            <p class="text-xs text-slate-500 font-mono">
-              {{lang.t('stock')}}: <span [class]="inStock ? 'text-emerald-500' : 'text-red-500'" data-testid="stock-amount">{{product()!.stockAmount}}</span>
-            </p>
-          }
         </div>
       </div>
 
