@@ -32,8 +32,8 @@
       <p class="text-xs font-mono text-cyan-500 uppercase tracking-wide truncate">{{product.model}}</p>
     }
     <!-- Name -->
-    <a [routerLink]="['/product', product.slug]"
-       class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2 hover:text-cyan-500 transition-colors flex-1">
+    <a (click)="navigateToProduct($event)" href="#"
+       class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug line-clamp-2 hover:text-cyan-500 transition-colors flex-1 cursor-pointer">
       {{product.name}}
     </a>
 
