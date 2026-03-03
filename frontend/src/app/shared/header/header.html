@@ -139,3 +139,8 @@
 @if (quoteOpen()) {
   <app-quote-modal [product]="null" (closed)="quoteOpen.set(false)" />
 }
+
+<!-- Cart Modal -->
+@if (cartOpen()) {
+  <app-cart-modal (closed)="cartOpen.set(false)" />
+}
