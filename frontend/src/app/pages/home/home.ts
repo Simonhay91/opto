@@ -7,6 +7,7 @@ import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
 import { SliderDto, ProductDto, CategoryDto } from '../../core/models/models';
+import { SUPPORTED_CATEGORIES } from '../../core/config/categories.config';
 
 interface ProductSection {
   id: string;
