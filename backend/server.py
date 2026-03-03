@@ -201,6 +201,26 @@ async def project_inquiry(request: Request):
         return resp.json()
 
 
+# ── Image Proxy ───────────────────────────────────────────────────────────────
+from fastapi.responses import StreamingResponse
+
+@api_router.get("/img/{path:path}")
+async def proxy_image(path: str):
+    """Proxy images from the external API to avoid CORS issues"""
+    image_url = f"{EXTERNAL_API.replace('/api', '')}/public/{path}"
+    async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
+        resp = await client.get(image_url)
+        if resp.status_code == 200:
+            return StreamingResponse(
+                iter([resp.content]),
+                media_type=resp.headers.get('content-type', 'image/webp'),
+                headers={
+                    'Cache-Control': 'public, max-age=31536000',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            )
+        return JSONResponse({"error": "Image not found"}, status_code=404)
+
 
 @api_router.get("/health")
 async def health():
