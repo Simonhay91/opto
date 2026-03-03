@@ -107,22 +107,39 @@ export class HomeComponent implements OnInit {
   }
 
   loadSections() {
-    this.ps.getSections().subscribe({
-      next: (secs: any) => {
-        const arr = Array.isArray(secs) ? secs : secs?.items || [];
-        const sections: ProductSection[] = arr.slice(0, 3).map((s: any) => ({
-          id: s.id, name: s.name, products: [], loading: true
-        }));
-        // Fallback section names if API gives unnamed sections
-        const fallbackNames = [this.lang.t('topProducts'), this.lang.t('newArrivals'), this.lang.t('featuredProducts')];
-        sections.forEach((s, i) => { if (!s.name) s.name = fallbackNames[i]; });
-        this.sections.set(sections);
-        sections.forEach(s => this.loadSectionProducts(s));
+    // Use explore with sortBy: newest for product sections
+    const sections: ProductSection[] = [
+      { id: 'newest', name: this.lang.t('newArrivals'), products: [], loading: true },
+      { id: 'popular', name: this.lang.t('topProducts'), products: [], loading: true },
+    ];
+    this.sections.set(sections);
+    
+    // Load newest products
+    this.ps.explore({ page: 1, limit: 8, sortBy: 'newest' }).subscribe({
+      next: (r: any) => {
+        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
+        this.sections.update(s => { 
+          s[0].products = Array.isArray(items) ? items.slice(0, 8) : []; 
+          s[0].loading = false; 
+          return [...s]; 
+        });
       },
-      error: () => {
-        // Try direct product explore for featured sections
-        this.loadFallbackSections();
-      }
+      error: () => { this.sections.update(s => { s[0].loading = false; return [...s]; }); }
+    });
+    
+    // Load popular products (use different page for variety)
+    this.ps.explore({ page: 2, limit: 8, sortBy: 'newest' }).subscribe({
+      next: (r: any) => {
+        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
+        this.sections.update(s => { 
+          if (s[1]) { 
+            s[1].products = Array.isArray(items) ? items.slice(0, 8) : []; 
+            s[1].loading = false; 
+          } 
+          return [...s]; 
+        });
+      },
+      error: () => { this.sections.update(s => { if (s[1]) s[1].loading = false; return [...s]; }); }
     });
   }
 
