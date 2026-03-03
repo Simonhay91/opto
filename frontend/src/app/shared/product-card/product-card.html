@@ -2,7 +2,7 @@
      [attr.data-testid]="'product-card-' + product.slug">
 
   <!-- Image -->
-  <a [routerLink]="['/product', product.slug]" class="block overflow-hidden aspect-square bg-slate-50 dark:bg-slate-800 relative">
+  <a (click)="navigateToProduct($event)" href="#" class="block overflow-hidden aspect-square bg-slate-50 dark:bg-slate-800 relative cursor-pointer">
     <img [src]="mainImage" [alt]="product.name"
          class="card-img w-full h-full object-contain p-4 transition-transform duration-500"
          loading="lazy"
