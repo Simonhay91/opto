@@ -112,4 +112,17 @@ export class ProductDetailComponent implements OnInit {
   get mainAttrs() {
     return this.product()?.attributes?.slice(0, 20) || [];
   }
+
+  get isInCart(): boolean {
+    return this.cart.isInCart(this.product()?.id);
+  }
+
+  addToCart() {
+    const p = this.product();
+    if (p) {
+      this.cart.addItem(p, 1);
+      this.addedToCart.set(true);
+      setTimeout(() => this.addedToCart.set(false), 1500);
+    }
+  }
 }
