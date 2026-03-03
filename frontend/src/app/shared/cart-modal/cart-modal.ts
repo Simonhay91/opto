@@ -44,11 +44,15 @@ export class CartModalComponent {
   }
   
   updateQty(item: CartItem, delta: number) {
-    this.cart.updateQuantity(item.product.id, item.quantity + delta);
+    if (item.product.id) {
+      this.cart.updateQuantity(item.product.id, item.quantity + delta);
+    }
   }
   
   removeItem(item: CartItem) {
-    this.cart.removeItem(item.product.id);
+    if (item.product.id) {
+      this.cart.removeItem(item.product.id);
+    }
   }
   
   startQuote() {
