@@ -4,6 +4,7 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
+import { CartService } from '../../core/services/cart.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
 import { QuoteModalComponent } from '../../shared/quote-modal/quote-modal';
 import { ProductDto, getImageUrl, getFileUrl } from '../../core/models/models';
@@ -22,6 +23,7 @@ export class ProductDetailComponent implements OnInit {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
   lang = inject(LangService);
+  cart = inject(CartService);
 
   product = signal<any | null>(null);
   loading = signal(true);
@@ -30,6 +32,7 @@ export class ProductDetailComponent implements OnInit {
   activeTab = signal<'description' | 'specs' | 'attributes'>('description');
   relatedProducts = signal<ProductDto[]>([]);
   quoteOpen = signal(false);
+  addedToCart = signal(false);
 
   ngOnInit() {
     // Get slug from URL - handle both /product/:slug and /product/**
