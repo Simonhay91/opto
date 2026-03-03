@@ -241,14 +241,16 @@
                   </thead>
                   <tbody>
                     @for (attr of product()!.attributeValues; track attr.id; let even = $even) {
-                      <tr [class]="even ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''">
-                        <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-medium">
-                          {{attr.attribute?.name || 'Unknown'}}
-                        </td>
-                        <td class="py-3 px-4 text-slate-900 dark:text-slate-100">
-                          {{attr.value || attr.attribute?.name || '-'}}
-                        </td>
-                      </tr>
+                      @if (attr.textValue) {
+                        <tr [class]="even ? 'bg-slate-50/50 dark:bg-slate-800/30' : ''">
+                          <td class="py-3 px-4 text-slate-600 dark:text-slate-400 font-medium">
+                            {{attr.attribute?.name || 'Unknown'}}
+                          </td>
+                          <td class="py-3 px-4 text-slate-900 dark:text-slate-100">
+                            {{attr.textValue}}
+                          </td>
+                        </tr>
+                      }
                     }
                   </tbody>
                 </table>
