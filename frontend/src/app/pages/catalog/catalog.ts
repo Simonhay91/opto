@@ -117,13 +117,27 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   buildCriteria(): ProductCriteriaDto {
-    return {
+    const criteria: ProductCriteriaDto = {
       ...this.criteria,
       productName: this.searchQuery || undefined,
-      categoryId: this.selectedCategoryId || undefined,
-      brandId: this.selectedBrandId || undefined,
       inStock: this.inStockOnly || undefined,
     };
+    
+    // Ensure categoryId is a number if provided
+    if (this.selectedCategoryId) {
+      criteria.categoryId = typeof this.selectedCategoryId === 'string' 
+        ? parseInt(this.selectedCategoryId, 10) 
+        : this.selectedCategoryId;
+    }
+    
+    // Ensure brandId is a number if provided
+    if (this.selectedBrandId) {
+      criteria.brandId = typeof this.selectedBrandId === 'string' 
+        ? parseInt(this.selectedBrandId, 10) 
+        : this.selectedBrandId;
+    }
+    
+    return criteria;
   }
 
   onSearch() { this.searchSubject.next(this.searchQuery); }
