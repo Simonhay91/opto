@@ -6,7 +6,7 @@ import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
 import { QuoteModalComponent } from '../../shared/quote-modal/quote-modal';
-import { ProductDto } from '../../core/models/models';
+import { ProductDto, getImageUrl } from '../../core/models/models';
 
 @Component({
   selector: 'app-product-detail',
