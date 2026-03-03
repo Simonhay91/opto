@@ -48,6 +48,11 @@ export function getImageUrl(img: Image | undefined, size: 'thumb' | 'medium' | '
   
   if (!path) return '/assets/no-image.png';
   
+  // Add public/ prefix if path doesn't already have it
+  if (!path.startsWith('public/') && !path.startsWith('http')) {
+    path = `public/${path}`;
+  }
+  
   // Build full URL
   return `${API_IMAGE_BASE}${path}`;
 }
