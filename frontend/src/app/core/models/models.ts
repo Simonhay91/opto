@@ -1,7 +1,7 @@
 // Core models for Optowire product catalog
 
-// Base URL for images from the API
-export const API_IMAGE_BASE = 'https://dev.planetworkspace.com/';
+// Use proxy URL for images to avoid CORS issues
+export const API_IMAGE_PROXY = '/api/img/';
 
 export interface Image {
   id: number | string;
@@ -21,8 +21,8 @@ export interface Image {
 export function getImageUrl(img: Image | undefined, size: 'thumb' | 'medium' | 'large' | 'full' = 'medium'): string {
   if (!img) return '/assets/no-image.png';
   
-  // If url is already provided, use it
-  if (img.url) return img.url;
+  // If url is already provided and it's a full URL, use it
+  if (img.url && img.url.startsWith('http')) return img.url;
   
   // Select path based on size
   let path: string | undefined;
@@ -48,13 +48,13 @@ export function getImageUrl(img: Image | undefined, size: 'thumb' | 'medium' | '
   
   if (!path) return '/assets/no-image.png';
   
-  // Add public/ prefix if path doesn't already have it
-  if (!path.startsWith('public/') && !path.startsWith('http')) {
-    path = `public/${path}`;
+  // Remove public/ prefix if present (our proxy adds it)
+  if (path.startsWith('public/')) {
+    path = path.substring(7);
   }
   
-  // Build full URL
-  return `${API_IMAGE_BASE}${path}`;
+  // Build proxy URL
+  return `${API_IMAGE_PROXY}${path}`;
 }
 
 export interface PricingTier {
