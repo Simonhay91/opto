@@ -35,7 +35,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   totalItems = signal(0);
   totalPages = signal(1);
 
-  criteria: ProductCriteriaDto = { page: 1, limit: 24, sortBy: '' };
+  criteria: ProductCriteriaDto = { page: 1, limit: 24, sortBy: 'newest' };
   searchQuery = '';
   selectedCategoryId = '';
   selectedBrandId = '';
@@ -136,7 +136,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.selectedCategoryId = '';
     this.selectedBrandId = '';
     this.inStockOnly = false;
-    this.criteria = { page: 1, limit: 24, sortBy: '' };
+    this.criteria = { page: 1, limit: 24, sortBy: 'newest' };
     this.loadProducts();
   }
 
