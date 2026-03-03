@@ -116,12 +116,6 @@
                 </button>
               </div>
               <!-- Same filter content -->
-              <div class="mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" [checked]="inStockOnly" (change)="onStockChange()" class="w-4 h-4 accent-cyan-500">
-                  <span class="text-sm text-slate-700 dark:text-slate-300">{{lang.t('inStock')}}</span>
-                </label>
-              </div>
               @if (categories().length) {
                 <div class="mb-4">
                   <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('categories')}}</h4>
