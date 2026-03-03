@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
-import { ProductDto } from '../models/models';
+import { ProductDto, getImageUrl } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -24,7 +24,10 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:description', content: desc });
 
     const mainImg = product.images?.find(i => i.id === product.mainImageId) || product.images?.[0];
-    if (mainImg) this.meta.updateTag({ property: 'og:image', content: mainImg.url });
+    const imgUrl = getImageUrl(mainImg, 'large');
+    if (imgUrl && !imgUrl.includes('no-image')) {
+      this.meta.updateTag({ property: 'og:image', content: imgUrl });
+    }
 
     const schema: any = {
       '@context': 'https://schema.org',
@@ -34,7 +37,7 @@ export class SeoService {
       sku: product.crmCode,
       model: product.model,
       brand: { '@type': 'Brand', name: product.brandName || 'Optowire' },
-      image: mainImg?.url,
+      image: imgUrl,
       offers: {
         '@type': 'Offer',
         availability: (product.stockAmount ?? 0) > 0
