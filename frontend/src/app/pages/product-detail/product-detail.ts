@@ -1,6 +1,6 @@
-import { Component, inject, signal, OnInit, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { Component, inject, signal, OnInit, Input, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -19,6 +19,8 @@ export class ProductDetailComponent implements OnInit {
   private ps = inject(ProductService);
   private seo = inject(SeoService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
   lang = inject(LangService);
 
   product = signal<ProductDto | null>(null);
@@ -30,7 +32,16 @@ export class ProductDetailComponent implements OnInit {
   quoteOpen = signal(false);
 
   ngOnInit() {
-    const s = this.slug || this.route.snapshot.paramMap.get('slug') || '';
+    // Get slug from URL - handle both /product/:slug and /product/**
+    let s = this.slug;
+    if (!s) {
+      const url = this.router.url;
+      if (url.startsWith('/product/')) {
+        s = url.substring('/product/'.length);
+      } else {
+        s = this.route.snapshot.paramMap.get('slug') || '';
+      }
+    }
     if (s) this.loadProduct(s);
   }
 
