@@ -90,8 +90,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   getDatasheetUrl(ds: any): string {
-    if (!ds?.path) return '#';
-    return `https://dev.planetworkspace.com/${ds.path}`;
+    return getFileUrl(ds?.path);
   }
 
   get quickSpecs(): { name: string; value: string }[] {
