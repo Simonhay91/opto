@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductDto, getImageUrl } from '../../core/models/models';
 import { LangService } from '../../core/services/lang.service';
+import { CartService } from '../../core/services/cart.service';
 import { inject, signal } from '@angular/core';
 import { QuoteModalComponent } from '../quote-modal/quote-modal';
 
@@ -14,7 +15,9 @@ import { QuoteModalComponent } from '../quote-modal/quote-modal';
 export class ProductCardComponent {
   @Input() product!: ProductDto;
   lang = inject(LangService);
+  cart = inject(CartService);
   quoteOpen = signal(false);
+  addedToCart = signal(false);
 
   get mainImage(): string {
     if (!this.product?.images?.length) return '/assets/no-image.png';
@@ -22,15 +25,15 @@ export class ProductCardComponent {
     return getImageUrl(main || this.product.images[0], 'medium');
   }
 
-  get price(): string {
-    const pi = this.product?.pricingInfo;
-    if (!pi) return '';
-    const base = pi.tiers?.[0]?.price ?? pi.basePrice;
-    if (!base) return '';
-    return `${pi.currency || 'USD'} ${base.toLocaleString()}`;
+  get isInCart(): boolean {
+    return this.cart.isInCart(this.product?.id);
   }
 
-  get inStock(): boolean {
-    return (this.product?.stockAmount ?? 0) > 0;
+  addToCart(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.cart.addItem(this.product, 1);
+    this.addedToCart.set(true);
+    setTimeout(() => this.addedToCart.set(false), 1500);
   }
 }
