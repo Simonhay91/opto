@@ -4,13 +4,15 @@ import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { LangService } from '../../core/services/lang.service';
 import { ProductService } from '../../core/services/product.service';
+import { CartService } from '../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { QuoteModalComponent } from '../quote-modal/quote-modal';
+import { CartModalComponent } from '../cart-modal/cart-modal';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, QuoteModalComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, QuoteModalComponent, CartModalComponent],
   templateUrl: './header.html',
   styles: [`
     :host { display: block; }
@@ -20,6 +22,7 @@ import { QuoteModalComponent } from '../quote-modal/quote-modal';
 export class HeaderComponent implements OnInit {
   theme = inject(ThemeService);
   lang = inject(LangService);
+  cart = inject(CartService);
   private ps = inject(ProductService);
   private router = inject(Router);
 
@@ -30,6 +33,7 @@ export class HeaderComponent implements OnInit {
   searchQuery = signal('');
   mobileSearchOpen = signal(false);
   quoteOpen = signal(false);
+  cartOpen = signal(false);
 
   navLinks = [
     { key: 'home', path: '/' },
