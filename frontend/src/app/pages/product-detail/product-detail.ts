@@ -98,11 +98,11 @@ export class ProductDetailComponent implements OnInit {
     if (!p?.attributeValues?.length) return [];
     
     return p.attributeValues
-      .filter((av: any) => av.value && av.attribute?.name)
+      .filter((av: any) => av.textValue && av.attribute?.name)
       .slice(0, 6)
       .map((av: any) => ({
         name: av.attribute.name,
-        value: av.value
+        value: av.textValue
       }));
   }
 
