@@ -49,10 +49,10 @@ async def health_check():
     """Health check endpoint"""
     return {"status": "ok", "service": "optowire-backend"}
 
-# Include routers with /proxy prefix
-app.include_router(products.router, prefix="/api/proxy")
-app.include_router(categories.router, prefix="/api/proxy")
-app.include_router(brands.router, prefix="/api/proxy")
+# Include routers
+app.include_router(products.router, prefix="/api")
+app.include_router(categories.router, prefix="/api")
+app.include_router(brands.router, prefix="/api")
 app.include_router(blog.router, prefix="/api")
 app.include_router(partner.router, prefix="/api")
 
