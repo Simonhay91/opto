@@ -58,24 +58,41 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.seo.setCatalogSchema('Product Catalog', 'Browse fiber optic cables, network equipment, IoT and security solutions.');
     this.seo.setPage('Product Catalog', 'Browse our complete range of fiber optic cables, network equipment, IoT and security solutions from Optowire.');
 
+    // Load filters first
+    this.loadFilters();
+
     // Handle route query params
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(p => {
-      if (p['q']) { this.searchQuery = p['q']; this.criteria.productName = p['q']; }
+      let shouldReload = false;
+      
+      if (p['q']) { 
+        this.searchQuery = p['q']; 
+        this.criteria.productName = p['q']; 
+        shouldReload = true;
+      }
       if (p['category']) { 
-        this.selectedCategoryId = p['category']; 
-        this.criteria.categoryId = p['category']; 
-        this.loadProducts();
+        // Convert to number for proper comparison
+        this.selectedCategoryId = parseInt(p['category'], 10);
+        shouldReload = true;
       }
       if (p['brand']) {
-        this.selectedBrandId = p['brand'];
-        this.criteria.brandId = p['brand'];
+        this.selectedBrandId = parseInt(p['brand'], 10);
+        shouldReload = true;
+      }
+      
+      if (shouldReload) {
+        this.criteria.page = 1;
         this.loadProducts();
       }
     });
 
     // Apply URL inputs (from route params)
-    if (this.categoryId) { this.selectedCategoryId = this.categoryId; this.criteria.categoryId = this.categoryId; }
-    if (this.brandId) { this.selectedBrandId = this.brandId; this.criteria.brandId = this.brandId; }
+    if (this.categoryId) { 
+      this.selectedCategoryId = typeof this.categoryId === 'string' ? parseInt(this.categoryId, 10) : this.categoryId;
+    }
+    if (this.brandId) { 
+      this.selectedBrandId = typeof this.brandId === 'string' ? parseInt(this.brandId, 10) : this.brandId;
+    }
 
     // Debounced search
     this.searchSubject.pipe(debounceTime(400), takeUntil(this.destroy$)).subscribe(() => {
@@ -83,7 +100,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
       this.loadProducts();
     });
 
-    this.loadFilters();
+    // Initial load if no query params triggered it
     this.loadProducts();
   }
 
