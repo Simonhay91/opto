@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID, Inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ProductDto, getImageUrl } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -8,6 +8,7 @@ export class SeoService {
   private meta = inject(Meta);
   private title = inject(Title);
   private doc = inject(DOCUMENT);
+  private platformId = inject(PLATFORM_ID);
 
   setPage(titleStr: string, description: string) {
     this.title.setTitle(`${titleStr} | Optowire`);
@@ -48,7 +49,7 @@ export class SeoService {
         seller: { '@type': 'Organization', name: 'Optowire' },
       },
     };
-    this.injectJsonLd(schema);
+    this.injectJsonLd(schema, 'product-schema');
   }
 
   setOrganizationSchema() {
@@ -66,7 +67,7 @@ export class SeoService {
       },
       foundingLocation: { '@type': 'Place', name: 'Qingdao, China' },
     };
-    this.injectJsonLd(schema);
+    this.injectJsonLd(schema, 'organization-schema');
   }
 
   setCatalogSchema(name: string, description: string) {
@@ -77,7 +78,7 @@ export class SeoService {
       description,
       publisher: { '@type': 'Organization', name: 'Optowire' },
     };
-    this.injectJsonLd(schema);
+    this.injectJsonLd(schema, 'catalog-schema');
   }
 
   setArticleSchema(title: string, description: string, imageUrl: string, publishedDate: string, author: string) {
@@ -101,16 +102,33 @@ export class SeoService {
         },
       },
     };
-    this.injectJsonLd(schema);
+    this.injectJsonLd(schema, 'article-schema');
   }
 
-
-  private injectJsonLd(data: object) {
-    const existing = this.doc.head.querySelector('script[type="application/ld+json"]');
-    if (existing) existing.remove();
-    const script = this.doc.createElement('script');
-    script.type = 'application/ld+json';
-    script.textContent = JSON.stringify(data);
-    this.doc.head.appendChild(script);
+  /**
+   * Inject JSON-LD schema into <head>
+   * Works in both server-side and client-side contexts
+   */
+  private injectJsonLd(data: object, id: string) {
+    // Only manipulate DOM if we have a document
+    if (!this.doc) return;
+    
+    try {
+      // Remove existing schema with same ID
+      const existing = this.doc.head?.querySelector(`script[id="${id}"]`);
+      if (existing) {
+        existing.remove();
+      }
+      
+      // Create and inject new schema
+      const script = this.doc.createElement('script');
+      script.id = id;
+      script.type = 'application/ld+json';
+      script.textContent = JSON.stringify(data);
+      this.doc.head?.appendChild(script);
+    } catch (e) {
+      // Silently fail if DOM manipulation not available
+      console.error('Failed to inject JSON-LD:', e);
+    }
   }
 }
