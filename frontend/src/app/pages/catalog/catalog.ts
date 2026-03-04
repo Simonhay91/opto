@@ -262,8 +262,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.searchQuery = '';
     this.selectedCategoryId = null;
     this.selectedBrandId = null;
+    this.selectedCategorySlug = null;
     this.inStockOnly = false;
+    this.selectedAttributes.clear();
+    this.attributes.set([]);
     this.criteria = { page: 1, limit: 24, sortBy: 'newest' };
+    this.router.navigate(['/catalog']);
     this.loadProducts();
   }
 
