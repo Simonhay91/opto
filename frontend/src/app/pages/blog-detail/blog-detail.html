@@ -59,12 +59,12 @@
       </header>
 
       <!-- Cover Image -->
-      @if (blog()!.coverImage) {
+      @if (blog()!.image || blog()!.coverImage) {
         <div class="container mx-auto px-4 md:px-8 max-w-6xl py-8">
           <div class="aspect-video bg-slate-100 dark:bg-slate-800 overflow-hidden">
             <img 
               [src]="getBlogImage(blog()!)" 
-              [alt]="blog()!.title"
+              [alt]="getBlogTitle(blog()!)"
               class="w-full h-full object-cover">
           </div>
         </div>
