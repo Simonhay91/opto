@@ -155,8 +155,9 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onSearch() { this.searchSubject.next(this.searchQuery); }
 
-  onCategoryChange(id: number) {
-    this.selectedCategoryId = this.selectedCategoryId === id ? null : id;
+  onCategoryChange(id: number | string) {
+    const numId = typeof id === 'string' ? parseInt(id, 10) : id;
+    this.selectedCategoryId = this.selectedCategoryId === numId ? null : numId;
     this.criteria.page = 1;
     this.loadProducts();
   }
