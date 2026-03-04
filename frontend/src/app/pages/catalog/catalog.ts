@@ -178,11 +178,14 @@ export class CatalogComponent implements OnInit, OnDestroy {
   loadCategoryAttributes(slug: string) {
     this.cs.getAttributes(slug).subscribe({
       next: (data: CategoryAttributesDto) => {
-        // Set subcategories if available
-        if (data.children && data.children.length > 0) {
-          this.subcategories.set(data.children);
-        } else {
-          this.subcategories.set([]);
+        // Get subcategories from main categories list
+        if (this.selectedCategoryId !== null) {
+          const mainCategory = this.categories().find(c => c.id === this.selectedCategoryId);
+          if (mainCategory?.children && mainCategory.children.length > 0) {
+            this.subcategories.set(mainCategory.children);
+          } else {
+            this.subcategories.set([]);
+          }
         }
         
         // Filter only SELECTION type attributes
