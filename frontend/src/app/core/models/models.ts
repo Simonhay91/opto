@@ -207,6 +207,15 @@ export interface BlogDto {
 }
 
 
+export interface BecomePartner {
+  name: string;
+  email: string;
+  message?: string;
+  partnershipType: 'INDIVIDUAL' | 'SMALL_BUSINESS' | 'LARGE_BUSINESS';
+  partnershipAim: 'DISCOUNT' | 'MARKETING_COLLABORATION' | 'BULK_ORDERS' | 'REFERRALS';
+}
+
+
 export interface SliderDto {
   id: string;
   title?: string;
