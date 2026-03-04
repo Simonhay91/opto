@@ -46,13 +46,8 @@ export class HeaderComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.ps.getPartner().subscribe({
-      next: (p: any) => {
-        if (p?.name) this.partnerName.set(p.name);
-        if (p?.logoImage) this.partnerLogo.set(getImageUrl(p.logoImage, 'medium'));
-      },
-      error: () => {}
-    });
+    // Using static logo from assets
+    // Partner data can be loaded later if needed
   }
 
   @HostListener('window:scroll')
