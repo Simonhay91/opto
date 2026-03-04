@@ -48,6 +48,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
   selectedAttributes: Map<string | number, string[]> = new Map();
   inStockOnly = false;
   sidebarOpen = false;
+  
+  // Category navigation
+  categoryBreadcrumb: CategoryDto[] = [];
+  currentCategoryLevel: CategoryDto[] = [];
+  allCategoriesData: CategoryDto[] = [];
+  
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
 
