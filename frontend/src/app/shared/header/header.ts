@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { QuoteModalComponent } from '../quote-modal/quote-modal';
 import { CartModalComponent } from '../cart-modal/cart-modal';
+import { getImageUrl } from '../../core/models/models';
 
 @Component({
   selector: 'app-header',
@@ -48,7 +49,7 @@ export class HeaderComponent implements OnInit {
     this.ps.getPartner().subscribe({
       next: (p: any) => {
         if (p?.name) this.partnerName.set(p.name);
-        if (p?.logoImage) this.partnerLogo.set(p.logoImage);
+        if (p?.logoImage) this.partnerLogo.set(getImageUrl(p.logoImage, 'medium'));
       },
       error: () => {}
     });
