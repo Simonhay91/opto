@@ -188,9 +188,5 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   goToSlide(i: number) { this.currentSlide.set(i); }
 
-  getSliderImage(s: SliderDto): string {
-    return s.imageUrl || s.image || 'https://images.unsplash.com/photo-1642999754574-e8c4709f4169?w=1600&q=80';
-  }
-
   ngOnDestroy() { if (this.slideInterval) clearInterval(this.slideInterval); }
 }
