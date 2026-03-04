@@ -74,7 +74,7 @@ export class BlogComponent implements OnInit {
   }
 
   getBlogImage(blog: BlogDto): string {
-    return getImageUrl(blog.coverImage, 'large');
+    return getImageUrl(blog.image || blog.coverImage, 'large');
   }
 
   formatDate(dateStr: string | undefined): string {
@@ -85,10 +85,24 @@ export class BlogComponent implements OnInit {
 
   getExcerpt(blog: BlogDto): string {
     if (blog.excerpt) return blog.excerpt;
+    if (blog.summary) return blog.summary;
     if (blog.content) {
       const text = blog.content.replace(/<[^>]*>/g, '');
       return text.substring(0, 150) + (text.length > 150 ? '...' : '');
     }
+    return '';
+  }
+
+  getBlogTitle(blog: BlogDto): string {
+    return blog.title || blog.name || 'Untitled';
+  }
+
+  getBlogAuthor(blog: BlogDto): string {
+    if (typeof blog.author === 'string') return blog.author;
+    if (blog.author?.firstName && blog.author?.lastName) {
+      return `${blog.author.firstName} ${blog.author.lastName}`;
+    }
+    if (blog.author?.firstName) return blog.author.firstName;
     return '';
   }
 }
