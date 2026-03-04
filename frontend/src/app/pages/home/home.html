@@ -6,68 +6,77 @@
     </div>
   }
 
-  <!-- Slides -->
-  <div class="h-full overflow-hidden">
-    @for (slider of sliders(); track slider.id; let i = $index) {
-      <div class="absolute inset-0 transition-opacity duration-700"
-           [style.opacity]="currentSlide() === i ? '1' : '0'"
-           [style.z-index]="currentSlide() === i ? '1' : '0'">
-        <img [src]="getSliderImage(slider)" [alt]="slider.title || 'Optowire'"
-             class="w-full h-full object-cover" loading="lazy">
-        <!-- Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-transparent"></div>
-        <!-- Content -->
-        <div class="absolute inset-0 flex items-center">
-          <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-            <div class="max-w-xl" style="animation: slideUp 0.6s ease-out;">
-              <div class="flex items-center gap-2 mb-3">
-                <div class="h-px w-8 bg-cyan-500"></div>
-                <span class="text-cyan-400 text-xs font-mono uppercase tracking-widest">Qingdao, China · 中国制造</span>
-              </div>
-              @if (slider.title) {
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight mb-4">
-                  {{slider.title}}
-                </h1>
-              }
-              @if (slider.subtitle) {
-                <p class="text-lg text-slate-300 mb-8">{{slider.subtitle}}</p>
-              }
-              @if (slider.link) {
-                <a [href]="slider.link"
-                   class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white font-bold uppercase tracking-wide px-8 py-3 transition-colors">
-                  {{slider.buttonText || lang.t('viewAll')}}
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                  </svg>
-                </a>
-              }
-            </div>
+  @if (sliders().length === 0 && !slidersLoading()) {
+    <!-- Fallback if no sliders -->
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1642999754574-e8c4709f4169?w=1600&q=80" 
+           alt="Optowire" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-900/50 to-transparent"></div>
+      <div class="absolute inset-0 flex items-center">
+        <div class="container mx-auto px-4 md:px-8 max-w-7xl">
+          <div class="max-w-xl">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white leading-tight mb-4">
+              High-Performance Fiber Optic Cables
+            </h1>
+            <p class="text-lg text-slate-300 mb-8">Connecting the World with Precision</p>
+            <a routerLink="/catalog"
+               class="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white font-bold uppercase tracking-wide px-8 py-3 transition-colors">
+              Explore Products
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </a>
           </div>
         </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 
-  <!-- Slider Controls -->
-  @if (sliders().length > 1) {
-    <button (click)="prevSlide()"
-            class="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur text-white flex items-center justify-center transition-colors"
-            data-testid="slider-prev">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-      </svg>
-    </button>
-    <button (click)="nextSlide()"
-            class="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur text-white flex items-center justify-center transition-colors"
-            data-testid="slider-next">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-      </svg>
-    </button>
-    <!-- Dots -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-      @for (s of sliders(); track s.id; let i = $index) {
-        <button (click)="goToSlide(i)"
+  <!-- Slides -->
+  @if (sliders().length > 0) {
+    <div class="h-full overflow-hidden">
+      @for (slider of sliders(); track slider.id; let i = $index) {
+        <a [href]="slider.url" 
+           class="absolute inset-0 transition-opacity duration-700 cursor-pointer"
+           [style.opacity]="currentSlide() === i ? '1' : '0'"
+           [style.z-index]="currentSlide() === i ? '1' : '0'"
+           [style.pointer-events]="currentSlide() === i ? 'auto' : 'none'">
+          <!-- Desktop Image -->
+          <img [src]="getSliderImage(slider, 'desktop')" 
+               [alt]="'Slide ' + (i + 1)"
+               class="hidden md:block w-full h-full object-cover" 
+               loading="lazy">
+          <!-- Mobile Image -->
+          <img [src]="getSliderImage(slider, 'mobile')" 
+               [alt]="'Slide ' + (i + 1)"
+               class="md:hidden w-full h-full object-cover" 
+               loading="lazy">
+          <!-- Overlay -->
+          <div class="absolute inset-0 bg-gradient-to-r from-slate-900/60 via-slate-900/30 to-transparent"></div>
+        </a>
+      }
+    </div>
+
+    <!-- Slider Controls -->
+    @if (sliders().length > 1) {
+      <button (click)="prevSlide()"
+              class="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur text-white flex items-center justify-center transition-colors"
+              data-testid="slider-prev">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <button (click)="nextSlide()"
+              class="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 backdrop-blur text-white flex items-center justify-center transition-colors"
+              data-testid="slider-next">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <!-- Dots -->
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+        @for (s of sliders(); track s.id; let i = $index) {
+          <button (click)="goToSlide(i)"
                 [class]="'transition-all duration-300 ' + (currentSlide() === i ? 'w-6 h-2 bg-cyan-500' : 'w-2 h-2 bg-white/50 hover:bg-white/80')"
                 [attr.data-testid]="'slider-dot-' + i">
         </button>
