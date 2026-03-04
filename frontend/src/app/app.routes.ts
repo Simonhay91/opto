@@ -22,7 +22,7 @@ export const routes: Routes = [
     title: 'Products by Brand - Optowire',
   },
   {
-    path: 'product/**',
+    path: 'product/:slug',
     loadComponent: () => import('./pages/product-detail/product-detail').then(m => m.ProductDetailComponent),
   },
   {
