@@ -273,7 +273,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
     } else {
       // Clear everything when no category selected
       this.selectedCategorySlug = null;
-      this.subcategories.set([]);
       this.attributes.set([]);
       this.selectedAttributes.clear();
     }
