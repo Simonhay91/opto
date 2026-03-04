@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { ProductDto } from '../models/models';
 
 export interface CartItem {
@@ -9,6 +10,7 @@ export interface CartItem {
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private storageKey = 'optowire_cart';
+  private platformId = inject(PLATFORM_ID);
   
   items = signal<CartItem[]>([]);
   
@@ -17,7 +19,7 @@ export class CartService {
   }
   
   private loadFromStorage() {
-    if (typeof window !== 'undefined' && window.localStorage) {
+    if (isPlatformBrowser(this.platformId)) {
       try {
         const data = localStorage.getItem(this.storageKey);
         if (data) {
@@ -30,7 +32,7 @@ export class CartService {
   }
   
   private saveToStorage() {
-    if (typeof window !== 'undefined' && window.localStorage) {
+    if (isPlatformBrowser(this.platformId)) {
       try {
         localStorage.setItem(this.storageKey, JSON.stringify(this.items()));
       } catch (e) {
