@@ -87,19 +87,28 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadSliders() {
     this.slidersLoading.set(true);
-    this.ps.getSliders().subscribe({
-      next: (data: any) => {
-        const arr = Array.isArray(data) ? data : data?.items || [];
-        this.sliders.set(arr.length ? arr : this.fallbackSliders);
+    this.sliderService.getAll().subscribe({
+      next: (data: Slider[]) => {
+        // Sort by priority descending (higher priority first)
+        const sorted = [...data].sort((a, b) => b.priority - a.priority);
+        this.sliders.set(sorted);
         this.slidersLoading.set(false);
         if (isPlatformBrowser(this.platformId)) this.startAutoSlide();
       },
       error: () => {
-        this.sliders.set(this.fallbackSliders);
+        this.sliders.set([]);
         this.slidersLoading.set(false);
-        if (isPlatformBrowser(this.platformId)) this.startAutoSlide();
       }
     });
+  }
+
+  getSliderImage(slider: Slider, size: 'mobile' | 'desktop' = 'desktop'): string {
+    if (!slider.image) return '/assets/no-image.png';
+    
+    if (size === 'mobile' && slider.image.path636px) {
+      return getImageUrl(slider.image, 'medium');
+    }
+    return getImageUrl(slider.image, 'large');
   }
 
   loadCategories() {
