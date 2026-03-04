@@ -32,8 +32,7 @@ app.use('/api', createProxyMiddleware({
   changeOrigin: true,
   pathRewrite: {
     '^/api': '/api'
-  },
-  logLevel: 'debug'
+  }
 }));
 
 /**
