@@ -10,7 +10,7 @@
       <!-- Logo -->
       <a routerLink="/" class="flex items-center gap-2 group" data-testid="header-logo">
         @if (partnerLogo()) {
-          <img [src]="partnerLogo()" [alt]="partnerName()" class="h-12 w-auto object-contain">
+          <img [src]="partnerLogo()" [alt]="partnerName()" class="h-12 md:h-14 w-auto object-contain">
         } @else {
           <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-cyan-500 flex items-center justify-center">
