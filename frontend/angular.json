@@ -62,14 +62,7 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": [
-                "product-explorer-4.preview.emergentagent.com",
-                "planet-catalog.preview.emergentagent.com",
-                "product-catalog-185.preview.emergentagent.com",
-                "optowire.preview.emergentagent.com",
-                "dev.planetworkspace.com",
-                "localhost"
-              ]
+              "allowedHosts": true
             },
             "ssr": {
               "entry": "src/server.ts"
