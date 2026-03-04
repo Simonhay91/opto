@@ -32,6 +32,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
+  attributes = signal<AttributeDto[]>([]);
   loading = signal(true);
   totalItems = signal(0);
   totalPages = signal(1);
@@ -40,6 +41,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
   searchQuery = '';
   selectedCategoryId: number | null = null;
   selectedBrandId: number | null = null;
+  selectedCategorySlug: string | null = null;
+  selectedAttributes: Map<string | number, string[]> = new Map();
   inStockOnly = false;
   sidebarOpen = false;
   private destroy$ = new Subject<void>();
