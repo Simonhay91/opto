@@ -158,12 +158,16 @@ export interface BrandDto {
 
 export interface BlogDto {
   id: string | number;
-  title: string;
+  name?: string;
+  title?: string;
   slug: string;
   content?: string;
+  summary?: string;
   excerpt?: string;
+  image?: Image;
   coverImage?: Image;
-  author?: string;
+  author?: any;
+  date?: string;
   publishedAt?: string;
   createdAt?: string;
   updatedAt?: string;
