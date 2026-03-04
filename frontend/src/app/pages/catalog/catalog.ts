@@ -233,6 +233,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
     const numId = typeof id === 'string' ? parseInt(id, 10) : id;
     this.selectedCategoryId = this.selectedCategoryId === numId ? null : numId;
     
+    // Reset subcategory selection when changing main category
+    this.selectedSubcategoryId = null;
+    this.selectedSubcategorySlug = null;
+    
     // Load attributes for the selected category
     if (this.selectedCategoryId !== null) {
       const category = SUPPORTED_CATEGORIES.find(c => c.id === this.selectedCategoryId);
@@ -241,10 +245,33 @@ export class CatalogComponent implements OnInit, OnDestroy {
         this.loadCategoryAttributes(category.slug);
       }
     } else {
-      // Clear attributes when no category selected
+      // Clear everything when no category selected
       this.selectedCategorySlug = null;
+      this.subcategories.set([]);
       this.attributes.set([]);
       this.selectedAttributes.clear();
+    }
+    
+    this.criteria.page = 1;
+    this.loadProducts();
+  }
+
+  onSubcategoryChange(subcategory: CategoryDto) {
+    // Toggle subcategory selection
+    if (this.selectedSubcategoryId === subcategory.id) {
+      this.selectedSubcategoryId = null;
+      this.selectedSubcategorySlug = null;
+      // Load parent category attributes
+      if (this.selectedCategorySlug) {
+        this.loadCategoryAttributes(this.selectedCategorySlug);
+      }
+    } else {
+      this.selectedSubcategoryId = subcategory.id as number;
+      this.selectedSubcategorySlug = subcategory.slug || null;
+      // Load subcategory attributes
+      if (subcategory.slug) {
+        this.loadCategoryAttributes(subcategory.slug);
+      }
     }
     
     this.criteria.page = 1;
