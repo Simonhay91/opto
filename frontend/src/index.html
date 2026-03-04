@@ -11,10 +11,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script>
     (function() {
+      // Theme
       var t = localStorage.getItem('theme');
       if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
       }
+      // Backend URL for client-side requests
+      window.__ENV = window.__ENV || {};
+      window.__ENV.BACKEND_URL = 'https://product-catalog-185.preview.emergentagent.com';
     })();
   </script>
 </head>
