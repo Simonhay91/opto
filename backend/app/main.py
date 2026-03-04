@@ -4,7 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from contextlib import asynccontextmanager
 
 from app.config import settings
-from app.routes import products, categories, brands, blog, partner, checkout
+from app.routes import products, categories, brands, blog, partner, checkout, sliders
 
 # MongoDB client
 mongo_client = None
@@ -56,6 +56,7 @@ app.include_router(brands.router, prefix="/api")
 app.include_router(blog.router, prefix="/api")
 app.include_router(partner.router, prefix="/api")
 app.include_router(checkout.router, prefix="/api")
+app.include_router(sliders.router, prefix="/api")
 
 # Get database instance
 def get_db():
