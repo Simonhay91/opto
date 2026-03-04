@@ -92,8 +92,8 @@
             </div>
           }
 
-          <!-- Brands -->
-          @if (brands().length) {
+          <!-- Brands - HIDDEN as per user request -->
+          @if (false && brands().length) {
             <div class="mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('brands')}}</h4>
               <div class="space-y-1 max-h-48 overflow-y-auto">
@@ -107,6 +107,7 @@
               </div>
             </div>
           }
+
 
           <!-- Attributes -->
           @if (attributes().length > 0) {
