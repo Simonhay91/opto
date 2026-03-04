@@ -38,41 +38,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   promoUnits = signal<any[]>([]);
   private slideInterval: any;
 
-  // Fallback sliders when API not available
-  fallbackSliders: SliderDto[] = [
-    {
-      id: '1',
-      title: 'High-Performance Fiber Optic Cables',
-      subtitle: 'Connecting the World with Precision',
-      imageUrl: 'https://images.unsplash.com/photo-1642999754574-e8c4709f4169?w=1600&q=80',
-      buttonText: 'Explore Products',
-      link: '/catalog',
-    },
-    {
-      id: '2',
-      title: 'Network Equipment Solutions',
-      subtitle: 'Enterprise-Grade Connectivity',
-      imageUrl: 'https://images.unsplash.com/photo-1663932210347-164a05ed0ccd?w=1600&q=80',
-      buttonText: 'View Catalog',
-      link: '/catalog',
-    },
-    {
-      id: '3',
-      title: 'IoT & Security Systems',
-      subtitle: 'Smart Solutions for Modern Infrastructure',
-      imageUrl: 'https://images.unsplash.com/photo-1469289759076-d1484757abc3?w=1600&q=80',
-      buttonText: 'Discover More',
-      link: '/catalog',
-    },
-  ];
-
-  fallbackCategories = [
-    { id: '1', name: 'Telecommunication', icon: 'T', desc: '电信 · Fiber, ODN, Data Center' },
-    { id: '2', name: 'Network Equipment', icon: 'N', desc: '网络设备 · Switches, Transceivers' },
-    { id: '3', name: 'Security Systems', icon: 'S', desc: '安防 · CCTV, Access Control' },
-    { id: '4', name: 'IoT Solutions', icon: 'I', desc: '物联网 · Smart Devices, Sensors' },
-  ];
-
   // Supported categories with icons
   supportedCategories = SUPPORTED_CATEGORIES;
 
