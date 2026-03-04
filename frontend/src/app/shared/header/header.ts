@@ -39,6 +39,7 @@ export class HeaderComponent implements OnInit {
     { key: 'home', path: '/' },
     { key: 'catalog', path: '/catalog' },
     { key: 'brands', path: '/brands' },
+    { key: 'blog', path: '/blog' },
     { key: 'about', path: '/about' },
     { key: 'contact', path: '/contact' },
   ];
