@@ -35,26 +35,16 @@ export class ProductDetailComponent implements OnInit {
   addedToCart = signal(false);
 
   ngOnInit() {
-    // Subscribe to router events for reloading on same route navigation
-    this.router.events.subscribe(event => {
-      if (event.constructor.name === 'NavigationEnd') {
-        this.loadFromUrl();
-      }
-    });
-    
-    // Initial load
-    this.loadFromUrl();
-  }
-  
-  private loadFromUrl() {
-    // Get slug from URL - handle /product/**
-    const url = this.router.url.split('?')[0]; // Remove query params
-    if (url.startsWith('/product/')) {
-      const slug = url.substring('/product/'.length);
-      if (slug && slug !== this.product()?.slug) {
+    // Subscribe to route parameter changes for SPA navigation
+    this.route.paramMap.subscribe(params => {
+      const slug = params.get('slug');
+      if (slug) {
+        // Reset state before loading new product
+        this.activeImageIdx.set(0);
+        this.activeTab.set('description');
         this.loadProduct(slug);
       }
-    }
+    });
   }
 
   loadProduct(slug: string) {
