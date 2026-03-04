@@ -40,9 +40,10 @@ export class ProductCardComponent {
   
   navigateToProduct(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
     if (this.product?.slug) {
-      // Force page reload for proper navigation
-      window.location.href = `/product/${this.product.slug}`;
+      // Use Angular Router for SPA navigation
+      this.router.navigate(['/product', this.product.slug]);
     }
   }
 }
