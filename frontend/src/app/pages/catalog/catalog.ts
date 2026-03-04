@@ -31,6 +31,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
+  subcategories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
   attributes = signal<AttributeDto[]>([]);
   loading = signal(true);
@@ -40,8 +41,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
   criteria: ProductCriteriaDto = { page: 1, limit: 24, sortBy: 'newest' };
   searchQuery = '';
   selectedCategoryId: number | null = null;
+  selectedSubcategoryId: number | null = null;
   selectedBrandId: number | null = null;
   selectedCategorySlug: string | null = null;
+  selectedSubcategorySlug: string | null = null;
   selectedAttributes: Map<string | number, string[]> = new Map();
   inStockOnly = false;
   sidebarOpen = false;
