@@ -38,8 +38,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   criteria: ProductCriteriaDto = { page: 1, limit: 24, sortBy: 'newest' };
   searchQuery = '';
-  selectedCategoryId = '';
-  selectedBrandId = '';
+  selectedCategoryId: number | null = null;
+  selectedBrandId: number | null = null;
   inStockOnly = false;
   sidebarOpen = false;
   private destroy$ = new Subject<void>();
