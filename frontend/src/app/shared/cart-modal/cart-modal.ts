@@ -65,29 +65,27 @@ export class CartModalComponent {
   }
   
   submitQuote() {
-    if (!this.form.name || !this.form.email) {
-      this.error.set('Please fill in required fields');
+    if (!this.form.email) {
+      this.error.set('Email is required');
       return;
     }
     
     this.submitting.set(true);
     this.error.set('');
     
+    // Format products according to API spec: { productId, stockAmount }
     const products = this.cart.items().map(item => ({
       productId: item.product.id,
-      productName: item.product.name,
-      model: item.product.model,
-      quantity: item.quantity
+      stockAmount: item.quantity
     }));
     
     const payload = {
-      ...this.form,
-      products,
-      totalItems: this.cart.totalItems,
-      source: 'cart_quote'
+      email: this.form.email,
+      products
     };
     
-    this.api.post('/proxy/web/project-inquiry', payload).subscribe({
+    // Use new global-preorder endpoint
+    this.api.post('/proxy/web/checkout/global-preorder', payload).subscribe({
       next: () => {
         this.submitting.set(false);
         this.submitted.set(true);
