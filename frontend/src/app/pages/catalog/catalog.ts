@@ -221,6 +221,21 @@ export class CatalogComponent implements OnInit, OnDestroy {
   onCategoryChange(id: number | string) {
     const numId = typeof id === 'string' ? parseInt(id, 10) : id;
     this.selectedCategoryId = this.selectedCategoryId === numId ? null : numId;
+    
+    // Load attributes for the selected category
+    if (this.selectedCategoryId !== null) {
+      const category = SUPPORTED_CATEGORIES.find(c => c.id === this.selectedCategoryId);
+      if (category?.slug) {
+        this.selectedCategorySlug = category.slug;
+        this.loadCategoryAttributes(category.slug);
+      }
+    } else {
+      // Clear attributes when no category selected
+      this.selectedCategorySlug = null;
+      this.attributes.set([]);
+      this.selectedAttributes.clear();
+    }
+    
     this.criteria.page = 1;
     this.loadProducts();
   }
