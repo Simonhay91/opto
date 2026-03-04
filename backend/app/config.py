@@ -20,7 +20,7 @@ class Settings:
     CORS_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:4200",
-        "https://product-explorer-4.preview.emergentagent.com",
+        "https://product-catalog-185.preview.emergentagent.com",
     ]
 
 settings = Settings()

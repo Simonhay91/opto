@@ -918,13 +918,13 @@ class ProjectInquiryRequest(BaseModel):
 ```env
 MONGO_URL=mongodb://localhost:27017
 DB_NAME=full-stack
-PARTNER_KEY=94fa5fc3-9534-4bb5-8722-f724f84a5594
+PARTNER_KEY=product-catalog-185
 API_BASE_URL=https://dev.planetworkspace.com/api
 ```
 
 **Frontend (.env):**
 ```env
-REACT_APP_BACKEND_URL=https://product-explorer-4.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://product-catalog-185.preview.emergentagent.com
 ```
 
 ### 9.2 Supported Categories
@@ -1104,7 +1104,7 @@ cd /app/backend
 - Backend: `/app/backend`
 
 **Live URL:**
-- Production: https://product-explorer-4.preview.emergentagent.com
+- Production: https://product-catalog-185.preview.emergentagent.com
 
 ---
 
