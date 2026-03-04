@@ -63,6 +63,7 @@
             "outputMode": "server",
             "security": {
               "allowedHosts": [
+                "product-explorer-4.preview.emergentagent.com",
                 "planet-catalog.preview.emergentagent.com",
                 "localhost"
               ]
