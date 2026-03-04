@@ -148,6 +148,37 @@ export interface CategoryDto {
   productCount?: number;
 }
 
+export interface PeekDto {
+  id: string | number;
+  name: string;
+  slug?: string;
+}
+
+export interface AttributeDto {
+  id: string | number;
+  name: string;
+  type: 'NUMERIC' | 'TEXT' | 'SELECTION';
+  selectionValues?: string[];
+}
+
+export interface CategoryAttributesDto {
+  id: string | number;
+  name: string;
+  slug: string;
+  description?: string;
+  logoImage?: Image;
+  children?: CategoryDto[];
+  attributes?: AttributeDto[];
+  parents?: PeekDto[];
+  brands?: PeekDto[];
+}
+
+export interface AttributeValueDto {
+  id: string | number;
+  values: string[];
+}
+
+
 export interface BrandDto {
   id: string;
   name: string;
