@@ -13,6 +13,22 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+// Configure allowed hosts for SSR security
+const allowedHosts = [
+  'localhost',
+  'preview.emergentagent.com',
+  'product-catalog-185.preview.emergentagent.com',
+  'optowire.preview.emergentagent.com',
+  'dev.planetworkspace.com'
+];
+
+// Add headers middleware
+app.use((req, res, next) => {
+  // Allow SSR to fetch from backend
+  res.setHeader('X-Forwarded-Host', req.hostname);
+  next();
+});
+
 /**
  * Example Express Rest API endpoints can be defined here.
  * Uncomment and define endpoints as necessary.
