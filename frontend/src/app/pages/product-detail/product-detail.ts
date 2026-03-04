@@ -49,6 +49,13 @@ export class ProductDetailComponent implements OnInit {
 
   loadProduct(slug: string) {
     this.loading.set(true);
+    this.error.set(false);
+    
+    // Scroll to top on navigation (only in browser)
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
     this.ps.getProduct(slug).subscribe({
       next: (resp: any) => {
         // API returns { product: {...} }, extract the product object
