@@ -131,7 +131,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
       next: (allCategories: any) => {
         const categoriesArray = Array.isArray(allCategories) ? allCategories : allCategories?.items || [];
         
-        // Filter to only supported categories
+        // Save all categories for navigation
+        this.allCategoriesData = categoriesArray;
+        
+        // Filter to only supported categories for initial display
         const supportedCats = categoriesArray
           .filter((c: any) => SUPPORTED_CATEGORY_IDS.includes(c.id))
           .map((c: any) => {
@@ -142,16 +145,19 @@ export class CatalogComponent implements OnInit, OnDestroy {
             };
           });
         
+        this.currentCategoryLevel = supportedCats;
         this.categories.set(supportedCats);
       },
       error: () => {
         // Fallback to config categories without children
-        this.categories.set(SUPPORTED_CATEGORIES.map(c => ({
+        const fallback = SUPPORTED_CATEGORIES.map(c => ({
           id: c.id,
           name: c.name,
           slug: c.slug,
           icon: c.icon
-        } as CategoryDto)));
+        } as CategoryDto));
+        this.currentCategoryLevel = fallback;
+        this.categories.set(fallback);
       }
     });
     
