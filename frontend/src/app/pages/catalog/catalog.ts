@@ -76,6 +76,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
       if (p['category']) { 
         // Convert to number for proper comparison
         this.selectedCategoryId = parseInt(p['category'], 10);
+        // Find category slug for loading attributes
+        const category = SUPPORTED_CATEGORIES.find(c => c.id === this.selectedCategoryId);
+        if (category?.slug) {
+          this.selectedCategorySlug = category.slug;
+          this.loadCategoryAttributes(category.slug);
+        }
         shouldReload = true;
       }
       if (p['brand']) {
