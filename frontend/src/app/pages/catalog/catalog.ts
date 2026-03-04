@@ -120,13 +120,34 @@ export class CatalogComponent implements OnInit, OnDestroy {
   supportedCategories = SUPPORTED_CATEGORIES;
 
   loadFilters() {
-    // Use only supported categories - ensure proper typing
-    this.categories.set(SUPPORTED_CATEGORIES.map(c => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      icon: c.icon
-    } as CategoryDto)));
+    // Load full categories from API to get children
+    this.cs.getAll().subscribe({
+      next: (allCategories: any) => {
+        const categoriesArray = Array.isArray(allCategories) ? allCategories : allCategories?.items || [];
+        
+        // Filter to only supported categories
+        const supportedCats = categoriesArray
+          .filter((c: any) => SUPPORTED_CATEGORY_IDS.includes(c.id))
+          .map((c: any) => {
+            const config = SUPPORTED_CATEGORIES.find(sc => sc.id === c.id);
+            return {
+              ...c,
+              icon: config?.icon // Add icon from config
+            };
+          });
+        
+        this.categories.set(supportedCats);
+      },
+      error: () => {
+        // Fallback to config categories without children
+        this.categories.set(SUPPORTED_CATEGORIES.map(c => ({
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          icon: c.icon
+        } as CategoryDto)));
+      }
+    });
     
     this.bs.getAll().subscribe({ next: (b: any) => this.brands.set(Array.isArray(b) ? b : b?.items || []), error: () => {} });
   }
