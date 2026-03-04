@@ -138,10 +138,11 @@ export interface PagedResult<T> {
 }
 
 export interface CategoryDto {
-  id: string;
+  id: string | number;
   name: string;
   slug?: string;
   image?: string;
+  icon?: string;
   parentId?: string;
   children?: CategoryDto[];
   productCount?: number;
