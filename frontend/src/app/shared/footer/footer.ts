@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LangService } from '../../core/services/lang.service';
-import { CategoryService } from '../../core/services/category.service';
+import { SUPPORTED_CATEGORIES } from '../../core/config/categories.config';
 
 @Component({
   selector: 'app-footer',
@@ -11,7 +11,6 @@ import { CategoryService } from '../../core/services/category.service';
 })
 export class FooterComponent implements OnInit {
   lang = inject(LangService);
-  private cs = inject(CategoryService);
 
   categories = signal<any[]>([]);
   year = new Date().getFullYear();
@@ -24,9 +23,7 @@ export class FooterComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.cs.getAll().subscribe({
-      next: (cats: any[]) => this.categories.set((cats || []).slice(0, 6)),
-      error: () => {}
-    });
+    // Use supported categories instead of API call
+    this.categories.set(SUPPORTED_CATEGORIES);
   }
 }
