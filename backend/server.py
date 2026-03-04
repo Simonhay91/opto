@@ -137,7 +137,7 @@ async def get_categories(locale: Optional[str] = None):
     return await proxy_get("/web/category", extra_headers=headers)
 
 
-@api_router.get("/proxy/web/category/{slug}/attributes")
+@api_router.get("/proxy/web/category/{slug:path}/attributes")
 async def get_category_attributes(slug: str, locale: Optional[str] = None):
     headers = {"x-locale-code": locale} if locale else {}
     return await proxy_get(f"/web/category/{slug}/attributes", extra_headers=headers)
