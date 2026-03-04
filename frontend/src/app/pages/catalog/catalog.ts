@@ -406,28 +406,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
-  onSubcategoryChange(subcategory: CategoryDto) {
-    // Toggle subcategory selection
-    if (this.selectedSubcategoryId === subcategory.id) {
-      this.selectedSubcategoryId = null;
-      this.selectedSubcategorySlug = null;
-      // Load parent category attributes
-      if (this.selectedCategorySlug) {
-        this.loadCategoryAttributes(this.selectedCategorySlug);
-      }
-    } else {
-      this.selectedSubcategoryId = subcategory.id as number;
-      this.selectedSubcategorySlug = subcategory.slug || null;
-      // Load subcategory attributes
-      if (subcategory.slug) {
-        this.loadCategoryAttributes(subcategory.slug);
-      }
-    }
-    
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
   onBrandChange(id: number) {
     this.selectedBrandId = this.selectedBrandId === id ? null : id;
     this.criteria.page = 1;
