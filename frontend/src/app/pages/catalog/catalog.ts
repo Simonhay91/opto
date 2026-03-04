@@ -108,13 +108,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
   supportedCategories = SUPPORTED_CATEGORIES;
 
   loadFilters() {
-    // Use only supported categories
+    // Use only supported categories - ensure proper typing
     this.categories.set(SUPPORTED_CATEGORIES.map(c => ({
       id: c.id,
       name: c.name,
       slug: c.slug,
       icon: c.icon
-    } as any)));
+    } as CategoryDto)));
     
     this.bs.getAll().subscribe({ next: (b: any) => this.brands.set(Array.isArray(b) ? b : b?.items || []), error: () => {} });
   }
