@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit {
   private router = inject(Router);
 
   partnerName = signal('Optowire');
-  partnerLogo = signal('');
+  partnerLogo = signal('/assets/images/optowire-logo.png');
   scrolled = signal(false);
   menuOpen = signal(false);
   searchQuery = signal('');
