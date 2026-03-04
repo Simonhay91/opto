@@ -167,7 +167,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.ps.explore(this.buildCriteria()).subscribe({
       next: (r: any) => {
-        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
+        // API returns "products" not "items"
+        const items = r?.products || r?.items || (Array.isArray(r) ? r : []);
         this.products.set(items);
         this.totalItems.set(r?.total || items.length);
         this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / (this.criteria.limit || 24)));
