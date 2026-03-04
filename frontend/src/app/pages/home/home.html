@@ -84,14 +84,8 @@
     }
   }
 </section>
-                [class]="'transition-all duration-300 ' + (currentSlide() === i ? 'w-6 h-2 bg-cyan-500' : 'w-2 h-2 bg-white/50 hover:bg-white/80')"
-                [attr.data-testid]="'slider-dot-' + i">
-        </button>
-      }
-    </div>
-  }
 
-  <!-- Bottom Ticker -->
+<!-- Bottom Ticker -->
   <div class="absolute bottom-0 left-0 right-0 bg-cyan-500/90 backdrop-blur py-2 z-10">
     <div class="container mx-auto px-4 md:px-8 max-w-7xl flex items-center gap-6 overflow-hidden">
       <span class="text-xs font-mono font-bold text-white uppercase shrink-0">LIVE</span>
