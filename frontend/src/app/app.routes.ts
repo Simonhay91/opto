@@ -60,6 +60,11 @@ export const routes: Routes = [
     title: 'Become Our Partner - Optowire',
   },
   {
+    path: 'faq',
+    loadComponent: () => import('./pages/faq/faq').then(m => m.FaqComponent),
+    title: 'FAQ - Optowire',
+  },
+  {
     path: '**',
     redirectTo: '',
   },
