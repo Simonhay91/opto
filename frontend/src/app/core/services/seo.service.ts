@@ -80,6 +80,31 @@ export class SeoService {
     this.injectJsonLd(schema);
   }
 
+  setArticleSchema(title: string, description: string, imageUrl: string, publishedDate: string, author: string) {
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: title,
+      description,
+      image: imageUrl,
+      datePublished: publishedDate,
+      author: {
+        '@type': 'Person',
+        name: author,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Optowire',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://optowire.net/assets/logo.png',
+        },
+      },
+    };
+    this.injectJsonLd(schema);
+  }
+
+
   private injectJsonLd(data: object) {
     const existing = this.doc.head.querySelector('script[type="application/ld+json"]');
     if (existing) existing.remove();
