@@ -253,6 +253,24 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
+  getAttributeValue(value: any): string {
+    // Handle both string and object values
+    if (typeof value === 'string') {
+      return value;
+    }
+    // If it's an object, try to extract the value
+    return value?.value || value?.name || value?.id || String(value);
+  }
+
+  getAttributeValueLabel(value: any): string {
+    // Handle both string and object values for display
+    if (typeof value === 'string') {
+      return value;
+    }
+    // If it's an object, try to extract the label
+    return value?.label || value?.name || value?.value || String(value);
+  }
+
   onSearch() { this.searchSubject.next(this.searchQuery); }
 
   onCategoryChange(id: number | string) {
