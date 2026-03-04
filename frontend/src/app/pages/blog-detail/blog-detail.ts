@@ -41,19 +41,25 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
         this.blog.set(blog);
         this.loading.set(false);
         
+        const title = blog.title || blog.name || 'Blog Post';
+        
         // Set SEO metadata
         this.seo.setPage(
-          blog.title + ' - Optowire Blog',
+          title + ' - Optowire Blog',
           this.getExcerpt(blog)
         );
         
         // Set article schema for SEO
+        const imageUrl = getImageUrl(blog.image || blog.coverImage, 'large');
+        const publishDate = blog.date || blog.publishedAt || blog.createdAt || '';
+        const authorName = this.getBlogAuthor(blog);
+        
         this.seo.setArticleSchema(
-          blog.title,
+          title,
           this.getExcerpt(blog),
-          blog.coverImage ? getImageUrl(blog.coverImage, 'large') : '',
-          blog.publishedAt || blog.createdAt || '',
-          blog.author || 'Optowire'
+          imageUrl,
+          publishDate,
+          authorName
         );
       },
       error: () => {
@@ -63,7 +69,7 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
   }
 
   getBlogImage(blog: BlogDto): string {
-    return getImageUrl(blog.coverImage, 'large');
+    return getImageUrl(blog.image || blog.coverImage, 'large');
   }
 
   formatDate(dateStr: string | undefined): string {
@@ -74,11 +80,25 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
 
   getExcerpt(blog: BlogDto): string {
     if (blog.excerpt) return blog.excerpt;
+    if (blog.summary) return blog.summary;
     if (blog.content) {
       const text = blog.content.replace(/<[^>]*>/g, '');
       return text.substring(0, 160) + (text.length > 160 ? '...' : '');
     }
     return '';
+  }
+
+  getBlogTitle(blog: BlogDto): string {
+    return blog.title || blog.name || 'Untitled';
+  }
+
+  getBlogAuthor(blog: BlogDto): string {
+    if (typeof blog.author === 'string') return blog.author;
+    if (blog.author?.firstName && blog.author?.lastName) {
+      return `${blog.author.firstName} ${blog.author.lastName}`;
+    }
+    if (blog.author?.firstName) return blog.author.firstName;
+    return 'Optowire';
   }
 
   getSanitizedContent(): SafeHtml {
