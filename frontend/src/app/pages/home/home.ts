@@ -1,12 +1,13 @@
-import { Component, inject, signal, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, OnInit, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
+import { SliderService } from '../../core/services/slider.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
-import { SliderDto, ProductDto, CategoryDto } from '../../core/models/models';
+import { Slider, ProductDto, CategoryDto, getImageUrl } from '../../core/models/models';
 import { SUPPORTED_CATEGORIES } from '../../core/config/categories.config';
 
 interface ProductSection {
@@ -21,14 +22,15 @@ interface ProductSection {
   imports: [CommonModule, RouterLink, ProductCardComponent],
   templateUrl: './home.html',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   private ps = inject(ProductService);
   private cs = inject(CategoryService);
+  private sliderService = inject(SliderService);
   private seo = inject(SeoService);
   private platformId = inject(PLATFORM_ID);
   lang = inject(LangService);
 
-  sliders = signal<SliderDto[]>([]);
+  sliders = signal<Slider[]>([]);
   currentSlide = signal(0);
   slidersLoading = signal(true);
   categories = signal<CategoryDto[]>([]);

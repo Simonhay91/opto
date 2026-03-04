@@ -245,3 +245,12 @@ export interface SectionDto {
   name: string;
   order?: number;
 }
+
+
+export interface Slider {
+  id: number;
+  url: string;
+  priority: number;
+  image: Image;
+  partner?: PartnerDto;
+}
