@@ -227,6 +227,14 @@ async def project_inquiry(request: Request):
         return resp.json()
 
 
+
+# ── Become Partner ─────────────────────────────────────────────────────────
+@api_router.post("/proxy/web/become-partner")
+async def become_partner(request: Request):
+    """Proxy become partner request to external API"""
+    body = await request.json()
+    return await proxy_post("/web/become-partner", body)
+
 @api_router.get("/health")
 async def health():
     return {"status": "ok", "partner_key_set": bool(PARTNER_KEY)}
