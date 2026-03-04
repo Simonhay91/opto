@@ -62,7 +62,11 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": true
+              "allowedHosts": [
+                "*.preview.emergentagent.com",
+                "dev.planetworkspace.com",
+                "localhost"
+              ]
             },
             "ssr": {
               "entry": "src/server.ts"
