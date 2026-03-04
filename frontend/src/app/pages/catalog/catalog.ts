@@ -8,7 +8,7 @@ import { BrandService } from '../../core/services/brand.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
-import { ProductDto, CategoryDto, BrandDto, ProductCriteriaDto } from '../../core/models/models';
+import { ProductDto, CategoryDto, BrandDto, ProductCriteriaDto, AttributeDto, CategoryAttributesDto } from '../../core/models/models';
 import { SUPPORTED_CATEGORIES, SUPPORTED_CATEGORY_IDS } from '../../core/config/categories.config';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 
