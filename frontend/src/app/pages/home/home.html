@@ -77,6 +77,13 @@
       <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
         @for (s of sliders(); track s.id; let i = $index) {
           <button (click)="goToSlide(i)"
+                  [class]="'w-2 h-2 transition-all ' + (currentSlide() === i ? 'bg-cyan-500 w-8' : 'bg-white/50')"
+                  [attr.aria-label]="'Go to slide ' + (i + 1)"></button>
+        }
+      </div>
+    }
+  }
+</section>
                 [class]="'transition-all duration-300 ' + (currentSlide() === i ? 'w-6 h-2 bg-cyan-500' : 'w-2 h-2 bg-white/50 hover:bg-white/80')"
                 [attr.data-testid]="'slider-dot-' + i">
         </button>
