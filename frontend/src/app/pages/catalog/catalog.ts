@@ -31,7 +31,6 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
-  subcategories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
   attributes = signal<AttributeDto[]>([]);
   loading = signal(true);
