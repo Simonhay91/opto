@@ -26,34 +26,15 @@ const angularApp = new AngularNodeAppEngine();
  */
 
 // API Proxy to backend
-app.use('/api', (req, res) => {
-  const backendPort = process.env['BACKEND_PORT'] || '8001';
-  const backendUrl = `http://localhost:${backendPort}${req.url}`;
-  
-  // Simple proxy using fetch
-  fetch(backendUrl, {
-    method: req.method,
-    headers: {
-      'Content-Type': req.headers['content-type'] || 'application/json',
-      ...req.headers
-    },
-    body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined
-  })
-  .then(response => {
-    res.status(response.status);
-    response.headers.forEach((value, key) => {
-      res.setHeader(key, value);
-    });
-    return response.text();
-  })
-  .then(data => {
-    res.send(data);
-  })
-  .catch(error => {
-    console.error('Proxy error:', error);
-    res.status(500).json({ error: 'Proxy error' });
-  });
-});
+const backendPort = process.env['BACKEND_PORT'] || '8001';
+app.use('/api', createProxyMiddleware({
+  target: `http://localhost:${backendPort}`,
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api': '/api'
+  },
+  logLevel: 'debug'
+}));
 
 /**
  * Serve static files from /browser
