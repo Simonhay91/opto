@@ -62,8 +62,8 @@
               <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('brands')}}</h4>
               <div class="space-y-1 max-h-48 overflow-y-auto">
                 @for (brand of brands(); track brand.id) {
-                  <button (click)="onBrandChange(brand.id)"
-                          [class]="'flex items-center w-full text-left px-2 py-1.5 text-xs transition-colors ' + (selectedBrandId === brand.id ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800')"
+                  <button (click)="onBrandChange($any(brand.id))"
+                          [class]="'flex items-center w-full text-left px-2 py-1.5 text-xs transition-colors ' + (selectedBrandId === $any(brand.id) ? 'bg-cyan-50 dark:bg-cyan-900/20 text-cyan-600 dark:text-cyan-400 font-medium' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800')"
                           [attr.data-testid]="'brand-filter-' + brand.id">
                     {{brand.name}}
                   </button>
