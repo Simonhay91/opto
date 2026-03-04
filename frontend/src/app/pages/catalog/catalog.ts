@@ -294,6 +294,118 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
+  navigateToCategory(category: CategoryDto) {
+    // Add to breadcrumb if not already there
+    const existingIndex = this.categoryBreadcrumb.findIndex(c => c.id === category.id);
+    if (existingIndex >= 0) {
+      // User clicked on breadcrumb - go back to that level
+      this.categoryBreadcrumb = this.categoryBreadcrumb.slice(0, existingIndex + 1);
+    } else {
+      // User navigated deeper
+      this.categoryBreadcrumb.push(category);
+    }
+    
+    // Set current selection
+    this.selectedCategoryId = category.id as number;
+    this.selectedCategorySlug = category.slug || null;
+    
+    // Show children of this category as current level
+    if (category.children && category.children.length > 0) {
+      this.currentCategoryLevel = category.children;
+      this.categories.set(category.children);
+    } else {
+      // No children - load from API
+      this.findAndSetCategoryChildren(category.id);
+    }
+    
+    // Load attributes for this category
+    if (category.slug) {
+      this.loadCategoryAttributes(category.slug);
+    }
+    
+    // Reload products
+    this.criteria.page = 1;
+    this.loadProducts();
+  }
+
+  findAndSetCategoryChildren(categoryId: string | number) {
+    // Search for category in all data and set its children
+    const findCategory = (cats: CategoryDto[]): CategoryDto | null => {
+      for (const cat of cats) {
+        if (cat.id === categoryId) return cat;
+        if (cat.children && cat.children.length > 0) {
+          const found = findCategory(cat.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    const category = findCategory(this.allCategoriesData);
+    if (category && category.children && category.children.length > 0) {
+      this.currentCategoryLevel = category.children;
+      this.categories.set(category.children);
+    } else {
+      this.currentCategoryLevel = [];
+      this.categories.set([]);
+    }
+  }
+
+  goBackToRoot() {
+    // Reset to main categories
+    this.categoryBreadcrumb = [];
+    this.selectedCategoryId = null;
+    this.selectedSubcategoryId = null;
+    this.selectedCategorySlug = null;
+    this.selectedSubcategorySlug = null;
+    this.selectedAttributes.clear();
+    this.attributes.set([]);
+    
+    // Show main supported categories
+    const supportedCats = this.allCategoriesData
+      .filter((c: any) => SUPPORTED_CATEGORY_IDS.includes(c.id))
+      .map((c: any) => {
+        const config = SUPPORTED_CATEGORIES.find(sc => sc.id === c.id);
+        return {
+          ...c,
+          icon: config?.icon
+        };
+      });
+    
+    this.currentCategoryLevel = supportedCats;
+    this.categories.set(supportedCats);
+    
+    // Reload products
+    this.criteria.page = 1;
+    this.loadProducts();
+  }
+
+  onBreadcrumbClick(category: CategoryDto, index: number) {
+    // Remove all categories after this one
+    this.categoryBreadcrumb = this.categoryBreadcrumb.slice(0, index + 1);
+    
+    // Navigate to this category
+    this.selectedCategoryId = category.id as number;
+    this.selectedCategorySlug = category.slug || null;
+    
+    // Show its children
+    if (category.children && category.children.length > 0) {
+      this.currentCategoryLevel = category.children;
+      this.categories.set(category.children);
+    } else {
+      this.findAndSetCategoryChildren(category.id);
+    }
+    
+    // Load attributes
+    if (category.slug) {
+      this.loadCategoryAttributes(category.slug);
+    }
+    
+    // Reload products
+    this.criteria.page = 1;
+    this.loadProducts();
+  }
+
   onSubcategoryChange(subcategory: CategoryDto) {
     // Toggle subcategory selection
     if (this.selectedSubcategoryId === subcategory.id) {
