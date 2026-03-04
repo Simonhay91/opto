@@ -126,7 +126,7 @@ export interface ProductCriteriaDto {
   inStock?: boolean;
   onWay?: boolean;
   sortBy?: string;
-  selectionAttributeValues?: string[];
+  selectionAttributeValues?: AttributeValueDto[];
 }
 
 export interface PagedResult<T> {
