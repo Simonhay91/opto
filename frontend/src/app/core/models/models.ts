@@ -156,6 +156,22 @@ export interface BrandDto {
   description?: string;
 }
 
+export interface BlogDto {
+  id: string | number;
+  title: string;
+  slug: string;
+  content?: string;
+  excerpt?: string;
+  coverImage?: Image;
+  author?: string;
+  publishedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  tags?: string[];
+  readTime?: number;
+}
+
+
 export interface SliderDto {
   id: string;
   title?: string;
