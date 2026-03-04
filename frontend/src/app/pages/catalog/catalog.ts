@@ -301,10 +301,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
   clearFilters() {
     this.searchQuery = '';
     this.selectedCategoryId = null;
+    this.selectedSubcategoryId = null;
     this.selectedBrandId = null;
     this.selectedCategorySlug = null;
+    this.selectedSubcategorySlug = null;
     this.inStockOnly = false;
     this.selectedAttributes.clear();
+    this.subcategories.set([]);
     this.attributes.set([]);
     this.criteria = { page: 1, limit: 24, sortBy: 'newest' };
     this.router.navigate(['/catalog']);
