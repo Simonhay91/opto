@@ -159,14 +159,14 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onSearch() { this.searchSubject.next(this.searchQuery); }
 
-  onCategoryChange(id: string) {
-    this.selectedCategoryId = this.selectedCategoryId === id ? '' : id;
+  onCategoryChange(id: number) {
+    this.selectedCategoryId = this.selectedCategoryId === id ? null : id;
     this.criteria.page = 1;
     this.loadProducts();
   }
 
-  onBrandChange(id: string) {
-    this.selectedBrandId = this.selectedBrandId === id ? '' : id;
+  onBrandChange(id: number) {
+    this.selectedBrandId = this.selectedBrandId === id ? null : id;
     this.criteria.page = 1;
     this.loadProducts();
   }
@@ -185,8 +185,8 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   clearFilters() {
     this.searchQuery = '';
-    this.selectedCategoryId = '';
-    this.selectedBrandId = '';
+    this.selectedCategoryId = null;
+    this.selectedBrandId = null;
     this.inStockOnly = false;
     this.criteria = { page: 1, limit: 24, sortBy: 'newest' };
     this.loadProducts();
