@@ -1,0 +1,54 @@
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950">
+  <!-- Page Header -->
+  <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+    <div class="container mx-auto px-4 md:px-8 max-w-7xl py-12">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <div class="h-px w-6 bg-cyan-500"></div>
+          <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">FAQ · 常见问题</span>
+          <div class="h-px w-6 bg-cyan-500"></div>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-heading font-bold text-slate-900 dark:text-slate-50 mb-4">
+          Frequently Asked Questions
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">
+          Find answers to common questions about OPTOWIRE's services, orders, and products.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Content -->
+  <div class="container mx-auto px-4 md:px-8 max-w-4xl py-12">
+    <div class="space-y-4">
+      @for (item of faqItems; track $index) {
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div class="p-6">
+            <h3 class="text-lg font-heading font-semibold text-slate-900 dark:text-slate-50 mb-3 flex items-start gap-3">
+              <span class="text-cyan-500 text-xl shrink-0">Q{{$index + 1}}.</span>
+              <span>{{item.question}}</span>
+            </h3>
+            <div class="ml-9">
+              <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                {{item.answer}}
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Contact CTA -->
+    <div class="mt-12 bg-gradient-to-br from-cyan-500 to-cyan-600 p-8 text-center text-white">
+      <h2 class="text-2xl font-heading font-bold mb-3">Still have questions?</h2>
+      <p class="mb-6 text-cyan-50">Our team is here to help you with any inquiries.</p>
+      <a routerLink="/contact" 
+         class="inline-flex items-center gap-2 bg-white text-cyan-600 font-bold uppercase text-sm px-6 py-3 hover:bg-slate-50 transition-colors">
+        Contact Us
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</div>

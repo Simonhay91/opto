@@ -39,8 +39,8 @@ export class HeaderComponent implements OnInit {
   navLinks = [
     { key: 'home', path: '/' },
     { key: 'catalog', path: '/catalog' },
-    { key: 'brands', path: '/brands' },
     { key: 'blog', path: '/blog' },
+    { key: 'faq', path: '/faq' },
     { key: 'about', path: '/about' },
     { key: 'contact', path: '/contact' },
   ];
