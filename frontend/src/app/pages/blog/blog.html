@@ -58,14 +58,14 @@
               <!-- Content -->
               <div class="p-6">
                 <!-- Date -->
-                @if (blog.publishedAt) {
+                @if (blog.date || blog.publishedAt) {
                   <time class="text-xs text-slate-500 dark:text-slate-400 mb-2 block">
-                    {{formatDate(blog.publishedAt)}}
+                    {{formatDate(blog.date || blog.publishedAt)}}
                   </time>
                 }
                 <!-- Title -->
                 <h2 class="text-lg font-heading font-bold text-slate-900 dark:text-slate-50 mb-2 group-hover:text-cyan-500 transition-colors line-clamp-2">
-                  {{blog.title}}
+                  {{getBlogTitle(blog)}}
                 </h2>
                 <!-- Excerpt -->
                 <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4">
@@ -73,8 +73,8 @@
                 </p>
                 <!-- Meta -->
                 <div class="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-                  @if (blog.author) {
-                    <span>By {{blog.author}}</span>
+                  @if (getBlogAuthor(blog)) {
+                    <span>By {{getBlogAuthor(blog)}}</span>
                   }
                   @if (blog.readTime) {
                     <span>{{blog.readTime}} min read</span>
