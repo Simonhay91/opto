@@ -13,6 +13,10 @@ export class ApiService {
       const port = (typeof process !== 'undefined' && process.env?.['BACKEND_PORT']) || '8001';
       return `http://localhost:${port}/api`;
     }
+    // Client-side: use external backend URL from environment
+    if (typeof window !== 'undefined' && (window as any).__ENV?.BACKEND_URL) {
+      return `${(window as any).__ENV.BACKEND_URL}/api`;
+    }
     return '/api';
   }
 
