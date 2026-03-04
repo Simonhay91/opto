@@ -24,13 +24,9 @@ export class CartModalComponent {
   submitted = signal(false);
   error = signal('');
   
-  // Quote form
+  // Quote form - only email is required
   form = {
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    message: ''
+    email: ''
   };
   
   close() {
