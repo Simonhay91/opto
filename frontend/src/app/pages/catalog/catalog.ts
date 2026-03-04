@@ -152,8 +152,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
       inStock: this.inStockOnly || undefined,
     };
     
-    // Add categoryId if selected
-    if (this.selectedCategoryId !== null) {
+    // Use subcategory if selected, otherwise use main category
+    if (this.selectedSubcategoryId !== null) {
+      (criteria as any).categoryId = this.selectedSubcategoryId;
+    } else if (this.selectedCategoryId !== null) {
       (criteria as any).categoryId = this.selectedCategoryId;
     }
     
