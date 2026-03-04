@@ -158,8 +158,62 @@ export class CatalogComponent implements OnInit, OnDestroy {
     if (this.selectedBrandId !== null) {
       (criteria as any).brandId = this.selectedBrandId;
     }
+
+    // Add selected attribute values
+    if (this.selectedAttributes.size > 0) {
+      criteria.selectionAttributeValues = Array.from(this.selectedAttributes.entries()).map(([id, values]) => ({
+        id,
+        values
+      }));
+    }
     
     return criteria;
+  }
+
+  loadCategoryAttributes(slug: string) {
+    this.cs.getAttributes(slug).subscribe({
+      next: (data: CategoryAttributesDto) => {
+        // Filter only SELECTION type attributes
+        const selectionAttrs = (data.attributes || []).filter(attr => attr.type === 'SELECTION');
+        this.attributes.set(selectionAttrs);
+      },
+      error: () => {
+        this.attributes.set([]);
+      }
+    });
+  }
+
+  onAttributeValueChange(attrId: string | number, value: string, checked: boolean) {
+    if (checked) {
+      // Add value to selected attributes
+      const current = this.selectedAttributes.get(attrId) || [];
+      if (!current.includes(value)) {
+        this.selectedAttributes.set(attrId, [...current, value]);
+      }
+    } else {
+      // Remove value from selected attributes
+      const current = this.selectedAttributes.get(attrId) || [];
+      const filtered = current.filter(v => v !== value);
+      if (filtered.length > 0) {
+        this.selectedAttributes.set(attrId, filtered);
+      } else {
+        this.selectedAttributes.delete(attrId);
+      }
+    }
+    
+    // Reload products with new filters
+    this.criteria.page = 1;
+    this.loadProducts();
+  }
+
+  isAttributeValueSelected(attrId: string | number, value: string): boolean {
+    return this.selectedAttributes.get(attrId)?.includes(value) || false;
+  }
+
+  clearAttributeFilters() {
+    this.selectedAttributes.clear();
+    this.criteria.page = 1;
+    this.loadProducts();
   }
 
   onSearch() { this.searchSubject.next(this.searchQuery); }
