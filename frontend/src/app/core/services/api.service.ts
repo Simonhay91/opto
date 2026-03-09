@@ -10,15 +10,8 @@ export class ApiService {
   private platformId = inject(PLATFORM_ID);
 
   private get base(): string {
-    if (isPlatformServer(this.platformId)) {
-      const port = (typeof process !== 'undefined' && process.env?.['BACKEND_PORT']) || '8001';
-      return `http://localhost:${port}/api`;
-    }
-    // Client-side: use external backend URL from environment
-    if (typeof window !== 'undefined' && (window as any).__ENV?.BACKEND_URL) {
-      return `${(window as any).__ENV.BACKEND_URL}/api`;
-    }
-    return '/api';
+    // Direct API access - no proxy
+    return 'https://dev.planetworkspace.com/api';
   }
 
   /**
@@ -58,7 +51,6 @@ export class ApiService {
 
   /**
    * POST request with customerId handling
-   * First tries with customerId=0, if fails with 400/422, retries without customerId
    */
   post<T>(path: string, body: any, params?: Record<string, string | number | boolean | undefined | null>): Observable<T> {
     let p = new HttpParams();
