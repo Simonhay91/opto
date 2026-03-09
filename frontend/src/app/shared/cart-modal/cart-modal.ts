@@ -80,8 +80,8 @@ export class CartModalComponent {
       products
     };
     
-    // Use new global-preorder endpoint
-    this.api.post('/proxy/web/checkout/global-preorder', payload).subscribe({
+    // Use new global-preorder endpoint via partner service
+    this.partnerService.submitQuote(payload).subscribe({
       next: () => {
         this.submitting.set(false);
         this.submitted.set(true);
