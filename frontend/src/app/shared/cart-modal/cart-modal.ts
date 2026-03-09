@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CartService, CartItem } from '../../core/services/cart.service';
 import { LangService } from '../../core/services/lang.service';
-import { ApiService } from '../../core/services/api.service';
+import { PartnerService } from '../../core/services/partner.service';
 import { getImageUrl } from '../../core/models/models';
 
 @Component({
@@ -17,7 +17,7 @@ export class CartModalComponent {
   
   cart = inject(CartService);
   lang = inject(LangService);
-  private api = inject(ApiService);
+  private partnerService = inject(PartnerService);
   
   quoteMode = signal(false);
   submitting = signal(false);
@@ -80,18 +80,17 @@ export class CartModalComponent {
       products
     };
     
-    // Use new global-preorder endpoint via partner service
-    this.partnerService.submitQuote(payload).subscribe({
-      next: () => {
+    // Use partner service
+    this.partnerService.submitQuote(payload).subscribe(
+      () => {
         this.submitting.set(false);
         this.submitted.set(true);
         this.cart.clearCart();
       },
-      error: (err) => {
+      () => {
         this.submitting.set(false);
         this.error.set('Failed to submit. Please try again.');
-        console.error('Quote submit error:', err);
       }
-    });
+    );
   }
 }
