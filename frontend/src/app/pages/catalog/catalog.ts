@@ -80,7 +80,7 @@ export class CatalogComponent implements OnInit {
     this.cs.getBySlug(slug).subscribe({
       next: (category) => {
         this.selectedCategoryId.set(category.id);
-        this.buildBreadcrumbs(category);
+        this.breadcrumbs.set([category]); // Simple breadcrumb
         this.loadCategoryAttributes(slug);
         this.loadProducts();
       },
@@ -89,18 +89,6 @@ export class CatalogComponent implements OnInit {
         this.loadProducts();
       }
     });
-  }
-
-  buildBreadcrumbs(category: CategoryDto) {
-    const crumbs: CategoryDto[] = [];
-    let current: CategoryDto | undefined = category;
-    
-    while (current) {
-      crumbs.unshift(current);
-      current = current.parent;
-    }
-    
-    this.breadcrumbs.set(crumbs);
   }
 
   loadCategories() {
