@@ -127,6 +127,10 @@ export interface ProductCriteriaDto {
   onWay?: boolean;
   sortBy?: string;
   selectionAttributeValues?: AttributeValueDto[];
+  categories?: number[];
+  brands?: number[];
+  search?: string;
+  attributes?: Record<string | number, string[]>;
 }
 
 export interface PagedResult<T> {
