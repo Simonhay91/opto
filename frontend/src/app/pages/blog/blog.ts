@@ -36,7 +36,7 @@ export class BlogComponent implements OnInit {
 
   loadBlogs() {
     this.loading.set(true);
-    this.blogService.getBlogs(this.currentPage, this.limit, this.searchQuery || undefined).subscribe({
+    this.blogService.getPaged(this.currentPage, this.limit).subscribe({
       next: (r: any) => {
         const items = r?.entities || r?.items || r?.blogs || (Array.isArray(r) ? r : []);
         this.blogs.set(items);
