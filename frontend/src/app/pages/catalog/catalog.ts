@@ -79,7 +79,7 @@ export class CatalogComponent implements OnInit {
   loadCategoryBySlug(slug: string) {
     this.cs.getBySlug(slug).subscribe({
       next: (category) => {
-        this.selectedCategoryId.set(category.id);
+        this.selectedCategoryId.set(Number(category.id));
         this.breadcrumbs.set([category]); // Simple breadcrumb
         this.loadCategoryAttributes(slug);
         this.loadProducts();

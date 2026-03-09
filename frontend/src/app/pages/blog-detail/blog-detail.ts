@@ -36,8 +36,8 @@ export class BlogDetailComponent implements OnInit, OnDestroy {
 
   loadBlog(slug: string) {
     this.loading.set(true);
-    this.blogService.getBlog(slug).subscribe({
-      next: (blog: BlogDto) => {
+    this.blogService.getBySlug(slug).subscribe({
+      next: (blog: any) => {
         this.blog.set(blog);
         this.loading.set(false);
         
