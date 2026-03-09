@@ -227,12 +227,16 @@ export class CatalogComponent implements OnInit {
     return this.selectedAttributes()[attrId]?.includes(value) || false;
   }
 
-  getAttributeValue(attr: any): string | number {
-    return attr.value || attr.id || attr;
+  getAttributeValue(attr: any): string {
+    return String(attr.value || attr.id || attr);
   }
 
   getAttributeValueLabel(attr: any): string {
     return attr.label || attr.name || String(attr);
+  }
+
+  getSelectedAttributesCount(): number {
+    return Object.keys(this.selectedAttributes()).length;
   }
 
   clearFilters() {
