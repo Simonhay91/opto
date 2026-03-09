@@ -1,17 +1,18 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit, PLATFORM_ID, computed } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { BrandService } from '../../core/services/brand.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
-import { ProductDto, CategoryDto, BrandDto } from '../../core/models/models';
+import { ProductDto, CategoryDto, BrandDto, ProductCriteriaDto } from '../../core/models/models';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CommonModule, RouterLink, ProductCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ProductCardComponent],
   templateUrl: './catalog.html',
 })
 export class CatalogComponent implements OnInit {
@@ -21,20 +22,23 @@ export class CatalogComponent implements OnInit {
   private cs = inject(CategoryService);
   private bs = inject(BrandService);
   private seo = inject(SeoService);
+  private platformId = inject(PLATFORM_ID);
   lang = inject(LangService);
 
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
+  allCategories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
   attributes = signal<any[]>([]);
-  breadcrumbs = signal<CategoryDto[]>([]);
+  categoryBreadcrumb = signal<CategoryDto[]>([]);
   
   loading = signal(true);
-  selectedCategoryId = signal<number | null>(null);
+  selectedCategoryId: number | null = null;
   selectedCategorySlug = signal<string | null>(null);
-  selectedBrandId = signal<number | null>(null);
-  selectedAttributeValues = signal<Record<string | number, string[]>>({});
-  searchQuery = signal<string>('');
+  selectedBrandId: number | null = null;
+  selectedAttributes = signal<Record<string | number, string[]>>({});
+  searchQuery = '';
+  sortBy = 'newest';
   
   currentPage = signal(1);
   totalItems = signal(0);
@@ -42,14 +46,36 @@ export class CatalogComponent implements OnInit {
   limit = 24;
   sidebarOpen = signal(false);
 
-  criteria = computed(() => ({
-    page: this.currentPage(),
-    limit: this.limit,
-    search: this.searchQuery() || undefined,
-    categories: this.selectedCategoryId() ? [this.selectedCategoryId()!] : undefined,
-    brands: this.selectedBrandId() ? [this.selectedBrandId()] : undefined,
-    attributes: Object.keys(this.selectedAttributeValues()).length > 0 ? this.selectedAttributeValues() : undefined,
-  }));
+  sortOptions = [
+    { value: 'newest', label: 'Newest First' },
+    { value: 'price-asc', label: 'Price: Low to High' },
+    { value: 'price-desc', label: 'Price: High to Low' },
+  ];
+
+  criteria = computed(() => {
+    const crit: ProductCriteriaDto = {
+      page: this.currentPage(),
+      limit: this.limit,
+    };
+    if (this.searchQuery) crit.search = this.searchQuery;
+    if (this.selectedCategoryId) crit.categories = [this.selectedCategoryId];
+    if (this.selectedBrandId) crit.brands = [this.selectedBrandId];
+    if (Object.keys(this.selectedAttributes()).length > 0) crit.attributes = this.selectedAttributes();
+    return crit;
+  });
+
+  pages = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const delta = 2;
+    const pages: number[] = [];
+    
+    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  });
 
   ngOnInit() {
     this.seo.setPage('Product Catalog', 'Browse our complete catalog of fiber optic and network equipment.');
@@ -64,7 +90,9 @@ export class CatalogComponent implements OnInit {
         this.loadCategoryBySlug(categorySlug);
       } else {
         this.selectedCategorySlug.set(null);
-        this.selectedCategoryId.set(null);
+        this.selectedCategoryId = null;
+        this.categoryBreadcrumb.set([]);
+        this.categories.set(this.allCategories());
         this.loadProducts();
       }
     });
@@ -72,20 +100,32 @@ export class CatalogComponent implements OnInit {
     // Watch for query params
     this.route.queryParamMap.subscribe(params => {
       const search = params.get('search');
-      if (search) this.searchQuery.set(search);
+      if (search) {
+        this.searchQuery = search;
+        this.loadProducts();
+      }
     });
   }
 
   loadCategoryBySlug(slug: string) {
     this.cs.getBySlug(slug).subscribe({
       next: (category) => {
-        this.selectedCategoryId.set(Number(category.id));
-        this.breadcrumbs.set([category]); // Simple breadcrumb
+        this.selectedCategoryId = Number(category.id);
+        this.categoryBreadcrumb.set([category]);
+        
+        // Set children as current level categories
+        if (category.children && category.children.length > 0) {
+          this.categories.set(category.children);
+        } else {
+          this.categories.set([]);
+        }
+        
         this.loadCategoryAttributes(slug);
         this.loadProducts();
       },
       error: () => {
-        this.selectedCategoryId.set(null);
+        this.selectedCategoryId = null;
+        this.categoryBreadcrumb.set([]);
         this.loadProducts();
       }
     });
@@ -93,8 +133,16 @@ export class CatalogComponent implements OnInit {
 
   loadCategories() {
     this.cs.getAll().subscribe({
-      next: (data) => this.categories.set(data || []),
-      error: () => this.categories.set([])
+      next: (data) => {
+        this.allCategories.set(data || []);
+        if (!this.selectedCategoryId) {
+          this.categories.set(data || []);
+        }
+      },
+      error: () => {
+        this.allCategories.set([]);
+        this.categories.set([]);
+      }
     });
   }
 
@@ -136,14 +184,31 @@ export class CatalogComponent implements OnInit {
     this.router.navigate(['/catalog', category.slug]);
   }
 
+  onBreadcrumbClick(cat: CategoryDto, index: number) {
+    this.router.navigate(['/catalog', cat.slug]);
+  }
+
+  goBackToRoot() {
+    this.router.navigate(['/catalog']);
+  }
+
+  onSearch() {
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onSortChange() {
+    this.loadProducts();
+  }
+
   onBrandChange(brandId: number) {
-    this.selectedBrandId.set(this.selectedBrandId() === brandId ? null : brandId);
+    this.selectedBrandId = this.selectedBrandId === brandId ? null : brandId;
     this.currentPage.set(1);
     this.loadProducts();
   }
 
   onAttributeValueChange(attrId: string | number, value: string, checked: boolean) {
-    const current = { ...this.selectedAttributeValues() };
+    const current = { ...this.selectedAttributes() };
     if (!current[attrId]) current[attrId] = [];
     
     if (checked) {
@@ -153,15 +218,33 @@ export class CatalogComponent implements OnInit {
       if (current[attrId].length === 0) delete current[attrId];
     }
     
-    this.selectedAttributeValues.set(current);
+    this.selectedAttributes.set(current);
     this.currentPage.set(1);
     this.loadProducts();
   }
 
+  isAttributeValueSelected(attrId: string | number, value: string): boolean {
+    return this.selectedAttributes()[attrId]?.includes(value) || false;
+  }
+
+  getAttributeValue(attr: any): string | number {
+    return attr.value || attr.id || attr;
+  }
+
+  getAttributeValueLabel(attr: any): string {
+    return attr.label || attr.name || String(attr);
+  }
+
   clearFilters() {
-    this.selectedBrandId.set(null);
-    this.selectedAttributeValues.set({});
-    this.searchQuery.set('');
+    this.selectedBrandId = null;
+    this.selectedAttributes.set({});
+    this.searchQuery = '';
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  clearAttributeFilters() {
+    this.selectedAttributes.set({});
     this.currentPage.set(1);
     this.loadProducts();
   }
@@ -169,19 +252,8 @@ export class CatalogComponent implements OnInit {
   goToPage(page: number) {
     this.currentPage.set(page);
     this.loadProducts();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  get paginationPages(): number[] {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const delta = 2;
-    const pages: number[] = [];
-    
-    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
-      pages.push(i);
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
-    return pages;
   }
 }
