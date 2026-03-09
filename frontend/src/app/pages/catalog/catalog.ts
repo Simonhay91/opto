@@ -1,459 +1,199 @@
-import { Component, inject, signal, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { BrandService } from '../../core/services/brand.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
-import { ProductDto, CategoryDto, BrandDto, ProductCriteriaDto, AttributeDto, CategoryAttributesDto } from '../../core/models/models';
-import { SUPPORTED_CATEGORIES, SUPPORTED_CATEGORY_IDS } from '../../core/config/categories.config';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { ProductDto, CategoryDto, BrandDto } from '../../core/models/models';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CommonModule, RouterLink, FormsModule, ProductCardComponent],
+  imports: [CommonModule, RouterLink, ProductCardComponent],
   templateUrl: './catalog.html',
 })
-export class CatalogComponent implements OnInit, OnDestroy {
-  @Input() categoryId?: string;
-  @Input() brandId?: string;
-
+export class CatalogComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private ps = inject(ProductService);
   private cs = inject(CategoryService);
   private bs = inject(BrandService);
   private seo = inject(SeoService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
   lang = inject(LangService);
 
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
-  attributes = signal<AttributeDto[]>([]);
+  attributes = signal<any[]>([]);
+  breadcrumbs = signal<CategoryDto[]>([]);
+  
   loading = signal(true);
+  selectedCategoryId = signal<number | null>(null);
+  selectedCategorySlug = signal<string | null>(null);
+  selectedBrandId = signal<number | null>(null);
+  selectedAttributeValues = signal<Record<string | number, string[]>>({});
+  searchQuery = signal<string>('');
+  
+  currentPage = signal(1);
   totalItems = signal(0);
-  totalPages = signal(1);
+  totalPages = signal(0);
+  limit = 24;
+  sidebarOpen = signal(false);
 
-  criteria: ProductCriteriaDto = { page: 1, limit: 24, sortBy: 'newest' };
-  searchQuery = '';
-  selectedCategoryId: number | null = null;
-  selectedSubcategoryId: number | null = null;
-  selectedBrandId: number | null = null;
-  selectedCategorySlug: string | null = null;
-  selectedSubcategorySlug: string | null = null;
-  selectedAttributes: Map<string | number, string[]> = new Map();
-  inStockOnly = false;
-  sidebarOpen = false;
-  
-  // Category navigation
-  categoryBreadcrumb: CategoryDto[] = [];
-  currentCategoryLevel: CategoryDto[] = [];
-  allCategoriesData: CategoryDto[] = [];
-  
-  private destroy$ = new Subject<void>();
-  private searchSubject = new Subject<string>();
-
-  sortOptions = [
-    { value: '', label: 'Default' },
-    { value: 'name_asc', label: 'Name A-Z' },
-    { value: 'name_desc', label: 'Name Z-A' },
-    { value: 'price_asc', label: 'Price: Low to High' },
-    { value: 'price_desc', label: 'Price: High to Low' },
-    { value: 'newest', label: 'Newest First' },
-  ];
+  criteria = computed(() => ({
+    page: this.currentPage(),
+    limit: this.limit,
+    search: this.searchQuery() || undefined,
+    categories: this.selectedCategoryId() ? [this.selectedCategoryId()!] : undefined,
+    brands: this.selectedBrandId() ? [this.selectedBrandId()] : undefined,
+    attributes: Object.keys(this.selectedAttributeValues()).length > 0 ? this.selectedAttributeValues() : undefined,
+  }));
 
   ngOnInit() {
-    this.seo.setCatalogSchema('Product Catalog', 'Browse fiber optic cables, network equipment, IoT and security solutions.');
-    this.seo.setPage('Product Catalog', 'Browse our complete range of fiber optic cables, network equipment, IoT and security solutions from Optowire.');
-
-    // Load filters first
-    this.loadFilters();
-
-    // Handle route query params
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(p => {
-      let shouldReload = false;
-      
-      if (p['q']) { 
-        this.searchQuery = p['q']; 
-        this.criteria.productName = p['q']; 
-        shouldReload = true;
-      }
-      if (p['category']) { 
-        // Convert to number for proper comparison
-        this.selectedCategoryId = parseInt(p['category'], 10);
-        // Find category slug for loading attributes
-        const category = SUPPORTED_CATEGORIES.find(c => c.id === this.selectedCategoryId);
-        if (category?.slug) {
-          this.selectedCategorySlug = category.slug;
-          this.loadCategoryAttributes(category.slug);
-        }
-        shouldReload = true;
-      }
-      if (p['brand']) {
-        this.selectedBrandId = parseInt(p['brand'], 10);
-        shouldReload = true;
-      }
-      
-      if (shouldReload) {
-        this.criteria.page = 1;
+    this.seo.setPage('Product Catalog', 'Browse our complete catalog of fiber optic and network equipment.');
+    this.loadCategories();
+    this.loadBrands();
+    
+    // Watch for route params changes
+    this.route.paramMap.subscribe(params => {
+      const categorySlug = params.get('categorySlug');
+      if (categorySlug) {
+        this.selectedCategorySlug.set(categorySlug);
+        this.loadCategoryBySlug(categorySlug);
+      } else {
+        this.selectedCategorySlug.set(null);
+        this.selectedCategoryId.set(null);
         this.loadProducts();
       }
     });
 
-    // Apply URL inputs (from route params)
-    if (this.categoryId) { 
-      this.selectedCategoryId = typeof this.categoryId === 'string' ? parseInt(this.categoryId, 10) : this.categoryId;
-    }
-    if (this.brandId) { 
-      this.selectedBrandId = typeof this.brandId === 'string' ? parseInt(this.brandId, 10) : this.brandId;
-    }
-
-    // Debounced search
-    this.searchSubject.pipe(debounceTime(400), takeUntil(this.destroy$)).subscribe(() => {
-      this.criteria.page = 1;
-      this.loadProducts();
+    // Watch for query params
+    this.route.queryParamMap.subscribe(params => {
+      const search = params.get('search');
+      if (search) this.searchQuery.set(search);
     });
-
-    // Initial load if no query params triggered it
-    this.loadProducts();
   }
 
-  // Supported categories with icons
-  supportedCategories = SUPPORTED_CATEGORIES;
-
-  loadFilters() {
-    // Load full categories from API to get children
-    this.cs.getAll().subscribe({
-      next: (allCategories: any) => {
-        const categoriesArray = Array.isArray(allCategories) ? allCategories : allCategories?.items || [];
-        
-        // Save all categories for navigation
-        this.allCategoriesData = categoriesArray;
-        
-        // Filter to only supported categories for initial display
-        const supportedCats = categoriesArray
-          .filter((c: any) => SUPPORTED_CATEGORY_IDS.includes(c.id))
-          .map((c: any) => {
-            const config = SUPPORTED_CATEGORIES.find(sc => sc.id === c.id);
-            return {
-              ...c,
-              icon: config?.icon // Add icon from config
-            };
-          });
-        
-        this.currentCategoryLevel = supportedCats;
-        this.categories.set(supportedCats);
+  loadCategoryBySlug(slug: string) {
+    this.cs.getBySlug(slug).subscribe({
+      next: (category) => {
+        this.selectedCategoryId.set(category.id);
+        this.buildBreadcrumbs(category);
+        this.loadCategoryAttributes(slug);
+        this.loadProducts();
       },
       error: () => {
-        // Fallback to config categories without children
-        const fallback = SUPPORTED_CATEGORIES.map(c => ({
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          icon: c.icon
-        } as CategoryDto));
-        this.currentCategoryLevel = fallback;
-        this.categories.set(fallback);
+        this.selectedCategoryId.set(null);
+        this.loadProducts();
       }
     });
+  }
+
+  buildBreadcrumbs(category: CategoryDto) {
+    const crumbs: CategoryDto[] = [];
+    let current: CategoryDto | undefined = category;
     
-    this.bs.getAll().subscribe({ next: (b: any) => this.brands.set(Array.isArray(b) ? b : b?.items || []), error: () => {} });
+    while (current) {
+      crumbs.unshift(current);
+      current = current.parent;
+    }
+    
+    this.breadcrumbs.set(crumbs);
+  }
+
+  loadCategories() {
+    this.cs.getAll().subscribe({
+      next: (data) => this.categories.set(data || []),
+      error: () => this.categories.set([])
+    });
+  }
+
+  loadBrands() {
+    this.bs.getAll().subscribe({
+      next: (data) => this.brands.set(data || []),
+      error: () => this.brands.set([])
+    });
   }
 
   loadProducts() {
     this.loading.set(true);
-    this.ps.explore(this.buildCriteria()).subscribe({
+    this.ps.explore(this.criteria()).subscribe({
       next: (r: any) => {
-        // API returns "products" not "items"
         const items = r?.products || r?.items || (Array.isArray(r) ? r : []);
         this.products.set(items);
         this.totalItems.set(r?.total || items.length);
-        this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / (this.criteria.limit || 24)));
+        this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / this.limit));
         this.loading.set(false);
       },
-      error: () => { this.loading.set(false); this.products.set([]); }
+      error: () => { 
+        this.loading.set(false);
+        this.products.set([]);
+      }
     });
-  }
-
-  buildCriteria(): ProductCriteriaDto {
-    const criteria: ProductCriteriaDto = {
-      ...this.criteria,
-      productName: this.searchQuery || undefined,
-      inStock: this.inStockOnly || undefined,
-    };
-    
-    // Use subcategory if selected, otherwise use main category
-    if (this.selectedSubcategoryId !== null) {
-      (criteria as any).categoryId = this.selectedSubcategoryId;
-    } else if (this.selectedCategoryId !== null) {
-      (criteria as any).categoryId = this.selectedCategoryId;
-    }
-    
-    // Add brandId if selected
-    if (this.selectedBrandId !== null) {
-      (criteria as any).brandId = this.selectedBrandId;
-    }
-
-    // Add selected attribute values
-    if (this.selectedAttributes.size > 0) {
-      criteria.selectionAttributeValues = Array.from(this.selectedAttributes.entries()).map(([id, values]) => ({
-        id,
-        values
-      }));
-    }
-    
-    return criteria;
   }
 
   loadCategoryAttributes(slug: string) {
-    this.cs.getAttributes(slug).subscribe((data: any) => {
-      // Filter only SELECTION type attributes
-      const selectionAttrs = (data?.attributes || []).filter((attr: any) => attr.type === 'SELECTION');
-      this.attributes.set(selectionAttrs);
-    }, () => {
-      this.attributes.set([]);
+    this.cs.getAttributes(slug).subscribe({
+      next: (data: any) => {
+        const selectionAttrs = (data?.attributes || []).filter((attr: any) => attr.type === 'SELECTION');
+        this.attributes.set(selectionAttrs);
+      },
+      error: () => this.attributes.set([])
     });
   }
 
-  onAttributeValueChange(attrId: string | number, value: string, checked: boolean) {
-    if (checked) {
-      // Add value to selected attributes
-      const current = this.selectedAttributes.get(attrId) || [];
-      if (!current.includes(value)) {
-        this.selectedAttributes.set(attrId, [...current, value]);
-      }
-    } else {
-      // Remove value from selected attributes
-      const current = this.selectedAttributes.get(attrId) || [];
-      const filtered = current.filter(v => v !== value);
-      if (filtered.length > 0) {
-        this.selectedAttributes.set(attrId, filtered);
-      } else {
-        this.selectedAttributes.delete(attrId);
-      }
-    }
-    
-    // Reload products with new filters
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  isAttributeValueSelected(attrId: string | number, value: string): boolean {
-    return this.selectedAttributes.get(attrId)?.includes(value) || false;
-  }
-
-  clearAttributeFilters() {
-    this.selectedAttributes.clear();
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  getAttributeValue(value: any): string {
-    // Handle both string and object values
-    if (typeof value === 'string') {
-      return value;
-    }
-    // If it's an object, try to extract the value
-    return value?.value || value?.name || value?.id || String(value);
-  }
-
-  getAttributeValueLabel(value: any): string {
-    // Handle both string and object values for display
-    if (typeof value === 'string') {
-      return value;
-    }
-    // If it's an object, try to extract the label
-    return value?.label || value?.name || value?.value || String(value);
-  }
-
-  onSearch() { this.searchSubject.next(this.searchQuery); }
-
-  onCategoryChange(id: number | string) {
-    const numId = typeof id === 'string' ? parseInt(id, 10) : id;
-    this.selectedCategoryId = this.selectedCategoryId === numId ? null : numId;
-    
-    // Reset subcategory selection when changing main category
-    this.selectedSubcategoryId = null;
-    this.selectedSubcategorySlug = null;
-    
-    // Load attributes for the selected category
-    if (this.selectedCategoryId !== null) {
-      const category = SUPPORTED_CATEGORIES.find(c => c.id === this.selectedCategoryId);
-      if (category?.slug) {
-        this.selectedCategorySlug = category.slug;
-        this.loadCategoryAttributes(category.slug);
-      }
-    } else {
-      // Clear everything when no category selected
-      this.selectedCategorySlug = null;
-      this.attributes.set([]);
-      this.selectedAttributes.clear();
-    }
-    
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
   navigateToCategory(category: CategoryDto) {
-    // Add to breadcrumb if not already there
-    const existingIndex = this.categoryBreadcrumb.findIndex(c => c.id === category.id);
-    if (existingIndex >= 0) {
-      // User clicked on breadcrumb - go back to that level
-      this.categoryBreadcrumb = this.categoryBreadcrumb.slice(0, existingIndex + 1);
+    this.router.navigate(['/catalog', category.slug]);
+  }
+
+  onBrandChange(brandId: number) {
+    this.selectedBrandId.set(this.selectedBrandId() === brandId ? null : brandId);
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onAttributeValueChange(attrId: string | number, value: string, checked: boolean) {
+    const current = { ...this.selectedAttributeValues() };
+    if (!current[attrId]) current[attrId] = [];
+    
+    if (checked) {
+      current[attrId] = [...current[attrId], value];
     } else {
-      // User navigated deeper
-      this.categoryBreadcrumb.push(category);
+      current[attrId] = current[attrId].filter(v => v !== value);
+      if (current[attrId].length === 0) delete current[attrId];
     }
     
-    // Set current selection
-    this.selectedCategoryId = category.id as number;
-    this.selectedCategorySlug = category.slug || null;
-    
-    // Show children of this category as current level
-    if (category.children && category.children.length > 0) {
-      this.currentCategoryLevel = category.children;
-      this.categories.set(category.children);
-    } else {
-      // No children - load from API
-      this.findAndSetCategoryChildren(category.id);
-    }
-    
-    // Load attributes for this category
-    if (category.slug) {
-      this.loadCategoryAttributes(category.slug);
-    }
-    
-    // Reload products
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  findAndSetCategoryChildren(categoryId: string | number) {
-    // Search for category in all data and set its children
-    const findCategory = (cats: CategoryDto[]): CategoryDto | null => {
-      for (const cat of cats) {
-        if (cat.id === categoryId) return cat;
-        if (cat.children && cat.children.length > 0) {
-          const found = findCategory(cat.children);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-    
-    const category = findCategory(this.allCategoriesData);
-    if (category && category.children && category.children.length > 0) {
-      this.currentCategoryLevel = category.children;
-      this.categories.set(category.children);
-    } else {
-      this.currentCategoryLevel = [];
-      this.categories.set([]);
-    }
-  }
-
-  goBackToRoot() {
-    // Reset to main categories
-    this.categoryBreadcrumb = [];
-    this.selectedCategoryId = null;
-    this.selectedSubcategoryId = null;
-    this.selectedCategorySlug = null;
-    this.selectedSubcategorySlug = null;
-    this.selectedAttributes.clear();
-    this.attributes.set([]);
-    
-    // Show main supported categories
-    const supportedCats = this.allCategoriesData
-      .filter((c: any) => SUPPORTED_CATEGORY_IDS.includes(c.id))
-      .map((c: any) => {
-        const config = SUPPORTED_CATEGORIES.find(sc => sc.id === c.id);
-        return {
-          ...c,
-          icon: config?.icon
-        };
-      });
-    
-    this.currentCategoryLevel = supportedCats;
-    this.categories.set(supportedCats);
-    
-    // Reload products
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  onBreadcrumbClick(category: CategoryDto, index: number) {
-    // Remove all categories after this one
-    this.categoryBreadcrumb = this.categoryBreadcrumb.slice(0, index + 1);
-    
-    // Navigate to this category
-    this.selectedCategoryId = category.id as number;
-    this.selectedCategorySlug = category.slug || null;
-    
-    // Show its children
-    if (category.children && category.children.length > 0) {
-      this.currentCategoryLevel = category.children;
-      this.categories.set(category.children);
-    } else {
-      this.findAndSetCategoryChildren(category.id);
-    }
-    
-    // Load attributes
-    if (category.slug) {
-      this.loadCategoryAttributes(category.slug);
-    }
-    
-    // Reload products
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  onBrandChange(id: number) {
-    this.selectedBrandId = this.selectedBrandId === id ? null : id;
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  onSortChange(val: string) {
-    this.criteria.sortBy = val;
-    this.criteria.page = 1;
-    this.loadProducts();
-  }
-
-  onStockChange() {
-    this.inStockOnly = !this.inStockOnly;
-    this.criteria.page = 1;
+    this.selectedAttributeValues.set(current);
+    this.currentPage.set(1);
     this.loadProducts();
   }
 
   clearFilters() {
-    this.searchQuery = '';
-    this.inStockOnly = false;
-    this.selectedBrandId = null;
-    this.selectedAttributes.clear();
-    this.attributes.set([]);
-    this.criteria = { page: 1, limit: 24, sortBy: 'newest' };
-    this.goBackToRoot();
-    this.router.navigate(['/catalog']);
+    this.selectedBrandId.set(null);
+    this.selectedAttributeValues.set({});
+    this.searchQuery.set('');
+    this.currentPage.set(1);
+    this.loadProducts();
   }
 
-  goToPage(p: number) {
-    if (p < 1 || p > this.totalPages()) return;
-    this.criteria.page = p;
+  goToPage(page: number) {
+    this.currentPage.set(page);
     this.loadProducts();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  get pages(): number[] {
+  get paginationPages(): number[] {
     const total = this.totalPages();
-    const current = this.criteria.page || 1;
-    const range: number[] = [];
-    const start = Math.max(1, current - 2);
-    const end = Math.min(total, start + 4);
-    for (let i = start; i <= end; i++) range.push(i);
-    return range;
+    const current = this.currentPage();
+    const delta = 2;
+    const pages: number[] = [];
+    
+    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   }
-
-  ngOnDestroy() { this.destroy$.next(); this.destroy$.complete(); }
 }
