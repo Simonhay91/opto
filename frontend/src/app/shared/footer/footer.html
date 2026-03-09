@@ -54,17 +54,17 @@
           @if (categories().length) {
             @for (cat of categories(); track cat.id) {
               <li>
-                <a [routerLink]="['/catalog']" [queryParams]="{category: cat.id}"
+                <a [routerLink]="['/catalog', cat.slug]"
                    class="text-sm text-slate-400 hover:text-cyan-400 transition-colors">
                   {{cat.name}}
                 </a>
               </li>
             }
           } @else {
-            <li><a [routerLink]="['/catalog']" [queryParams]="{category: 1}" class="text-sm text-slate-400 hover:text-cyan-400">Telecommunication</a></li>
-            <li><a [routerLink]="['/catalog']" [queryParams]="{category: 91}" class="text-sm text-slate-400 hover:text-cyan-400">Network Equipments</a></li>
-            <li><a [routerLink]="['/catalog']" [queryParams]="{category: 188}" class="text-sm text-slate-400 hover:text-cyan-400">Security Systems</a></li>
-            <li><a [routerLink]="['/catalog']" [queryParams]="{category: 212}" class="text-sm text-slate-400 hover:text-cyan-400">IoT</a></li>
+            <li><a [routerLink]="['/catalog', 'telecommunication']" class="text-sm text-slate-400 hover:text-cyan-400">Telecommunication</a></li>
+            <li><a [routerLink]="['/catalog', 'network-equipments']" class="text-sm text-slate-400 hover:text-cyan-400">Network Equipments</a></li>
+            <li><a [routerLink]="['/catalog', 'security-systems']" class="text-sm text-slate-400 hover:text-cyan-400">Security Systems</a></li>
+            <li><a [routerLink]="['/catalog', 'iot']" class="text-sm text-slate-400 hover:text-cyan-400">IoT</a></li>
           }
         </ul>
       </div>
