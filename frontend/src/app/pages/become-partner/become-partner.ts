@@ -66,7 +66,7 @@ export class BecomePartnerComponent {
     this.loading.set(true);
     this.error.set(null);
 
-    this.partnerService.becomePartner(this.formData).subscribe({
+    this.partnerService.submitApplication(this.formData).subscribe({
       next: () => {
         this.loading.set(false);
         this.submitted.set(true);
@@ -79,7 +79,7 @@ export class BecomePartnerComponent {
           partnershipAim: 'DISCOUNT'
         };
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading.set(false);
         this.error.set(err?.error?.message || 'Failed to submit application. Please try again.');
       }
