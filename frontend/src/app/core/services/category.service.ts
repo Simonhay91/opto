@@ -1,17 +1,21 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { CategoryDto, CategoryAttributesDto } from '../models/models';
+import { CategoryDto } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private api = inject(ApiService);
 
-  getAll(locale?: string): Observable<CategoryDto[]> {
-    return this.api.get<CategoryDto[]>('/proxy/web/category', locale ? { locale } : undefined);
+  getAll(): Observable<CategoryDto[]> {
+    return this.api.get<CategoryDto[]>('/web/category');
   }
 
-  getAttributes(slug: string, locale?: string): Observable<CategoryAttributesDto> {
-    return this.api.get<CategoryAttributesDto>(`/proxy/web/category/${slug}/attributes`, locale ? { locale } : undefined);
+  getBySlug(slug: string): Observable<CategoryDto> {
+    return this.api.get<CategoryDto>(`/web/category/${slug}`);
+  }
+
+  getAttributes(slug: string): Observable<any[]> {
+    return this.api.get<any[]>(`/web/category/${slug}/attributes`);
   }
 }

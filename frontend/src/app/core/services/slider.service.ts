@@ -8,10 +8,10 @@ export class SliderService {
   private api = inject(ApiService);
 
   getAll(): Observable<Slider[]> {
-    return this.api.get<Slider[]>('/proxy/web/sliders');
+    return this.api.get<Slider[]>('/web/sliders');
   }
 
   getById(id: number): Observable<Slider> {
-    return this.api.get<Slider>(`/proxy/web/sliders/${id}`);
+    return this.api.get<Slider>(`/web/sliders/${id}`);
   }
 }
