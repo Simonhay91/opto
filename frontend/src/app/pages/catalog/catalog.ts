@@ -209,15 +209,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   loadCategoryAttributes(slug: string) {
-    this.cs.getAttributes(slug).subscribe({
-      next: (data: CategoryAttributesDto) => {
-        // Filter only SELECTION type attributes
-        const selectionAttrs = (data.attributes || []).filter(attr => attr.type === 'SELECTION');
-        this.attributes.set(selectionAttrs);
-      },
-      error: () => {
-        this.attributes.set([]);
-      }
+    this.cs.getAttributes(slug).subscribe((data: any) => {
+      // Filter only SELECTION type attributes
+      const selectionAttrs = (data?.attributes || []).filter((attr: any) => attr.type === 'SELECTION');
+      this.attributes.set(selectionAttrs);
+    }, () => {
+      this.attributes.set([]);
     });
   }
 
