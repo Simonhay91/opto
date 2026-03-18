@@ -68,10 +68,10 @@ export class CatalogComponent implements OnInit {
   criteria = computed(() => ({
     page: this.currentPage(),
     limit: this.limit,
-    search: this.searchQuery() || undefined,
-    categories: this.selectedCategoryId() ? [this.selectedCategoryId()!] : undefined,
-    brands: this.selectedBrandId() ? [this.selectedBrandId()] : undefined,
-    attributes: Object.keys(this.selectedAttributeValues()).length > 0 ? this.selectedAttributeValues() : undefined,
+    search: this.searchQuery || undefined,
+    categories: this.selectedCategoryId ? [this.selectedCategoryId!] : undefined,
+    brands: this.selectedBrandId ? [this.selectedBrandId] : undefined,
+    attributes: Object.keys(this.selectedAttributes()).length > 0 ? this.selectedAttributes() : undefined,
   }));
 
   ngOnInit() {
@@ -87,7 +87,7 @@ export class CatalogComponent implements OnInit {
         this.loadCategoryBySlug(categorySlug);
       } else {
         this.selectedCategorySlug.set(null);
-        this.selectedCategoryId.set(null);
+        this.selectedCategoryId = null);
         this.loadProducts();
       }
     });
@@ -95,20 +95,20 @@ export class CatalogComponent implements OnInit {
     // Watch for query params
     this.route.queryParamMap.subscribe(params => {
       const search = params.get('search');
-      if (search) this.searchQuery.set(search);
+      if (search) this.searchQuery = search);
     });
   }
 
   loadCategoryBySlug(slug: string) {
     this.cs.getBySlug(slug).subscribe({
       next: (category) => {
-        this.selectedCategoryId.set(Number(category.id));
+        this.selectedCategoryId = Number(category.id));
         this.breadcrumbs.set([category]); // Simple breadcrumb
         this.loadCategoryAttributes(slug);
         this.loadProducts();
       },
       error: () => {
-        this.selectedCategoryId.set(null);
+        this.selectedCategoryId = null);
         this.loadProducts();
       }
     });
