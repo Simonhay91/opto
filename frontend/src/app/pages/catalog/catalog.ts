@@ -71,6 +71,8 @@ export class CatalogComponent implements OnInit {
       } else {
         this.selectedCategorySlug.set(null);
         this.selectedCategoryId.set(null);
+        this.categoryBreadcrumb.set([]);
+        this.loadCategories(); // reset to root categories
         this.loadProducts();
       }
     });
@@ -85,7 +87,25 @@ export class CatalogComponent implements OnInit {
     this.cs.getBySlug(slug).subscribe({
       next: (category) => {
         this.selectedCategoryId.set(Number(category.id));
-        this.categoryBreadcrumb.set([category]);
+
+        // Build breadcrumb: if slug has parent (contains '/'), find parent category too
+        const fullSlug = category.slug || '';
+        const slashIdx = fullSlug.lastIndexOf('/');
+        if (slashIdx > 0) {
+          const parentSlug = fullSlug.substring(0, slashIdx);
+          this.cs.getBySlug(parentSlug).subscribe({
+            next: (parent) => this.categoryBreadcrumb.set([parent, category]),
+            error: () => this.categoryBreadcrumb.set([category])
+          });
+        } else {
+          this.categoryBreadcrumb.set([category]);
+        }
+
+        // Show subcategories in sidebar if available
+        if (category.children && category.children.length > 0) {
+          this.categories.set(category.children);
+        }
+
         this.loadCategoryAttributes(slug);
         this.loadProducts();
       },
@@ -148,7 +168,9 @@ export class CatalogComponent implements OnInit {
 
   navigateToCategory(category: CategoryDto) {
     if (category.slug) {
-      this.router.navigate(['/catalog', category.slug]);
+      // Child slugs contain '/' prefix (e.g. 'telecommunication/odn-...'), use last segment only
+      const urlSlug = category.slug.split('/').pop()!;
+      this.router.navigate(['/catalog', urlSlug]);
     }
   }
 
