@@ -232,6 +232,27 @@ export class CatalogComponent implements OnInit {
     this.loadProducts();
   }
 
+  clearFilters() {
+    this.selectedBrandId = null;
+    this.selectedAttributes.set({});
+    this.searchQuery = '';
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onSearch() {
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onSortChange() {
+    this.loadProducts();
+  }
+
+  goBackToRoot() {
+    this.router.navigate(['/catalog']);
+  }
+
   goToPage(page: number) {
     this.currentPage.set(page);
     this.loadProducts();
@@ -239,5 +260,4 @@ export class CatalogComponent implements OnInit {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-}
 }

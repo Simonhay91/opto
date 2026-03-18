@@ -1,84 +1,75 @@
 <analysis>**original_problem_statement:**
-The initial goal was to build a product catalog website using the external REST API at . The project required an  () for all API requests. The frontend was migrated from React to Angular Universal (SSR) to meet SEO requirements.
+The initial goal was to build a product catalog website using the external REST API at  with an  (). The project started with React, migrated to Angular Universal (SSR) for SEO, and involved building a product catalog, a blog, a Become a Partner form, and a client-side shopping cart. The backend was initially a single-file Python script that was refactored into a structured FastAPI proxy.
 
-Over time, the user's focus shifted to implementing a wide range of features and fixing numerous bugs. The key requirements implemented include:
-- A fully functional product catalog with hierarchical category navigation and attribute-based filtering UI.
-- A detailed product page showing comprehensive data from the API.
-- A client-side shopping cart for users to collect products and request a quote.
-- An SEO-optimized blog section with list and detail pages.
-- A Become a Partner page with a working contact form.
-- A complete refactoring of the backend from a single file into a structured, modular FastAPI application.
-- Numerous bug fixes related to navigation, API key configuration, and UI rendering issues.
+A new critical requirement was introduced by the user in this session: remove the FastAPI backend proxy entirely and have the Angular SSR application make direct calls to the external API. This also required switching from ID-based routing to slug-based routing for better SEO. This major refactoring attempt failed, leaving the application in a broken, non-compilable state.
 
 **PRODUCT REQUIREMENTS:**
-- The application must serve as a product catalog, pulling all data from the external  API.
-- It must have excellent SEO, leveraging Angular's Server-Side Rendering (SSR).
-- Core features include a product catalog, product detail pages, a blog, and a partnership application form.
-- The UI must be clean, responsive, and provide clear user feedback (e.g., highlighted filters).
-- The user has de-prioritized customer authentication and a full checkout flow for now.
+- The application must serve as an SEO-optimized product catalog, pulling all data directly from the  API.
+- All API requests must include the  header.
+- Core features include a product catalog, product detail pages, a blog, a partnership application form, and a Get Quote functionality.
+- URLs should be SEO-friendly, using slugs instead of IDs where possible.
+- The backend proxy should be completely removed.
 
 **User's preferred language**: Russian. The user primarily communicates in Russian. The next agent MUST respond in Russian.
 
 **what currently exists?**
-The application is a full-stack Angular 21 (with SSR) and FastAPI project. The backend is a well-structured proxy for the external product API, and the frontend is a feature-rich, SEO-optimized application.
-
-**Key implemented features:**
-- **Product Catalog:** A sophisticated catalog with multi-level category navigation (up to 4 levels deep), breadcrumbs, and filtering by brand. The UI for attribute-based filtering is also complete.
-- **Blog:** A fully functional, SEO-optimized blog with list and detail pages that render all necessary meta tags (title, description, Open Graph, JSON-LD Schema) on the server.
-- **Become Our Partner Page:** A dedicated page with a form for submitting partnership applications, connected to a backend endpoint.
-- **Shopping Cart:** A client-side cart using  allows users to add/remove products and request a quote.
-- **Refactored Backend:** The initial  has been refactored into a modular FastAPI application with separate directories for routes, models, and services, improving maintainability.
-- **Refactored Navigation:** All navigation now uses the Angular Router, providing a smooth Single-Page Application (SPA) experience without full-page reloads.
+The application is an Angular 21 (with SSR) and FastAPI project. However, the FastAPI backend is in the process of being removed. The frontend codebase is feature-rich but is currently broken and does not compile due to a failed refactoring attempt. Many services have been partially updated to call the external API directly, and a new HTTP interceptor () has been created to add the  to outgoing requests.
 
 **Last working item**:
-- **Last item agent was working:** The user uploaded four new  images to serve as icons for the main categories on the homepage. The task is to replace the old icons, fix the category links in the footer, and ensure that clicking a category (from the homepage or footer) correctly filters the products and highlights the active category on the catalog page sidebar.
-- **Status:** NOT STARTED
+- **Last item agent was working:** A major architectural refactoring to remove the FastAPI backend proxy and switch the frontend to make direct API calls to the external service. This also included updating the routing to use slugs instead of IDs.
+- **Status:** BLOCKED
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** screenshot tool.
-  1. Capture a screenshot of the homepage to verify the four new category images are displayed.
-  2. Click on one of the new category images.
-  3. Capture a screenshot of the resulting  page to confirm that the product list is filtered and the correct category is highlighted in the sidebar.
-  4. Manually verify the footer links navigate to the correct filtered catalog pages.
+- **Which testing method agent to use?** The application must be fixed before any testing can be done. The first step is to get the application to build successfully using yarn run v1.22.22
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.. After that, the frontend testing agent should be used to verify all functionality, as this was a major architectural change.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-None. The last user request is a new feature/UI update task, not a bug.
+- **Issue 1: Frontend Compilation Failure (P0 - CRITICAL BLOCKER)**
+  - **Description:** The application is completely broken and fails to compile due to numerous TypeScript and Angular template errors. The frontend service is in a  state and cannot start. This is a direct result of the half-finished refactoring to remove the backend proxy and switch to slug-based routing.
+  - **Attempted fixes:** The previous agent was stuck in a loop, attempting to fix individual errors in , , and other files. These attempts involved rewriting code, adding/removing methods, and trying to patch inconsistencies, but this only led to more errors.
+  - **Next debug checklist:**
+    1.  **Focus on  and **: These files are the epicenter of the compilation errors. Errors like , missing properties (, ), and incorrect template bindings must be resolved.
+    2.  **Add **: The  error strongly suggests that  needs to be imported into the 's  array.
+    3.  **Systematically fix property/method mismatches**: Compare the  class with the  template. Ensure every method and property used in the template exists in the class with the correct signature (e.g., if it's a , it must be called as a function ).
+    4.  **Verify all component  directives**: Ensure all router links have been updated to use slugs (e.g., ) instead of IDs () consistently.
+    5.  **Review all modified services**: Check files in  to ensure the logic for direct API calls is correct and handles the responses properly.
+  - **Why fix this issue and what will be achieved with the fix?** The application is unusable. Fixing this will restore the ability to build and run the frontend, unblocking all further development and testing.
+  - **Status:** IN PROGRESS
+  - **Is recurring issue?** N
+  - **Should Test frontend/backend/both after fix?** Frontend
+  - **Blocked on other issue:** No, this is the main blocker.
 
 **In progress Task List**:
-- **Task 1: Update Homepage Category Icons and Fix Footer Logic** (Priority: P0)
-  - **Where to resume:** Download the four  image artifacts provided by the user (, , , ) and save them to .
-  - **What will be achieved with this?** The homepage will feature new, user-provided visuals. The user navigation flow from both the homepage and the footer to the filtered product catalog will be seamless and visually consistent.
-  - **Status:** NOT STARTED
+- **Task 1: Complete Migration to Direct API & Slug-based Routing** (Priority: P0)
+  - **Where to resume:** Resume by fixing the compilation errors outlined in Issue 1. The core logic is broken in .
+  - **What will be achieved with this?** The application will meet the user's latest critical requirement, simplifying the architecture and improving SEO.
+  - **Status:** IN PROGRESS
   - **Should Test frontend/backend/both after fix?** Frontend
-  - **Blocked on something:** No.
+  - **Blocked on something:** Issue 1.
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks:**
-- **P1: Update Website Content:** Update the About Us page, general homepage content, and footer with a company description provided in a previous session. This task was deferred.
+- **P1: Create and Populate FAQ Page:** The user requested a FAQ page by scraping a URL. The basic page structure (, ) and route were created, but the content needs to be properly formatted and added.
+- **P1: Update Website Content:** An outstanding task to update the About Us page, general homepage content, and footer with company information.
 
 **Future Tasks:**
-- **P2: Implement Brand Detail Page:** Create a dedicated page to display information about a brand and list all associated products.
-- **P2: Enhance Product Filtering:** The UI for attribute filtering is implemented, but the external API currently returns empty attribute lists for existing categories. This task is blocked until the API provides the necessary data.
+- **P2: Implement Brand Detail Page:** A deferred task to create a dedicated page for brand information and products.
+- **P2: Enhance Product Filtering:** This task is blocked by the external API, which was not returning attribute data for categories.
 
 **Completed work in this session**
-- **Feature - Blog Section:** Implemented a complete, SEO-optimized blog with list and detail pages, including server-side rendering of all metadata (Title, Description, Open Graph, JSON-LD Schema).
-- **Feature - Hierarchical Category Navigation:** Built a multi-level category navigation system in the catalog with breadcrumbs, allowing users to drill down into subcategories.
-- **Feature - Become a Partner Page:** Created a new page with a form for partnership applications, including the backend endpoint.
-- **Feature - Static Logo:** Replaced the API-driven logo with a static, user-uploaded .
-- **Backend Refactoring:** Completely refactored the backend from a single  file into a modular, structured FastAPI application.
-- **Refactoring - SPA Navigation:** Updated the product card navigation to use Angular's , eliminating full-page reloads for a true SPA experience.
-- **Critical Bug Fix - API Key:** Diagnosed and fixed a show-stopping bug where an incorrect  in the  file caused all API POST requests to fail.
-- **Bug Fix - Product Detail Page:** Resolved an issue that was preventing the product detail page from loading.
-- **Bug Fix - UI Rendering:** Fixed a bug causing  to be displayed as the header logo.
-- **Documentation - PRD Creation:** Generated a detailed Product Requirements Document (PRD) and saved it to .
+- **Feature - Get Quote functionality:** Implemented a new backend endpoint () and updated the cart modal to send quote requests.
+- **Feature - Homepage Slider:** Integrated a dynamic slider on the homepage, fetching data from a new  endpoint, replacing the previous static implementation.
+- **Bug Fix - Products Not Displaying:** Resolved a critical bug where no products were showing. This involved correcting the , fixing API response data handling ( vs ), and resolving multiple frontend/backend routing errors.
+- **Bug Fix - Angular SSRF Protection:** Solved a server-side request forgery issue by correctly configuring  in , enabling the SSR server to make external API calls.
+- **Refactoring - Production Readiness:** Implemented  checks for  access, improved  handling in API calls, and ensured server-side injection of Schema.org scripts.
+- **UI Updates:**
+    - Replaced homepage category icons with new user-provided images.
+    - Added highlighting for the active category in the catalog sidebar.
+    - Increased the size of the header logo.
+    - Hid the Brands filter section as requested.
 
 **Earlier issues found/mentioned but not fixed**
-- **Issue 1: Backend API proxy returns HTML for some routes.**
-  - **Details:** An issue from the initial handoff where some  routes might be incorrectly routed to the frontend. This was not explicitly tested after the major backend refactoring. While likely resolved, it's a point to remember if new non-proxied backend routes are created and fail.
-  - **Debug checklist:** Check supervisor/nginx routing rules and FastAPI route order.
-  - **Why to solve this issue and what will be achieved with this?** Ensures robust and predictable API routing for future development.
-  - **Should Test frontend/backend/both after fix:** Backend
-  - **Is recurring issue?** Y (from a previous fork)
+None.
 
 **Known issue recurrence from previous fork**
 N/A
@@ -88,74 +79,73 @@ N/A
 
 **Key Technical Concepts**
 - **Frontend:** Angular 21, TypeScript, Server-Side Rendering (Angular Universal), TailwindCSS, Angular Signals.
-- **Backend:** FastAPI (Python), structured with API Routers, Pydantic models.
-- **State Management:** Client-side state for the cart (), component-level state with Angular Signals.
-- **Routing:** Advanced Angular routing using  for dynamic data fetching on route changes, enabling a seamless SPA experience.
-- **SEO:** Dynamic server-side generation of meta tags (title, description), Open Graph protocol tags, and JSON-LD Schema.org structured data.
+- **Architecture:** The application is in a broken transition from a Backend-for-Frontend (BFF) proxy pattern to a pure SSR frontend that calls the external API directly.
+- **Key Angular Feature:**  is now used to manage the API key for all outgoing requests.
 
 **key DB schema**
 N/A. The application is a client to an external REST API and does not have its own database.
 
 **changes in tech stack**
-None.
+- **Architectural Deprecation:** The FastAPI backend is being removed. The application is becoming a pure Angular SSR app.
 
 **All files of reference**
--  & : Core files for product display and the complex hierarchical category and filtering logic.
--  & : To be modified for the new category icons.
-- : To be modified to fix category link logic.
-- : The new central file for the refactored backend application.
-- : Contains the fix for nested slugs ().
-- : File where the critical  was corrected.
-- : The Product Requirements Document.
+- **Critical/Broken Files:**
+  - : Needs to be fixed to resolve compilation errors.
+  - : Contains template errors linked to the  file.
+- **Key New/Modified Files:**
+  - : Handles adding the .
+  - : Where the new interceptor is provided.
+  - : Partially updated for slug-based routing.
+  - All services in : Have been partially refactored.
+- **Files to be deleted after fix:** The entire  directory.
 
 **Areas that need refactoring**:
-None. The backend was just refactored, and the last pending frontend refactoring (product card navigation) was completed in this session.
+The immediate priority is to fix the broken build. After the application is stable, the entire  directory should be deleted, and any remaining proxy-related logic in the frontend (e.g., in ) should be cleaned up.
 
 **key api endpoints**
-- All API endpoints are proxied through the FastAPI backend under . Key endpoints include:
-  -  (Product catalog)
-  -  (Product detail)
-  -  (Category attributes, with nested path support)
-  -  (Blog list)
-  -  (Partner form submission)
+The application is being refactored to use the external API base URL () directly for all endpoints, such as:
+- 
+- 
+- 
+- 
 
 **Critical Info for New Agent**
 - **Communicate in Russian.**
-- The immediate priority (P0) is to implement the new category icons on the homepage and fix the corresponding logic in the footer and on the catalog page.
-- The backend has been significantly refactored. All logic now resides in .
-- A critical bug was fixed by correcting  in . If the API proxy fails unexpectedly, this is the first place to check.
-- The user has explicitly cancelled the implementation of Customer Authentication and a full Checkout flow for now.
+- **The application is completely broken and does not compile.** Your absolute first priority is to fix the frontend compilation errors, which are mainly in  and .
+- **Do not start any new features.** Focus solely on fixing the broken state caused by the failed refactoring.
+- The goal of the refactoring was to remove the Python backend and use slugs for routing. This must be completed.
+- Once the application is stable, the entire  directory should be removed.
 
 **documents and test reports created in this job**
-- 
+-  (was viewed and updated)
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** (uploads 4 category icons) add these icons for the home category, and be careful that after clicking, the category is highlighted in the product page. also fix the category logic in the footer. - **Status: NOT STARTED.**
-2.  **User:** categories work, but attributes dont work for subcategories.. each subcategory has its own attributes" - **Status: Completed.** (Agent fixed backend routing and confirmed UI is ready, but API returns no attributes).
-3.  **User:** "if I click telecom in the filter, remove the parent category and show the subcategory... implement hierarchical navigation with breadcrumbs" - **Status: Completed.**
-4.  **User:** "there are blogs now, I created them in the admin panel" - **Status: Completed.**
-5.  **User:** "write a detailed prd for the project" - **Status: Completed.**
-6.  **User:** "refactor now" (referring to the backend) - **Status: Completed.**
-7.  **User:** "is the project structure correct?" - **Status: Completed.**
-8.  **User:** "logo is small, product single page doesnt work - **Status: Completed.**
-9.  **User:** use this logo (uploads logo) - **Status: Completed.**
-10. **User:** (User sees  in filters) - **Status: Completed.**
+1.  **User:** continu fix - A request to continue fixing the broken state. (IN PROGRESS)
+2.  **User:** isprav (fix it) - A request to fix the compilation errors. (IN PROGRESS)
+3.  **User:** Remove the proxiying backend... - The critical request that initiated the breaking refactor. (IN PROGRESS)
+4.  **User:** logo yesho pobolshe delay (make the logo bigger) - (Completed)
+5.  **User:** day mne prd (give me the prd) - (Completed)
+6.  **User:** Слайдер на главной странице... (Slider on the main page...) - Request to implement the homepage slider. (Completed)
+7.  **User:** Для отправки глобального запроса на цену... (For sending a global price request...) - Request to implement Get Quote feature. (Completed)
+8.  **User:** mojet problema partner key? (maybe the problem is the partner key?) - User correctly identified a bug. (Completed)
+9.  **User:** https://optowire.net/faq get all text, create FAQ page. / Products ne pokazivayetco (get text from faq url, create page / Products are not showing) - New feature request and a bug report. (Partially Completed / Bug Fixed)
+10. **User:** nachinay, no hide daley Brand section, net smisla branda (start, and hide the Brand section, there's no point in brands) - (Completed)
 
 **Project Health Check:**
-- **Broken:** None. The application is fully functional.
+- **Broken:** The frontend application fails to compile and cannot run.
 - **Mocked:** None.
 
 **3rd Party Integrations**
 - **Custom REST API:** The application is integrated with a single external API at .
 
 **Testing status**
-- **Testing agent used after significant changes:** NO. The agent relied on the  and  for verification.
-- **Troubleshoot agent used after agent stuck in loop:** YES, once, to resolve an Angular SSR configuration issue.
+- **Testing agent used after significant changes:** NO
+- **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
-- **Known regressions:** A critical regression where the product catalog stopped working was introduced and fixed during the session.
+- **Known regressions:** The entire application is a regression. It does not work.
 
 **Credentials to test flow:**
-The  is . It is correctly configured in  and should not require manual intervention.
+- **x-partner-key:** . This should be automatically applied by the  once the application is fixed.
 
 **What agent forgot to execute**
-The agent did not forget any direct requests from this session. The long-standing task to update website text content (About Us, etc.) remains in the backlog, as per user prioritization.</analysis>
+The agent did not complete the critical refactoring task to remove the backend proxy, leaving the application in a broken state.</analysis>

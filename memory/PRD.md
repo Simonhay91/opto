@@ -924,7 +924,7 @@ API_BASE_URL=https://dev.planetworkspace.com/api
 
 **Frontend (.env):**
 ```env
-REACT_APP_BACKEND_URL=https://product-catalog-185.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://api-direct-deploy.preview.emergentagent.com
 ```
 
 ### 9.2 Supported Categories
@@ -1104,7 +1104,7 @@ cd /app/backend
 - Backend: `/app/backend`
 
 **Live URL:**
-- Production: https://product-catalog-185.preview.emergentagent.com
+- Production: https://api-direct-deploy.preview.emergentagent.com
 
 ---
 
