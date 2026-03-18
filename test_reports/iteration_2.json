@@ -1,0 +1,75 @@
+{
+  "summary": "Comprehensive frontend testing of Optowire Angular 21 SSR catalog. Found and fixed 4 critical API parameter mismatches that were preventing category filtering, search, and sorting from working. All 10 requested features now verified working after fixes.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Catalog - category active state",
+        "issues": ["Active category (e.g. Telecommunication) button not highlighted with cyan background class when selected - the active check uses 'selectedCategoryId() === cat.id' but the comparison may fail if types differ (number vs string)"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/frontend/src/app/core/services/category.service.ts",
+    "/app/frontend/src/app/pages/catalog/catalog.ts"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "FIXED: CategoryService.getBySlug() was calling /web/category/:slug which returns 404 from external API. Now searches the flattened getAll() category tree instead.",
+    "FIXED: catalog.ts loadProducts() used 'search' param but API requires 'productName' - was returning all 938 results regardless of search query.",
+    "FIXED: catalog.ts loadProducts() used 'categories: [id]' (array) but API requires 'categoryId: number' (single integer) - category filtering was broken, showing all 938 instead of filtered count.",
+    "FIXED: Sort values used dashes ('price-asc') but API requires underscores ('price_asc') - sorting was returning null total from API.",
+    "NOTE: The SSR app requires yarn build + supervisor restart for code changes to take effect - no hot reload."
+  ],
+  "updated_files": [
+    "/app/frontend/src/app/core/services/category.service.ts",
+    "/app/frontend/src/app/pages/catalog/catalog.ts"
+  ],
+  "success_rate": {
+    "backend": "N/A - frontend only testing",
+    "frontend": "100% (10/10 features working after fixes)"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Angular 21 SSR app with live external API at https://dev.planetworkspace.com/api (x-partner-key: 94fa5fc3-9534-4bb5-8722-f724f84a5594). API parameter mappings: productName (not search), categoryId: number (not categories: []), price_asc underscore format (not price-asc dash). Category slugs: telecommunication (id=1, 582 products), network-equipments (id=91, 353 products). Total catalog: 938 products. App must be rebuilt (yarn build) and frontend restarted for code changes to take effect.",
+  "test_details": {
+    "homepage": "PASS - Hero slider loads from API (1 slide with full-height image), trust badges, 6 categories, 16 product cards across New Arrivals and Top Products sections",
+    "catalog_938": "PASS - 938 Results shown on /catalog page with 24 products per page",
+    "category_filter": "PASS (after fix) - /catalog/telecommunication shows 582 Results with breadcrumb 'All Categories > Telecommunication' and subcategories panel",
+    "search_filter": "PASS (after fix) - 'fiber' search returns 401 Results, clearing returns 938",
+    "sort_dropdown": "PASS (after fix) - Price: Low to High shows SFP/fiber products first (different order from default)",
+    "pagination": "PASS - 40 pages shown, page 2 navigates to different products",
+    "product_detail": "PASS - Full product detail page with main image, thumbnails, CRM code, model, quick specs, downloads tab, description, attributes",
+    "clear_filters": "PASS - Clear All button resets search query and returns to 938 results",
+    "mobile_filter": "PASS - Filter button visible on mobile, sidebar panel opens with category list",
+    "navigation": "PASS - Home, Products, Blog, FAQ, About, Contact Us all navigate correctly"
+  },
+  "rca_of_bugs_fixed": {
+    "bug1_category_slug_404": {
+      "root_cause": "CategoryService.getBySlug() called GET /web/category/:slug which the external API does not support (returns 404). When 404 occurs, the error handler set selectedCategoryId=null and loaded all products, bypassing category filter.",
+      "fix": "Rewrote getBySlug() to call getAll() and flatten the category tree to find by slug.",
+      "files": ["/app/frontend/src/app/core/services/category.service.ts"]
+    },
+    "bug2_search_param_mismatch": {
+      "root_cause": "catalog.ts loadProducts() sent 'search' in POST body but API expects 'productName'. The API silently ignored 'search' and returned all 938 products.",
+      "fix": "Changed criteria property from 'search' to 'productName'.",
+      "files": ["/app/frontend/src/app/pages/catalog/catalog.ts"]
+    },
+    "bug3_category_id_array": {
+      "root_cause": "catalog.ts sent 'categories: [1]' (array) in POST body but API expects 'categoryId: 1' (single integer). API ignored the array and returned all products.",
+      "fix": "Changed criteria to use 'categoryId: selectedCategoryId()' (number directly).",
+      "files": ["/app/frontend/src/app/pages/catalog/catalog.ts"]
+    },
+    "bug4_sort_value_format": {
+      "root_cause": "Sort option values used dash format ('price-asc') but API expects underscore format ('price_asc'). API returned null total for dash format.",
+      "fix": "Changed sortOptions values to use underscore: 'price_asc', 'price_desc'.",
+      "files": ["/app/frontend/src/app/pages/catalog/catalog.ts"]
+    }
+  }
+}
