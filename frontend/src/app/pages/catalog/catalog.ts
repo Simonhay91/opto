@@ -1,17 +1,18 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit, PLATFORM_ID, computed } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { BrandService } from '../../core/services/brand.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
-import { ProductDto, CategoryDto, BrandDto } from '../../core/models/models';
+import { ProductDto, CategoryDto, BrandDto, ProductCriteriaDto } from '../../core/models/models';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CommonModule, RouterLink, ProductCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ProductCardComponent],
   templateUrl: './catalog.html',
 })
 export class CatalogComponent implements OnInit {
@@ -21,13 +22,35 @@ export class CatalogComponent implements OnInit {
   private cs = inject(CategoryService);
   private bs = inject(BrandService);
   private seo = inject(SeoService);
+  private platformId = inject(PLATFORM_ID);
   lang = inject(LangService);
 
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
+  allCategories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
   attributes = signal<any[]>([]);
-  breadcrumbs = signal<CategoryDto[]>([]);
+  categoryBreadcrumb = signal<CategoryDto[]>([]);
+  
+  loading = signal(true);
+  selectedCategoryId: number | null = null;
+  selectedCategorySlug = signal<string | null>(null);
+  selectedBrandId: number | null = null;
+  selectedAttributes = signal<Record<string | number, string[]>>({});
+  searchQuery = '';
+  sortBy = 'newest';
+  
+  currentPage = signal(1);
+  totalItems = signal(0);
+  totalPages = signal(0);
+  limit = 24;
+  sidebarOpen = signal(false);
+
+  sortOptions = [
+    { value: 'newest', label: 'Newest First' },
+    { value: 'price-asc', label: 'Price: Low to High' },
+    { value: 'price-desc', label: 'Price: High to Low' },
+  ];
   
   loading = signal(true);
   selectedCategoryId = signal<number | null>(null);
@@ -133,17 +156,38 @@ export class CatalogComponent implements OnInit {
   }
 
   navigateToCategory(category: CategoryDto) {
-    this.router.navigate(['/catalog', category.slug]);
+    if (category.slug) {
+      this.router.navigate(['/catalog', category.slug]);
+    }
+  }
+
+  onBreadcrumbClick(cat: CategoryDto, index: number) {
+    if (cat.slug) {
+      this.router.navigate(['/catalog', cat.slug]);
+    }
+  }
+
+  goBackToRoot() {
+    this.router.navigate(['/catalog']);
+  }
+
+  onSearch() {
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onSortChange() {
+    this.loadProducts();
   }
 
   onBrandChange(brandId: number) {
-    this.selectedBrandId.set(this.selectedBrandId() === brandId ? null : brandId);
+    this.selectedBrandId = this.selectedBrandId === brandId ? null : brandId;
     this.currentPage.set(1);
     this.loadProducts();
   }
 
   onAttributeValueChange(attrId: string | number, value: string, checked: boolean) {
-    const current = { ...this.selectedAttributeValues() };
+    const current = { ...this.selectedAttributes() };
     if (!current[attrId]) current[attrId] = [];
     
     if (checked) {
@@ -153,15 +197,37 @@ export class CatalogComponent implements OnInit {
       if (current[attrId].length === 0) delete current[attrId];
     }
     
-    this.selectedAttributeValues.set(current);
+    this.selectedAttributes.set(current);
     this.currentPage.set(1);
     this.loadProducts();
   }
 
+  isAttributeValueSelected(attrId: string | number, value: string): boolean {
+    return this.selectedAttributes()[attrId]?.includes(value) || false;
+  }
+
+  getAttributeValue(attr: any): string {
+    return String(attr.value || attr.id || attr);
+  }
+
+  getAttributeValueLabel(attr: any): string {
+    return attr.label || attr.name || String(attr);
+  }
+
+  getSelectedAttributesCount(): number {
+    return Object.keys(this.selectedAttributes()).length;
+  }
+
   clearFilters() {
-    this.selectedBrandId.set(null);
-    this.selectedAttributeValues.set({});
-    this.searchQuery.set('');
+    this.selectedBrandId = null;
+    this.selectedAttributes.set({});
+    this.searchQuery = '';
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  clearAttributeFilters() {
+    this.selectedAttributes.set({});
     this.currentPage.set(1);
     this.loadProducts();
   }
@@ -169,19 +235,8 @@ export class CatalogComponent implements OnInit {
   goToPage(page: number) {
     this.currentPage.set(page);
     this.loadProducts();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  get paginationPages(): number[] {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const delta = 2;
-    const pages: number[] = [];
-    
-    for (let i = Math.max(1, current - delta); i <= Math.min(total, current + delta); i++) {
-      pages.push(i);
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
-    return pages;
   }
 }
