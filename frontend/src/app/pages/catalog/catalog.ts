@@ -44,13 +44,11 @@ export class CatalogComponent implements OnInit {
   // Filters
   selectedBrandIds = signal<number[]>([]);
   selectedAttributes = signal<Record<number, string[]>>({});
-  inStockOnly = signal(false);
   // Pagination
   currentPage = signal(1);
-  totalItems = signal(0);    // after client filter
+  totalItems = signal(0);
   totalPages = signal(0);
   sidebarOpen = signal(false);
-  // Whether we loaded the full set for a category
   fullCategoryLoaded = signal(false);
 
   searchQuery = '';
@@ -75,8 +73,7 @@ export class CatalogComponent implements OnInit {
 
   activeFilterCount = computed(() =>
     this.selectedBrandIds().length +
-    Object.values(this.selectedAttributes()).reduce((s, v) => s + v.length, 0) +
-    (this.inStockOnly() ? 1 : 0)
+    Object.values(this.selectedAttributes()).reduce((s, v) => s + v.length, 0)
   );
 
   ngOnInit() {
@@ -236,21 +233,15 @@ export class CatalogComponent implements OnInit {
     const all = this.allProducts();
     const selectedBrands = this.selectedBrandIds();
     const selectedAttrs = this.selectedAttributes();
-    const inStock = this.inStockOnly();
     const sortBy = this.sortBy;
     const search = this.searchQuery.toLowerCase();
 
     let filtered = all.filter(p => {
-      // text search (re-apply if search is set)
       if (search && !p.name.toLowerCase().includes(search)) return false;
-      // in stock
-      if (inStock && (p.stockAmount ?? 0) <= 0) return false;
-      // brand (client-side if server doesn't filter)
       if (selectedBrands.length > 0) {
         const pBrandId = (p as any).brandId ?? (p as any).brand?.id;
         if (!selectedBrands.includes(pBrandId)) return false;
       }
-      // attributes
       for (const [attrIdStr, values] of Object.entries(selectedAttrs)) {
         if (!values.length) continue;
         const attrId = Number(attrIdStr);
@@ -354,12 +345,6 @@ export class CatalogComponent implements OnInit {
     return this.selectedAttributes()[attrId]?.includes(value) || false;
   }
 
-  onInStockChange(checked: boolean) {
-    this.inStockOnly.set(checked);
-    this.currentPage.set(1);
-    this.applyClientFilters();
-  }
-
   removeAttrFilter(attrId: number, value: string) {
     this.onAttributeChange(attrId, value, false);
   }
@@ -383,7 +368,6 @@ export class CatalogComponent implements OnInit {
   private clearFiltersInternal() {
     this.selectedBrandIds.set([]);
     this.selectedAttributes.set({});
-    this.inStockOnly.set(false);
   }
 
   clearFilters() {
@@ -400,7 +384,6 @@ export class CatalogComponent implements OnInit {
   clearAttributeFilters() {
     this.selectedAttributes.set({});
     this.selectedBrandIds.set([]);
-    this.inStockOnly.set(false);
     this.currentPage.set(1);
     this.applyClientFilters();
   }

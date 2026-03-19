@@ -1,6 +1,6 @@
-import { Component, inject, signal, HostListener, OnInit, OnDestroy, ElementRef } from '@angular/core';
+import { Component, inject, signal, HostListener, OnInit, OnDestroy, ElementRef, PLATFORM_ID } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { LangService } from '../../core/services/lang.service';
 import { ProductService } from '../../core/services/product.service';
@@ -11,6 +11,9 @@ import { QuoteModalComponent } from '../quote-modal/quote-modal';
 import { CartModalComponent } from '../cart-modal/cart-modal';
 import { getImageUrl, ProductDto } from '../../core/models/models';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
+
+const RECENT_KEY = 'optowire_recent_searches';
+const MAX_RECENT = 5;
 
 @Component({
   selector: 'app-header',
@@ -28,6 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private ps = inject(ProductService);
   private router = inject(Router);
   private elRef = inject(ElementRef);
+  private platformId = inject(PLATFORM_ID);
 
   partnerName = signal('Optowire');
   partnerLogo = signal('/assets/images/optowire-logo.png');
@@ -42,6 +46,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   searchResults = signal<ProductDto[]>([]);
   searchLoading = signal(false);
   showDropdown = signal(false);
+  recentSearches = signal<string[]>([]);
   private searchInput$ = new Subject<string>();
 
   navLinks = [
@@ -54,13 +59,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
+    this.loadRecentSearches();
+
     this.searchInput$.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(query => {
         if (query.trim().length < 2) {
           this.searchResults.set([]);
-          this.showDropdown.set(false);
+          this.showDropdown.set(query.trim().length === 0 && this.recentSearches().length > 0);
           this.searchLoading.set(false);
           return of(null);
         }
@@ -98,6 +105,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (value.trim().length < 2) this.closeDropdown();
   }
 
+  onSearchFocus() {
+    if (!this.searchQuery().trim() && this.recentSearches().length > 0) {
+      this.showDropdown.set(true);
+    }
+  }
+
   closeDropdown() {
     this.showDropdown.set(false);
   }
@@ -115,12 +128,57 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   search() {
-    if (this.searchQuery().trim()) {
-      this.router.navigate(['/catalog'], { queryParams: { q: this.searchQuery() } });
+    const q = this.searchQuery().trim();
+    if (q) {
+      this.saveRecentSearch(q);
+      this.router.navigate(['/catalog'], { queryParams: { q } });
       this.closeDropdown();
       this.mobileSearchOpen.set(false);
       this.searchQuery.set('');
     }
+  }
+
+  selectRecentSearch(term: string) {
+    this.searchQuery.set(term);
+    this.saveRecentSearch(term);
+    this.router.navigate(['/catalog'], { queryParams: { q: term } });
+    this.closeDropdown();
+    this.searchQuery.set('');
+    this.menuOpen.set(false);
+  }
+
+  removeRecentSearch(term: string, e: MouseEvent) {
+    e.stopPropagation();
+    const updated = this.recentSearches().filter(s => s !== term);
+    this.recentSearches.set(updated);
+    this.saveToStorage(updated);
+    if (!updated.length) this.closeDropdown();
+  }
+
+  clearRecentSearches(e: MouseEvent) {
+    e.stopPropagation();
+    this.recentSearches.set([]);
+    if (isPlatformBrowser(this.platformId)) localStorage.removeItem(RECENT_KEY);
+    this.closeDropdown();
+  }
+
+  private saveRecentSearch(term: string) {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const updated = [term, ...this.recentSearches().filter(s => s !== term)].slice(0, MAX_RECENT);
+    this.recentSearches.set(updated);
+    this.saveToStorage(updated);
+  }
+
+  private loadRecentSearches() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      const raw = localStorage.getItem(RECENT_KEY);
+      this.recentSearches.set(raw ? JSON.parse(raw) : []);
+    } catch { this.recentSearches.set([]); }
+  }
+
+  private saveToStorage(items: string[]) {
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(items)); } catch {}
   }
 
   onSearchKey(e: KeyboardEvent) {
