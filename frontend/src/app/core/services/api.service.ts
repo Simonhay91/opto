@@ -10,8 +10,11 @@ export class ApiService {
   private platformId = inject(PLATFORM_ID);
 
   private get base(): string {
-    // Direct API access - no proxy
-    return 'https://api-prod.optowire.net';
+    // SSR (server-side): call external API directly — no CORS
+    // Browser (client-side): use /ext proxy on this server to avoid CORS
+    return isPlatformServer(this.platformId)
+      ? 'https://api-prod.optowire.net'
+      : '/ext';
   }
 
   /**

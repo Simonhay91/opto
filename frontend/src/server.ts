@@ -51,6 +51,18 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
+// Proxy for external Optowire API — avoids CORS issues in browser
+app.use('/ext', createProxyMiddleware({
+  target: 'https://api-prod.optowire.net',
+  changeOrigin: true,
+  pathRewrite: { '^/ext': '' },
+  on: {
+    proxyReq: (proxyReq: any) => {
+      proxyReq.setHeader('x-partner-key', '94fa5fc3-9534-4bb5-8722-f724f84a5594');
+    }
+  }
+}));
+
 /**
  * Serve static files from /browser
  */
