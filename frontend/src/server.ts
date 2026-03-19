@@ -19,7 +19,7 @@ const allowedHosts = [
   'preview.emergentagent.com',
   'product-catalog-185.preview.emergentagent.com',
   'optowire.preview.emergentagent.com',
-  'dev.planetworkspace.com'
+  'api-prod.optowire.net'
 ];
 
 // Add headers middleware

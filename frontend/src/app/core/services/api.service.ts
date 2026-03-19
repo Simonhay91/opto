@@ -11,7 +11,7 @@ export class ApiService {
 
   private get base(): string {
     // Direct API access - no proxy
-    return 'https://dev.planetworkspace.com/api';
+    return 'https://api-prod.optowire.net';
   }
 
   /**

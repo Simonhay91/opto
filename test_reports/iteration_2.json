@@ -37,7 +37,7 @@
   "seed_data_creation": "None",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Angular 21 SSR app with live external API at https://dev.planetworkspace.com/api (x-partner-key: 94fa5fc3-9534-4bb5-8722-f724f84a5594). API parameter mappings: productName (not search), categoryId: number (not categories: []), price_asc underscore format (not price-asc dash). Category slugs: telecommunication (id=1, 582 products), network-equipments (id=91, 353 products). Total catalog: 938 products. App must be rebuilt (yarn build) and frontend restarted for code changes to take effect.",
+  "context_for_next_testing_agent": "Angular 21 SSR app with live external API at https://planetworkspace.com/api (x-partner-key: 94fa5fc3-9534-4bb5-8722-f724f84a5594). API parameter mappings: productName (not search), categoryId: number (not categories: []), price_asc underscore format (not price-asc dash). Category slugs: telecommunication (id=1, 582 products), network-equipments (id=91, 353 products). Total catalog: 938 products. App must be rebuilt (yarn build) and frontend restarted for code changes to take effect.",
   "test_details": {
     "homepage": "PASS - Hero slider loads from API (1 slide with full-height image), trust badges, 6 categories, 16 product cards across New Arrivals and Top Products sections",
     "catalog_938": "PASS - 938 Results shown on /catalog page with 24 products per page",

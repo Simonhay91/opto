@@ -36,8 +36,8 @@ export class BrandsComponent implements OnInit {
     if (!logo) return '';
     if (typeof logo === 'string') return logo;
     if (logo?.url) return logo.url;
-    if (logo?.path) return `https://dev.planetworkspace.com/${logo.path}`;
-    if (logo?.optimizedPath) return `https://dev.planetworkspace.com/${logo.optimizedPath}`;
+    if (logo?.path) return `https://api-prod.optowire.net/${logo.path}`;
+    if (logo?.optimizedPath) return `https://api-prod.optowire.net/${logo.optimizedPath}`;
     return '';
   }
 }

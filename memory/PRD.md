@@ -1,14 +1,14 @@
 # PRD — Optowire Product Catalog (planetworkspace.com)
 
 ## Original Problem Statement
-Build an SEO-optimized product catalog website using the external REST API at `https://dev.planetworkspace.com/api` with `x-partner-key: 94fa5fc3-9534-4bb5-8722-f724f84a5594`. 
+Build an SEO-optimized product catalog website using the external REST API at `https://planetworkspace.com/api` with `x-partner-key: 94fa5fc3-9534-4bb5-8722-f724f84a5594`. 
 
 The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls from Angular). Features: product catalog, product detail pages, blog, partnership form, "Get Quote" functionality, FAQ page.
 
 ## Architecture
 - **Frontend:** Angular 21 SSR (`/app/frontend/`) — serves at port 3000
 - **Backend:** FastAPI (`/app/backend/`) — **TO BE DELETED** (no longer used)
-- **External API:** `https://dev.planetworkspace.com/api`
+- **External API:** `https://planetworkspace.com/api`
 - **API Key interceptor:** `api-key.interceptor.ts` injects `x-partner-key` header
 - **Routing:** Slug-based (`/catalog/:categorySlug`, `/product/:slug`)
 

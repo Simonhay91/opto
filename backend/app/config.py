@@ -9,7 +9,7 @@ class Settings:
     DB_NAME: str = os.getenv('DB_NAME', 'full-stack')
     
     # External API
-    API_BASE_URL: str = os.getenv('API_BASE_URL', 'https://dev.planetworkspace.com/api')
+    API_BASE_URL: str = os.getenv('API_BASE_URL', 'https://planetworkspace.com/api')
     PARTNER_KEY: str = os.getenv('PARTNER_KEY', '')
     
     # Server

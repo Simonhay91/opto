@@ -25,7 +25,7 @@
   "seed_data_creation": "None",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Angular 21 SSR app. External API: https://dev.planetworkspace.com/api. Product slugs contain full paths with slashes (e.g. 'telecommunication/cable-mounting/.../product-name'). Product detail only works via SPA navigation (router.navigate), not direct SSR URL. Category fix: subcategories appear in sidebar when parent category clicked. Both fixes verified working.",
+  "context_for_next_testing_agent": "Angular 21 SSR app. External API: https://planetworkspace.com/api. Product slugs contain full paths with slashes (e.g. 'telecommunication/cable-mounting/.../product-name'). Product detail only works via SPA navigation (router.navigate), not direct SSR URL. Category fix: subcategories appear in sidebar when parent category clicked. Both fixes verified working.",
   "test_details": {
     "fix1_crm_removal": "PASS - CRM code completely absent from product detail page. ART: T-CM-TC-AC-0021 shown correctly. Both code review (lines 109-113, meta grid) and Playwright test confirmed.",
     "fix2_root_catalog": "PASS - /catalog shows root categories: Telecommunication, Network Equipments, Security Systems, Electronic devices, IoT, Tools. 938 Results shown.",

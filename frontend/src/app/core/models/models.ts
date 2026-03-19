@@ -2,7 +2,7 @@
 
 // External API URL for static files (images, datasheets)
 // Note: apiUrl includes /api as the production API will be on a different origin
-export const EXTERNAL_API_URL = 'https://dev.planetworkspace.com/api';
+export const EXTERNAL_API_URL = 'https://api-prod.optowire.net';
 
 export interface Image {
   id: number | string;
