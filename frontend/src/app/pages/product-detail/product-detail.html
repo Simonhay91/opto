@@ -173,31 +173,17 @@
             </button>
           </div>
 
-          <!-- Quick Specs Summary -->
-          @if (quickSpecs.length) {
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 mt-2">
-              <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Quick Specs</h3>
-              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                @for (spec of quickSpecs; track spec.name) {
-                  <div class="text-sm">
-                    <span class="text-slate-500">{{spec.name}}:</span>
-                    <span class="font-medium text-slate-800 dark:text-slate-200 ml-1">{{spec.value}}</span>
-                  </div>
-                }
-              </div>
-            </div>
-          }
         </div>
       </div>
 
       <!-- Tabs Section -->
       <div class="mt-10">
         <div class="flex border-b border-slate-200 dark:border-slate-800 gap-0 overflow-x-auto">
-          @for (tab of ['description', 'specs', 'attributes']; track tab) {
+          @for (tab of ['description', 'attributes']; track tab) {
             <button (click)="activeTab.set($any(tab))"
                     [class]="'px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ' + (activeTab() === tab ? 'border-cyan-500 text-cyan-500' : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300')"
                     [attr.data-testid]="'tab-' + tab">
-              {{tab === 'description' ? 'Description' : tab === 'specs' ? 'Specifications' : 'Attributes'}}
+              {{tab === 'description' ? 'Description' : 'Attributes'}}
             </button>
           }
         </div>
@@ -220,17 +206,6 @@
                 <h4 class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">About {{product()!.category.name}}</h4>
                 <p class="text-sm text-slate-500">{{product()!.category.description}}</p>
               </div>
-            }
-          }
-
-          <!-- Specs Tab (from description parsed) -->
-          @if (activeTab() === 'specs') {
-            @if (product()!.description) {
-              <div class="prose prose-slate dark:prose-invert max-w-none prose-table:border prose-table:border-slate-200 dark:prose-table:border-slate-700"
-                   [innerHTML]="product()!.description">
-              </div>
-            } @else {
-              <p class="text-slate-400 text-sm">No specifications available.</p>
             }
           }
 
