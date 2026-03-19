@@ -46,7 +46,7 @@ export class QuoteModalComponent {
       phone: this.form.phone || undefined,
       quantity: this.form.quantity ? Number(this.form.quantity) : undefined,
       message: this.product
-        ? `Product: ${this.product.name}${this.product.model ? ' / ' + this.product.model : ''}${this.product.crmCode ? ' #' + this.product.crmCode : ''}\n\n${this.form.message}`
+        ? `Product: ${this.product.name}${this.product.model ? ' / ' + this.product.model : ''}\n\n${this.form.message}`
         : this.form.message,
     };
 

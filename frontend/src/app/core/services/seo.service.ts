@@ -71,7 +71,7 @@ export class SeoService {
       '@type': 'Product',
       name: product.name,
       description: desc,
-      sku: product.crmCode,
+      sku: product.model,
       model: product.model,
       brand: { '@type': 'Brand', name: product.brandName || 'Optowire' },
       image: imgUrl,
@@ -93,7 +93,7 @@ export class SeoService {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'Optowire',
-      alternateName: 'Planet Fiber',
+      alternateName: 'Optowire Technology',
       url: 'https://optowire.net',
       description: 'Leading fiber optic cable manufacturer based in Qingdao, China.',
       address: {

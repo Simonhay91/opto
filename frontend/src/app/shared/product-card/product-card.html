@@ -24,8 +24,8 @@
   <!-- Info -->
   <div class="p-3 flex flex-col flex-1 gap-1">
     <!-- Code -->
-    @if (product.crmCode) {
-      <span class="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider">#{{product.crmCode}}</span>
+    @if (product.model) {
+      <span class="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{product.model}}</span>
     }
     <!-- Model -->
     @if (product.model) {
