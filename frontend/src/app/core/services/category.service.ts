@@ -4,12 +4,17 @@ import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CategoryDto } from '../models/models';
 
+// Only these 4 categories are supported across the entire application
+const ALLOWED_CATEGORY_IDS = new Set([1, 91, 188, 212]);
+
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private api = inject(ApiService);
 
   getAll(): Observable<CategoryDto[]> {
-    return this.api.get<CategoryDto[]>('/web/category');
+    return this.api.get<CategoryDto[]>('/web/category').pipe(
+      map(cats => cats.filter(c => ALLOWED_CATEGORY_IDS.has(Number(c.id))))
+    );
   }
 
   /**

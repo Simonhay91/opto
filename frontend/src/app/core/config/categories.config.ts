@@ -11,25 +11,25 @@ export const SUPPORTED_CATEGORIES: CategoryConfig[] = [
     id: 1,
     slug: 'telecommunication',
     name: 'Telecommunication',
-    icon: '/assets/images/telecom.webp'
+    icon: '/assets/images/optowireCategories/telecom.webp'
   },
   {
     id: 91,
-    slug: 'network-equipments',
+    slug: 'network-equipment',
     name: 'Network Equipments',
-    icon: '/assets/images/network.webp'
+    icon: '/assets/images/optowireCategories/network.webp'
   },
   {
     id: 188,
     slug: 'security-systems',
     name: 'Security Systems',
-    icon: '/assets/images/security.webp'
+    icon: '/assets/images/optowireCategories/security.webp'
   },
   {
     id: 212,
     slug: 'iot',
     name: 'IoT',
-    icon: '/assets/images/iot.webp'
+    icon: '/assets/images/optowireCategories/iot.webp'
   }
 ];
 
