@@ -66,7 +66,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private searchInput$ = new Subject<string>();
 
   navLinks = [
-    { key: 'home', path: '/' },
     { key: 'blog', path: '/blog' },
     { key: 'faq', path: '/faq' },
     { key: 'about', path: '/about' },
