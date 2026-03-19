@@ -48,7 +48,7 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - "Get Quote" feature
 - Category icons, logo sizing, brands section hidden
 
-### Session 4 (Current — 2026-03-18)
+### Session 4 (2026-03-18)
 - **FIXED:** Frontend compilation failure (30+ TypeScript errors in catalog.ts)
 - **FIXED:** Duplicate property declarations (signals vs non-signals)
 - **FIXED:** Template binding errors (sidebarOpen, categoryBreadcrumb, selectedCategoryId calls)
@@ -60,20 +60,36 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **FIXED (by testing agent):** Sort values use underscores: `price_asc` / `price_desc`
 - **TESTED:** 10/10 features passing (100%)
 
+### Session 5 (2026-03-19)
+- **External API URL changed** from dev to production: `https://api-prod.optowire.net`
+- **FIXED:** CORS issue — added proxy at `/ext` in Express server (server.ts)
+- **FIXED:** Angular SSR rejecting hostname — added `allowedHosts: ['*.preview.emergentagent.com', ...]` to `AngularNodeAppEngine`
+- **FIXED (by testing agent):** Proxy forwarding `Origin`/`Referer` headers causing 401 from external API — removed these headers in proxyReq handler
+- **FIXED (by testing agent):** Search param mismatch — header used `?q=` but catalog read `?search=`, now reads both `q` and `search`
+- **TESTED:** 8/8 features passing (100%), test report: `/app/test_reports/iteration_4.json`
+
 ## Prioritized Backlog
 
 ### P1 — Next Priority
+- **Delete `/app/backend/`** directory (FastAPI proxy no longer needed)
 - **FAQ Page Content:** Create proper FAQ content from optowire.net/faq
 - **About Us Page Update:** Update content with company information
 - **Footer Update:** Add company information
 
 ### P2 — Future
-- **Delete `/app/backend/`** directory (FastAPI proxy no longer needed)
 - **Brand Detail Page:** Dedicated page for brand info and products
 - **Enhanced Product Filtering:** Attribute-based filtering (blocked on API returning attribute data)
+- **Search-as-you-type:** Live search suggestions dropdown
 - **SEO Improvements:** Proper meta tags per page
 
+## API Notes (Production)
+- **API URL:** `https://api-prod.optowire.net`
+- **Proxy:** `/ext` path in Express server proxies to API with `x-partner-key` header
+- **SSR:** Direct API calls (no proxy needed for server-side)
+- **Browser:** Uses `/ext` proxy to avoid CORS
+- **Important:** Proxy MUST remove `Origin` and `Referer` headers (API rejects with 401 otherwise)
+
 ## Test Status
-- **Last tested:** 2026-03-18
-- **Test result:** 10/10 PASS
-- **Test report:** `/app/test_reports/iteration_2.json`
+- **Last tested:** 2026-03-19
+- **Test result:** 8/8 PASS (100%)
+- **Test report:** `/app/test_reports/iteration_4.json`
