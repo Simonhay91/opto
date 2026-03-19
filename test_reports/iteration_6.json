@@ -1,0 +1,70 @@
+{
+  "summary": "Frontend testing of Optowire Angular 21 SSR catalog enhanced attribute filtering. All 9 features pass after fixing one display bug. The bug: active filter chips showed raw attribute IDs (e.g. '654: Simplex') instead of attribute names ('Fiber Count: Simplex') — caused by getAttrName() using strict equality between number and string. Fixed and rebuilt.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Active Filter Chips (catalog.html + catalog.ts)",
+        "issue": "BUG FIXED: Active filter chips showed raw attribute ID (e.g. '654: Simplex') instead of attribute name ('Fiber Count: Simplex'). Root cause: Angular keyvalue pipe converts numeric Record keys to strings; getAttrName() did strict equality a.id === attrId (number vs string always false), so fell back to String(attrId).",
+        "selector": "[data-testid='active-filters'] span.inline-flex",
+        "priority": "MEDIUM",
+        "status": "FIXED"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "In Stock Only filter",
+        "issues": ["In Stock Only shows 0 results for fo-passive-components — likely a data issue (stockAmount=0 for all products in this category), not a code bug. Filter logic itself is correct."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_6.json"
+  ],
+  "action_items": [
+    "DONE: Fixed getAttrName() in catalog.ts to use Number(attrId) so attribute names resolve correctly in active filter chips",
+    "MINOR: In Stock Only filter shows 0 results for fo-passive-components — verify stockAmount field is populated correctly in product data"
+  ],
+  "critical_code_review_comments": [
+    "BUG FIXED: catalog.ts getAttrName() — strict equality a.id === attrId fails when attrId is a string from Angular keyvalue pipe (number 654 !== string '654'). Fixed to Number(attrId). getBrandName() has same pattern but brands use array-based selectedBrandIds (not keyvalue pipe), so not affected.",
+    "NOTE: race condition from iteration_5 (combineLatest fix) was already applied — confirmed working correctly in ngOnInit."
+  ],
+  "updated_files": [
+    "/app/frontend/src/app/pages/catalog/catalog.ts"
+  ],
+  "success_rate": {
+    "backend": "N/A - frontend only",
+    "frontend": "9/9 features PASS (100%). One bug found & fixed (chip label)"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Angular 21 SSR app at catalog-preview-13.preview.emergentagent.com. Attribute filtering feature is fully working. Key categories: /catalog/fo-passive-components (50 visible / 157 loaded, 10 attr groups: Fiber Count, Fiber Length, Polish Type, Connector, Outside Diameter, etc.), /catalog/network-cable (50 visible, 4 attr groups: Conductor Diameter, Network Cable Type, Outer Sheath, Length). Brands shown: Optowire, Yixing, Vivio. getAttrName() bug fixed in iteration_6. Previous race condition fix (combineLatest) confirmed from iteration_5 is still in place.",
+  "test_details": {
+    "1_navigate_to_category": "PASS - /catalog/fo-passive-components loads, shows 50 Results",
+    "2_specifications_section": "PASS - Sidebar shows SPECIFICATIONS section with 10 attribute groups (Fiber Count, Fiber Length, Polish Type, Connector, Outside Diameter, Pigtail Length, Tube Diameter, Configuration Type)",
+    "3_attribute_checkbox_filter": "PASS - Selecting Simplex (Fiber Count) filters 50→26. Selecting Duplex filters 50→7. Immediate client-side filtering confirmed.",
+    "4_active_filter_chip": "PASS (after fix) - Chip appears as 'Fiber Count: Simplex' after selecting attribute",
+    "5_remove_chip_x": "PASS - Clicking X on chip removes filter, count restored to 50, active-filters container removed",
+    "6_in_stock_toggle": "PASS (functionally) - Toggle works, adds 'In Stock' chip, changes count. Shows 0 due to no in-stock data.",
+    "7_clear_all_button": "PASS - clear-all-filters-btn clears all filters, count restored to 50",
+    "8_product_count_updates": "PASS - Count updates dynamically: initial 50, after Simplex=26, after Duplex=7, after clear=50",
+    "9_brands_section": "PASS - Shows 3 brand checkboxes: Optowire, Yixing, Vivio (fullCategoryLoaded=true required)",
+    "network_cable_category": "PASS - /catalog/network-cable loads with 4 attr groups: Conductor Diameter (mm), Network Cable Type, Outer Sheath, Length (m)"
+  },
+  "rca_of_issue": {
+    "title": "Active filter chip shows raw attribute ID instead of name",
+    "root_cause": "getAttrName(attrId: number) in catalog.ts used strict equality: this.extractedAttrs().find(a => a.id === attrId). When called from template via Angular keyvalue pipe (which converts numeric Record<number,string[]> keys to strings), attrId arrives as string '654' not number 654. Strict equality fails (654 !== '654'), fallback String(attrId) returns '654'.",
+    "reproduction_steps": [
+      "Navigate to /catalog/fo-passive-components",
+      "Wait for products to load",
+      "Click any attribute checkbox (e.g. Fiber Count > Simplex)",
+      "Observe active chip shows '654: Simplex' instead of 'Fiber Count: Simplex'"
+    ],
+    "fix_applied": "Changed getAttrName signature to accept number|string and added Number(attrId) conversion before comparison. Rebuilt Angular app and restarted supervisor."
+  }
+}
