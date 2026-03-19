@@ -79,7 +79,10 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **FIX:** footer.html — lowercase `routerlink` attributes fixed to `routerLink`
 - **FIX:** index.html — removed hardcoded preview URL, added default og/twitter meta tags
 
-## Prioritized Backlog
+### Session 7 (2026-03-19)
+- **FEATURE:** Search-as-you-type in header — debounce 300ms, min 2 chars, dropdown with 6 product results (image + name + brand), click → product page, "View all" → /catalog?q=term, Escape/click-outside to close
+- **FIX:** catalog.ts race condition — replaced separate paramMap + queryParamMap subscriptions with `combineLatest` so loadProducts() fires once with all resolved params
+- **TESTED:** 8/8 search features PASS (100%), test report: `/app/test_reports/iteration_5.json`
 
 ### P1 — Next Priority
 - **FAQ Page Content:** Create proper FAQ content from optowire.net/faq (page exists but may need content update)

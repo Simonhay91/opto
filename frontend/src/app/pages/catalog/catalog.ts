@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, PLATFORM_ID, computed } from '@angul
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { combineLatest } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { BrandService } from '../../core/services/brand.service';
@@ -63,8 +64,14 @@ export class CatalogComponent implements OnInit {
     this.loadCategories();
     this.loadBrands();
 
-    this.route.paramMap.subscribe(params => {
+    // Use combineLatest to avoid race condition between paramMap and queryParamMap
+    combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, queryParams]) => {
       const categorySlug = params.get('categorySlug');
+      const search = queryParams.get('q') || queryParams.get('search') || '';
+
+      this.searchQuery = search;
+      this.currentPage.set(1);
+
       if (categorySlug) {
         this.selectedCategorySlug.set(categorySlug);
         this.loadCategoryBySlug(categorySlug);
@@ -72,15 +79,7 @@ export class CatalogComponent implements OnInit {
         this.selectedCategorySlug.set(null);
         this.selectedCategoryId.set(null);
         this.categoryBreadcrumb.set([]);
-        this.loadCategories(); // reset to root categories
-        this.loadProducts();
-      }
-    });
-
-    this.route.queryParamMap.subscribe(params => {
-      const search = params.get('q') || params.get('search');
-      if (search) {
-        this.searchQuery = search;
+        this.loadCategories();
         this.loadProducts();
       }
     });
