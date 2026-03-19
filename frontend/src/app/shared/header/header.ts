@@ -4,16 +4,24 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { LangService } from '../../core/services/lang.service';
 import { ProductService } from '../../core/services/product.service';
+import { CategoryService } from '../../core/services/category.service';
 import { CartService } from '../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { QuoteModalComponent } from '../quote-modal/quote-modal';
 import { CartModalComponent } from '../cart-modal/cart-modal';
-import { getImageUrl, ProductDto } from '../../core/models/models';
+import { getImageUrl, ProductDto, CategoryDto } from '../../core/models/models';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 
 const RECENT_KEY = 'optowire_recent_searches';
 const MAX_RECENT = 5;
+
+const CATEGORY_ICONS: Record<string, string> = {
+  'telecommunication': '/assets/images/optowireCategories/telecom.svg',
+  'network-equipment': '/assets/images/optowireCategories/network.svg',
+  'security-systems': '/assets/images/optowireCategories/security.svg',
+  'iot': '/assets/images/optowireCategories/iot.svg',
+};
 
 @Component({
   selector: 'app-header',
@@ -21,7 +29,11 @@ const MAX_RECENT = 5;
   templateUrl: './header.html',
   styles: [`
     :host { display: block; }
-    .nav-link { @apply text-sm font-medium transition-colors duration-200; }
+    .mega-menu { animation: megaSlide 0.18s ease forwards; }
+    @keyframes megaSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   `]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
@@ -29,6 +41,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   lang = inject(LangService);
   cart = inject(CartService);
   private ps = inject(ProductService);
+  private cs = inject(CategoryService);
   private router = inject(Router);
   private elRef = inject(ElementRef);
   private platformId = inject(PLATFORM_ID);
@@ -41,6 +54,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mobileSearchOpen = signal(false);
   quoteOpen = signal(false);
   cartOpen = signal(false);
+  megaMenuOpen = signal(false);
+  navCategories = signal<CategoryDto[]>([]);
+  private megaTimer: any = null;
 
   // Search-as-you-type
   searchResults = signal<ProductDto[]>([]);
@@ -51,7 +67,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   navLinks = [
     { key: 'home', path: '/' },
-    { key: 'catalog', path: '/catalog' },
     { key: 'blog', path: '/blog' },
     { key: 'faq', path: '/faq' },
     { key: 'about', path: '/about' },
@@ -60,6 +75,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadRecentSearches();
+    this.loadNavCategories();
 
     this.searchInput$.pipe(
       debounceTime(300),
@@ -88,6 +104,43 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  loadNavCategories() {
+    this.cs.getAll().subscribe({
+      next: (cats) => this.navCategories.set(cats || []),
+      error: () => {}
+    });
+  }
+
+  getCategoryIcon(slug: string): string {
+    return CATEGORY_ICONS[slug] || '';
+  }
+
+  getCategoryRoute(cat: CategoryDto): string[] {
+    return ['/catalog', cat.slug || String(cat.id)];
+  }
+
+  getSubcategoryRoute(sub: CategoryDto): string[] {
+    const slug = (sub.slug || '').split('/').pop() || String(sub.id);
+    return ['/catalog', slug];
+  }
+
+  onProductsEnter() {
+    clearTimeout(this.megaTimer);
+    this.megaTimer = setTimeout(() => this.megaMenuOpen.set(true), 60);
+  }
+
+  onProductsLeave() {
+    clearTimeout(this.megaTimer);
+    this.megaTimer = setTimeout(() => this.megaMenuOpen.set(false), 120);
+  }
+
+  closeMegaMenu() {
+    clearTimeout(this.megaTimer);
+    this.megaMenuOpen.set(false);
+  }
+
+  countSubs = (acc: number, cat: CategoryDto) => acc + (cat.children?.length || 0);
 
   @HostListener('window:scroll')
   onScroll() { this.scrolled.set(window.scrollY > 20); }
@@ -188,5 +241,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.searchInput$.complete();
+    clearTimeout(this.megaTimer);
   }
 }
