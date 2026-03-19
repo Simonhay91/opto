@@ -1,72 +1,68 @@
 <analysis>**original_problem_statement:**
-The initial goal was to build a product catalog website using the external REST API at  with an  (). The project started with React, migrated to Angular Universal (SSR) for SEO, and involved building a product catalog, a blog, a Become a Partner form, and a client-side shopping cart. The backend was initially a single-file Python script that was refactored into a structured FastAPI proxy.
+The initial goal was to build a product catalog website using an external REST API, which started as a React project, was migrated to Angular Universal (SSR), and used a FastAPI backend as a proxy.
 
-A new critical requirement was introduced by the user in this session: remove the FastAPI backend proxy entirely and have the Angular SSR application make direct calls to the external API. This also required switching from ID-based routing to slug-based routing for better SEO. This major refactoring attempt failed, leaving the application in a broken, non-compilable state.
+A critical requirement was introduced to remove the FastAPI backend entirely and have the Angular SSR application make direct API calls. This led to a major refactoring that initially broke the application. The application was then fixed, and a new requirement was to switch the external API URL from a  endpoint to a production one (). This change introduced a CORS issue, which the agent attempted to solve by adding a proxy to the Angular SSR's underlying Express server. However, this proxy implementation is not working correctly, causing client-side requests to fail.
 
 **PRODUCT REQUIREMENTS:**
-- The application must serve as an SEO-optimized product catalog, pulling all data directly from the  API.
-- All API requests must include the  header.
-- Core features include a product catalog, product detail pages, a blog, a partnership application form, and a Get Quote functionality.
-- URLs should be SEO-friendly, using slugs instead of IDs where possible.
-- The backend proxy should be completely removed.
+- The application must be an SEO-optimized product catalog pulling data from .
+- All API requests must include the .
+- Core features: product catalog, product details, blog, Get Quote functionality.
+- URLs must be SEO-friendly, using slugs.
+- The application should not have a separate backend service; all proxying must happen within the frontend's server process if needed.
 
 **User's preferred language**: Russian. The user primarily communicates in Russian. The next agent MUST respond in Russian.
 
 **what currently exists?**
-The application is an Angular 21 (with SSR) and FastAPI project. However, the FastAPI backend is in the process of being removed. The frontend codebase is feature-rich but is currently broken and does not compile due to a failed refactoring attempt. Many services have been partially updated to call the external API directly, and a new HTTP interceptor () has been created to add the  to outgoing requests.
+The project is a single Angular 21 SSR application. The previous compilation-breaking bugs have been fixed. The FastAPI backend has been successfully made obsolete. The API endpoint has been updated to the new production URL. To handle CORS errors from the new endpoint, a proxy middleware was added to the frontend's Express server (). However, this proxy is not functioning correctly, leading to  errors on all client-side API requests. Server-side rendering works, but the application is not interactive on the client.
 
 **Last working item**:
-- **Last item agent was working:** A major architectural refactoring to remove the FastAPI backend proxy and switch the frontend to make direct API calls to the external service. This also included updating the routing to use slugs instead of IDs.
-- **Status:** BLOCKED
+- **Last item agent was working:** Debugging why the newly implemented proxy middleware in  is causing client-side API requests to fail with a  error.
+- **Status:** IN PROGRESS
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** The application must be fixed before any testing can be done. The first step is to get the application to build successfully using yarn run v1.22.22
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.. After that, the frontend testing agent should be used to verify all functionality, as this was a major architectural change.
+- **Which testing method agent to use?** backend testing agent. The agent should first use  to diagnose the proxy issue. A successful  call to the proxy endpoint () that returns a 200 status code is the first goal. After fixing the proxy, the frontend testing agent should be used to confirm the application is fully interactive.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1: Frontend Compilation Failure (P0 - CRITICAL BLOCKER)**
-  - **Description:** The application is completely broken and fails to compile due to numerous TypeScript and Angular template errors. The frontend service is in a  state and cannot start. This is a direct result of the half-finished refactoring to remove the backend proxy and switch to slug-based routing.
-  - **Attempted fixes:** The previous agent was stuck in a loop, attempting to fix individual errors in , , and other files. These attempts involved rewriting code, adding/removing methods, and trying to patch inconsistencies, but this only led to more errors.
+- **Issue 1: Client-Side API Requests Fail with 401 Unauthorized (P0 - CRITICAL BLOCKER)**
+  - **Description:** After switching the API to , direct client-side requests were blocked by CORS. The agent set up a proxy at  in . While SSR requests (which call the API directly) work, all proxied client-side requests fail with . This breaks all dynamic data loading on the client, such as loading products in the catalog.
+  - **Attempted fixes:**
+    - Implemented  in  to proxy requests from  to .
+    - Modified  to use  as the base URL when on the browser ().
+    - A  test directly to the production API with the correct  was successful.
+    - A  test to the proxy endpoint () failed with a 401 error, indicating the proxy is not correctly passing credentials or is being rejected by the target server.
   - **Next debug checklist:**
-    1.  **Focus on  and **: These files are the epicenter of the compilation errors. Errors like , missing properties (, ), and incorrect template bindings must be resolved.
-    2.  **Add **: The  error strongly suggests that  needs to be imported into the 's  array.
-    3.  **Systematically fix property/method mismatches**: Compare the  class with the  template. Ensure every method and property used in the template exists in the class with the correct signature (e.g., if it's a , it must be called as a function ).
-    4.  **Verify all component  directives**: Ensure all router links have been updated to use slugs (e.g., ) instead of IDs () consistently.
-    5.  **Review all modified services**: Check files in  to ensure the logic for direct API calls is correct and handles the responses properly.
-  - **Why fix this issue and what will be achieved with the fix?** The application is unusable. Fixing this will restore the ability to build and run the frontend, unblocking all further development and testing.
+    1.  **Inspect :** The  configuration is the most likely source of the error. The proxy might not be forwarding the  header that is added by the Angular .
+    2.  **Add  for logging:** Modify the proxy options in  to include the  event handler. Use it to log the headers being sent to the target API, which will confirm if the  is present.
+    3.  **Ensure Header Forwarding:** The proxy configuration may need  and potentially a custom handler to ensure all necessary headers, especially  and , are passed through from the original request to the proxied request.
+    4.  **Check Server Logs:** Review  and  for logs from the proxy middleware and any other errors from the Express server.
+  - **Why fix this issue and what will be achieved with the fix?** The application is broken for users. No client-side data can be fetched, rendering the site non-interactive after the initial server load. Fixing this will restore full functionality.
   - **Status:** IN PROGRESS
   - **Is recurring issue?** N
-  - **Should Test frontend/backend/both after fix?** Frontend
+  - **Should Test frontend/backend/both after fix?** Both. First, a backend  test to verify the proxy works, then a full frontend test to ensure the application is interactive.
   - **Blocked on other issue:** No, this is the main blocker.
 
 **In progress Task List**:
-- **Task 1: Complete Migration to Direct API & Slug-based Routing** (Priority: P0)
-  - **Where to resume:** Resume by fixing the compilation errors outlined in Issue 1. The core logic is broken in .
-  - **What will be achieved with this?** The application will meet the user's latest critical requirement, simplifying the architecture and improving SEO.
-  - **Status:** IN PROGRESS
-  - **Should Test frontend/backend/both after fix?** Frontend
-  - **Blocked on something:** Issue 1.
+None. The focus is on the critical bug fix.
 
 **Upcoming and Future Tasks**
 **Upcoming Tasks:**
-- **P1: Create and Populate FAQ Page:** The user requested a FAQ page by scraping a URL. The basic page structure (, ) and route were created, but the content needs to be properly formatted and added.
-- **P1: Update Website Content:** An outstanding task to update the About Us page, general homepage content, and footer with company information.
+- **P1: Delete  directory:** Now that the refactoring is complete, the old FastAPI backend code should be removed.
+- **P1: Create and Populate FAQ Page:** Scrape content from a URL and create a new  page.
+- **P1: Update Website Content:** Update the About Us page, homepage content, and footer with company information.
 
 **Future Tasks:**
-- **P2: Implement Brand Detail Page:** A deferred task to create a dedicated page for brand information and products.
-- **P2: Enhance Product Filtering:** This task is blocked by the external API, which was not returning attribute data for categories.
+- **P2: Implement Brand Detail Page:** Create a dedicated page for brand information.
+- **P2: Enhance Product Filtering:** The external API might now support filtering by attributes; this needs investigation.
+- **P2: Implement Search-as-you-type:** A suggestion from the agent to add a search dropdown with live API results to improve UX.
 
 **Completed work in this session**
-- **Feature - Get Quote functionality:** Implemented a new backend endpoint () and updated the cart modal to send quote requests.
-- **Feature - Homepage Slider:** Integrated a dynamic slider on the homepage, fetching data from a new  endpoint, replacing the previous static implementation.
-- **Bug Fix - Products Not Displaying:** Resolved a critical bug where no products were showing. This involved correcting the , fixing API response data handling ( vs ), and resolving multiple frontend/backend routing errors.
-- **Bug Fix - Angular SSRF Protection:** Solved a server-side request forgery issue by correctly configuring  in , enabling the SSR server to make external API calls.
-- **Refactoring - Production Readiness:** Implemented  checks for  access, improved  handling in API calls, and ensured server-side injection of Schema.org scripts.
-- **UI Updates:**
-    - Replaced homepage category icons with new user-provided images.
-    - Added highlighting for the active category in the catalog sidebar.
-    - Increased the size of the header logo.
-    - Hid the Brands filter section as requested.
+- **Critical Fix - Application Rebuild:** Successfully fixed the broken Angular application by rewriting  and its template, resolving all compilation errors and making the app runnable again.
+- **Refactor - API URL Update:** Replaced all hardcoded instances of the old  URL with the new production URL .
+- **Bug Fix - Blog Detail Page:** Fixed a  error on the single blog post page by implementing a workaround to fetch all posts and filter by slug.
+- **Bug Fix - Subcategory Navigation:** Fixed an issue where subcategories were not displaying in the catalog. This involved updating the component logic to show child categories and updating routes to handle nested slugs.
+- **UI Fix - Product Detail Page:** Removed the CRM Code from the product detail view, leaving only the Article Number.
+- **UI Fix - Homepage Slider:** Reduced the height of the homepage hero slider by 50% as requested.
+- **Testing:** Ran the testing agent twice to validate major fixes, which automatically corrected four additional minor API parameter bugs related to sorting and category slugs.
 
 **Earlier issues found/mentioned but not fixed**
 None.
@@ -78,74 +74,69 @@ N/A
 
 
 **Key Technical Concepts**
-- **Frontend:** Angular 21, TypeScript, Server-Side Rendering (Angular Universal), TailwindCSS, Angular Signals.
-- **Architecture:** The application is in a broken transition from a Backend-for-Frontend (BFF) proxy pattern to a pure SSR frontend that calls the external API directly.
-- **Key Angular Feature:**  is now used to manage the API key for all outgoing requests.
+- **Frontend:** Angular 21, TypeScript, Server-Side Rendering (Angular Universal).
+- **Backend/Proxy:** The app uses an Express.js server (part of Angular SSR) with  to proxy client-side API requests to avoid CORS issues.
 
 **key DB schema**
-N/A. The application is a client to an external REST API and does not have its own database.
+N/A. The application is a client to an external REST API.
 
 **changes in tech stack**
-- **Architectural Deprecation:** The FastAPI backend is being removed. The application is becoming a pure Angular SSR app.
+- The separate FastAPI backend has been deprecated.
+- A proxy has been implemented within the Angular SSR's Express server ().
 
 **All files of reference**
 - **Critical/Broken Files:**
-  - : Needs to be fixed to resolve compilation errors.
-  - : Contains template errors linked to the  file.
-- **Key New/Modified Files:**
-  - : Handles adding the .
-  - : Where the new interceptor is provided.
-  - : Partially updated for slug-based routing.
-  - All services in : Have been partially refactored.
-- **Files to be deleted after fix:** The entire  directory.
+  - : Contains the proxy middleware logic that is currently failing.
+- **Key Modified Files:**
+  - : Implements the logic to switch between the proxy URL () for browsers and the direct API URL for SSR.
+- **Log Files for Debugging:**
+  - 
+  - 
 
 **Areas that need refactoring**:
-The immediate priority is to fix the broken build. After the application is stable, the entire  directory should be deleted, and any remaining proxy-related logic in the frontend (e.g., in ) should be cleaned up.
+- The  directory is now entirely obsolete and should be deleted to clean up the project structure.
 
 **key api endpoints**
-The application is being refactored to use the external API base URL () directly for all endpoints, such as:
-- 
-- 
-- 
-- 
+- **External API:** 
+- **Internal Proxy Route:**  (proxies requests to the external API)
 
 **Critical Info for New Agent**
 - **Communicate in Russian.**
-- **The application is completely broken and does not compile.** Your absolute first priority is to fix the frontend compilation errors, which are mainly in  and .
-- **Do not start any new features.** Focus solely on fixing the broken state caused by the failed refactoring.
-- The goal of the refactoring was to remove the Python backend and use slugs for routing. This must be completed.
-- Once the application is stable, the entire  directory should be removed.
+- **Your absolute first priority is to fix the  error for all client-side requests.** The problem lies in the proxy configuration in .
+- The application is visually functional on the first load (due to SSR) but is non-interactive because subsequent client-side API calls are failing.
+- The  () must be correctly forwarded by the proxy.
+- Debug using  against the  endpoint and check the Node.js server logs for clues.
 
 **documents and test reports created in this job**
--  (was viewed and updated)
+-  (updated)
+- 
+- 
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User:** continu fix - A request to continue fixing the broken state. (IN PROGRESS)
-2.  **User:** isprav (fix it) - A request to fix the compilation errors. (IN PROGRESS)
-3.  **User:** Remove the proxiying backend... - The critical request that initiated the breaking refactor. (IN PROGRESS)
-4.  **User:** logo yesho pobolshe delay (make the logo bigger) - (Completed)
-5.  **User:** day mne prd (give me the prd) - (Completed)
-6.  **User:** Слайдер на главной странице... (Slider on the main page...) - Request to implement the homepage slider. (Completed)
-7.  **User:** Для отправки глобального запроса на цену... (For sending a global price request...) - Request to implement Get Quote feature. (Completed)
-8.  **User:** mojet problema partner key? (maybe the problem is the partner key?) - User correctly identified a bug. (Completed)
-9.  **User:** https://optowire.net/faq get all text, create FAQ page. / Products ne pokazivayetco (get text from faq url, create page / Products are not showing) - New feature request and a bug report. (Partially Completed / Bug Fixed)
-10. **User:** nachinay, no hide daley Brand section, net smisla branda (start, and hide the Brand section, there's no point in brands) - (Completed)
+1.  **User:** Shared a screenshot showing a  error for a  request to . (IN PROGRESS)
+2.  **User:** ne rabotayet requesti (requests aren't working) - Reporting the bug that is now the main blocker. (IN PROGRESS)
+3.  **User:** Confirmed the correct partner key. (Completed, key was already correct).
+4.  **User:** change dev.planetworkspace urls to https://api-prod.optowire.net - The request that led to the current CORS/proxy issue. (Completed, but caused a bug).
+5.  **User:** slider ochen bolshoy, na 50% delay po menshe (the slider is very big, make it 50% smaller). (Completed).
+6.  **User:** Report of two bugs: udali v producte crm code, ostalv tolko artikul number. v filtere category ne pravilno rabotayut, ne pokazivayetco suubcategoryes (remove crm code in product, leave only article number. category filter doesn't work right, doesn't show subcategories). (Completed).
+7.  **User:** single bllog ne rabotayet (single blog doesn't work) - Reported that the blog detail page was broken. (Completed).
+8.  **User:** davay, delay (ok, do it) - Approved the initial plan to fix the broken application. (Completed).
 
 **Project Health Check:**
-- **Broken:** The frontend application fails to compile and cannot run.
+- **Broken:** Client-side functionality is broken due to a  proxy error. The site is not interactive after the initial server-side render.
 - **Mocked:** None.
 
 **3rd Party Integrations**
-- **Custom REST API:** The application is integrated with a single external API at .
+- **Custom REST API:** The application is integrated with the production API at .
 
 **Testing status**
-- **Testing agent used after significant changes:** NO
+- **Testing agent used after significant changes:** YES. It was used successfully after the major refactor.
 - **Troubleshoot agent used after agent stuck in loop:** NO
 - **Test files created:** None.
-- **Known regressions:** The entire application is a regression. It does not work.
+- **Known regressions:** All client-side API requests are failing, a major regression from the previously working state.
 
 **Credentials to test flow:**
-- **x-partner-key:** . This should be automatically applied by the  once the application is fixed.
+- **x-partner-key:**  (should be applied by the ).
 
 **What agent forgot to execute**
-The agent did not complete the critical refactoring task to remove the backend proxy, leaving the application in a broken state.</analysis>
+- The agent has not yet deleted the now-obsolete  directory after completing the backend removal refactor.</analysis>

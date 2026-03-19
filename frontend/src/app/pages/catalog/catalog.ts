@@ -78,8 +78,11 @@ export class CatalogComponent implements OnInit {
     });
 
     this.route.queryParamMap.subscribe(params => {
-      const search = params.get('search');
-      if (search) this.searchQuery = search;
+      const search = params.get('q') || params.get('search');
+      if (search) {
+        this.searchQuery = search;
+        this.loadProducts();
+      }
     });
   }
 

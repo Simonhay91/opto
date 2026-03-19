@@ -1,0 +1,60 @@
+{
+  "summary": "Comprehensive frontend testing of Optowire Angular 21 SSR catalog. Found and fixed 2 critical bugs: (1) /ext proxy forwarding Origin header causing 401 from external API, preventing products from loading on homepage and all browser-side fetches; (2) global header search using '?q=' param but catalog reading '?search=' param (mismatch). Both fixed, rebuilt, and verified. All 8 requested features now passing.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/frontend/src/server.ts",
+    "/app/frontend/src/app/pages/catalog/catalog.ts"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "FIXED: /ext proxy was forwarding browser Origin and Referer headers to external API (api-prod.optowire.net). External API responded with 401 'Not allowed by CORS' for any browser request. Curl without Origin returned 201 - this was the root cause. Fixed by adding removeHeader('origin') and removeHeader('referer') in the proxyReq handler in server.ts.",
+    "FIXED: Header global search navigates to /catalog?q=<term> but catalog.ts read params.get('search') not params.get('q'). This meant header search redirected to catalog with ?q= but the filter was never applied (showed all 1138 products). Fixed by reading both 'q' and 'search' params in catalog.ts queryParamMap subscriber.",
+    "NOTE: 404 for /ext/web/category/<slug>/attributes when loading leaf-level categories (e.g. odn-optical-distribution-node). This means no attribute filters show in sidebar for such categories. Non-critical - products still load correctly.",
+    "NOTE: SSR hostname errors in frontend.err.log are from BEFORE the allowedHosts fix was deployed (old runs). Current build (4th server start) returns 200 for all page requests. Verified via curl.",
+    "NOTE: Angular app manifest (angular-app-engine-manifest.mjs) has specific preview hostnames but NOT catalog-preview-13. The server.ts wildcard '*.preview.emergentagent.com' correctly covers this via the Ds() function's endsWith logic."
+  ],
+  "updated_files": [
+    "/app/frontend/src/server.ts",
+    "/app/frontend/src/app/pages/catalog/catalog.ts"
+  ],
+  "success_rate": {
+    "backend": "N/A - frontend only testing",
+    "frontend": "100% (8/8 features working after 2 fixes)"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Angular 21 SSR app. External API: https://api-prod.optowire.net (proxied via /ext). Key fix: proxy strips Origin/Referer headers. Global search uses ?q= param and catalog now reads both ?q= and ?search=. Product count: 1138 total, Telecommunication=865, ODN=85. App must be rebuilt (yarn build) and frontend restarted for code changes. SSR hostname whitelist in server.ts covers *.preview.emergentagent.com wildcard.",
+  "test_details": {
+    "homepage": "PASS - Hero slider (3 slides/dots), trust badges (ISO Certified, Global Shipping, OEM/ODM, 24/7 Support), 4 categories (Telecommunication, Network Equipments, Security Systems, IoT), 16 product cards in New Arrivals + Top Products sections. All API calls return 200/201.",
+    "catalog_1138": "PASS - /catalog shows 1138 Results, 24 products per page, sidebar categories (Telecommunication, Network Equipment, Security Systems, Electronic devices, IoT, Tools), sort dropdown.",
+    "category_filter": "PASS - /catalog/telecommunication shows 865 Results, subcategories panel shows (Data Center Solution, Cable Mounting, FO passive components, Network Cable, ODN, Optical cable). Breadcrumb: All Categories > Telecommunication.",
+    "subcategory_nav": "PASS - Clicking ODN navigates to /catalog/odn-optical-distribution-node, shows 85 Results, subcategories show (Consumables & Accessories, Distribution Box, Protection Box, Street cabinet, Closures, Drop Box).",
+    "product_detail": "PASS - Full detail page with product image, ART code, MODEL, CATEGORY, UNIT, description, ADD TO CART + REQUEST A QUOTE buttons, Quick Specs, Downloads tab with PDF, Description/Specifications/Attributes tabs.",
+    "blog": "PASS - /blog shows 6+ articles with images, dates, titles, author.",
+    "search": "PASS - 'fiber' search returns 593 results (from 1138), search input pre-populated via ?q=cable shows 608 results.",
+    "client_side_nav": "PASS - All nav links work (Home, Products→/catalog, Blog, FAQ, About, Contact Us). SPA routing works without full page reloads.",
+    "global_search": "PASS (after fix) - Header search navigates to /catalog?q=<term> and catalog now reads it, showing filtered results."
+  },
+  "rca_of_bugs_fixed": {
+    "bug1_proxy_401": {
+      "root_cause": "http-proxy-middleware by default forwards all request headers including 'Origin' and 'Referer' from the browser. The external API (api-prod.optowire.net) validates the Origin header and returns 401 'Not allowed by CORS' for unknown origins. Without these headers (curl), the API accepts requests and returns 201.",
+      "fix": "Added proxyReq.removeHeader('origin') and proxyReq.removeHeader('referer') in the /ext proxy's proxyReq handler in server.ts.",
+      "impact": "Homepage product sections (New Arrivals, Top Products) showed 'No products found'. All browser-side API calls failing with 401.",
+      "files": ["/app/frontend/src/server.ts"]
+    },
+    "bug2_search_param_mismatch": {
+      "root_cause": "header.ts navigates to /catalog?q=<term> but catalog.ts reads params.get('search'). The 'q' param was silently ignored, catalog loaded all 1138 products regardless of search term.",
+      "fix": "Updated catalog.ts to read both 'q' and 'search' params: `params.get('q') || params.get('search')`. Also added loadProducts() call when search term is set via URL param.",
+      "files": ["/app/frontend/src/app/pages/catalog/catalog.ts"]
+    }
+  }
+}

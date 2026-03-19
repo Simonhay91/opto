@@ -20,7 +20,7 @@ class Settings:
     CORS_ORIGINS: list = [
         "http://localhost:3000",
         "http://localhost:4200",
-        "https://api-direct-deploy.preview.emergentagent.com",
+        "https://catalog-preview-13.preview.emergentagent.com",
     ]
 
 settings = Settings()

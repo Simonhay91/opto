@@ -11,22 +11,13 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
-
-// Configure allowed hosts for SSR security
-const allowedHosts = [
-  'localhost',
-  'preview.emergentagent.com',
-  'product-catalog-185.preview.emergentagent.com',
-  'optowire.preview.emergentagent.com',
-  'api-prod.optowire.net'
-];
-
-// Add headers middleware
-app.use((req, res, next) => {
-  // Allow SSR to fetch from backend
-  res.setHeader('X-Forwarded-Host', req.hostname);
-  next();
+const angularApp = new AngularNodeAppEngine({
+  allowedHosts: [
+    'localhost',
+    '*.preview.emergentagent.com',
+    '*.optowire.net',
+    'optowire.net',
+  ]
 });
 
 /**
@@ -59,6 +50,9 @@ app.use('/ext', createProxyMiddleware({
   on: {
     proxyReq: (proxyReq: any) => {
       proxyReq.setHeader('x-partner-key', '94fa5fc3-9534-4bb5-8722-f724f84a5594');
+      // Remove browser-added headers that cause CORS rejection at external API
+      proxyReq.removeHeader('origin');
+      proxyReq.removeHeader('referer');
     }
   }
 }));
