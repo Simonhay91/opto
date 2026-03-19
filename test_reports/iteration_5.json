@@ -1,0 +1,60 @@
+{
+  "summary": "Frontend-only testing of Optowire Angular 21 SSR catalog Search-as-you-type feature. All 8 requested features pass. One pre-existing catalog race condition documented (catalog.ts has two concurrent loadProducts() calls - one from paramMap, one from queryParamMap - that can race and cause unfiltered results to display). Search dropdown (6 results, name/image/brand), loading spinner, Escape/Enter/outside-click behaviors all work correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Enter key search → catalog page filtering",
+        "issue": "catalog.ts has a race condition: paramMap.subscribe fires loadProducts() with empty searchQuery, then queryParamMap.subscribe sets searchQuery and fires loadProducts() again. The two concurrent HTTP requests can complete out of order — the all-products response (1138) sometimes arrives AFTER the filtered response, overwriting the correct filtered results. Manifests when navigating from a non-catalog page to /catalog?q=<term>. Intermittent: cable search (608) can show correctly due to API response caching, while fiber (expected 593) shows 1138.",
+        "affected_selectors": ["catalog.ts lines 66-86"],
+        "priority": "MEDIUM"
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_5.json"
+  ],
+  "action_items": [
+    "FIX catalog.ts race condition: replace separate paramMap+queryParamMap subscriptions with combineLatest([this.route.paramMap, this.route.queryParamMap]) so loadProducts() is called ONCE with all resolved params. Currently paramMap calls loadProducts() with empty searchQuery, then queryParamMap calls it again with the actual query — whichever HTTP response arrives last wins, causing intermittent unfiltered results."
+  ],
+  "critical_code_review_comments": [
+    "BUG (MEDIUM): catalog.ts lines 66-86 — Two independent route subscriptions each call loadProducts(). paramMap fires first with no search, then queryParamMap fires setting searchQuery. These create two racing HTTP requests. Fix: use combineLatest([this.route.paramMap, this.route.queryParamMap]) → load once with all params resolved.",
+    "NOTE: All 8 search-as-you-type features work correctly per requirements. The race condition affects the downstream catalog page, not the header search component itself."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A - frontend only",
+    "frontend": "8/8 features PASS (100%). Catalog filter race condition is a pre-existing/downstream issue."
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Angular 21 SSR app at catalog-preview-13.preview.emergentagent.com. All header search features work. Pre-existing race condition in catalog.ts: two parallel route subscriptions (paramMap + queryParamMap) each call loadProducts(), causing race between empty-query and filtered-query HTTP responses. Fix: combineLatest. API proxy strips Origin/Referer (server.ts fix from iter 4). Search uses ProductService.explore({productName, page, limit}). Test terms: 'cable' (608 results), 'fiber' (expected 593), all products = 1138.",
+  "rca_of_issue": {
+    "title": "Catalog page race condition — two concurrent loadProducts() calls",
+    "root_cause": "catalog.ts ngOnInit subscribes to both paramMap and queryParamMap separately. When navigating from an external page to /catalog?q=fiber: (1) paramMap fires → calls loadProducts() with searchQuery='' → HTTP GET all 1138 products starts; (2) queryParamMap fires → sets searchQuery='fiber' → calls loadProducts() again → HTTP GET 593 filtered products starts. If the all-products response arrives after the filtered response, it overwrites the displayed results with 1138 unfiltered products.",
+    "reproduction_steps": [
+      "Navigate to the homepage (/)",
+      "Click in header search, type 'fiber', press Enter",
+      "Observe /catalog?q=fiber URL is correct",
+      "Results may show 1138 instead of ~593 due to race"
+    ],
+    "mitigation": "Replace separate subscriptions with: combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, queryParams]) => { const search = queryParams.get('q') || queryParams.get('search'); this.searchQuery = search || ''; const categorySlug = params.get('categorySlug'); /* ... then call loadProducts() once */ })"
+  },
+  "test_details": {
+    "1_search_input_visible": "PASS - [data-testid='header-search-input'] visible in header",
+    "2_loading_spinner": "PASS - animate-spin spinner found in search-wrapper during debounce window",
+    "3_dropdown_appears": "PASS - [data-testid='search-dropdown'] appears for 'ca', 'cable', 'fiber'. NOT shown for 1 char.",
+    "4_result_name_image": "PASS - 6 results shown, each has product name (p.text-sm) and img element. First: 'Optowire AS-S(FF)-144FO-2.7KN Aerial ADSS...'",
+    "5_click_navigates_product": "PASS - clicking first result navigates to /product/<slug>",
+    "6_view_all_button": "PASS - [data-testid='search-view-all'] visible, text 'View all results for \"cable\"', navigates to /catalog?q=cable showing 608 Results",
+    "7_escape_closes": "PASS - Escape key closes dropdown (showDropdown becomes false)",
+    "8_enter_navigates_catalog": "PASS (URL) - navigates to /catalog?q=fiber. Results count shows 1138 (race condition, pre-existing bug)",
+    "click_outside_closes": "PASS - clicking body outside header closes dropdown"
+  }
+}

@@ -38,15 +38,69 @@
       <!-- Right Actions -->
       <div class="flex items-center gap-2">
         <!-- Search (Desktop) -->
-        <div class="hidden md:flex items-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 gap-2 w-52">
-          <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input type="text" [placeholder]="lang.t('searchPlaceholder')"
-                 [(ngModel)]="searchQuery"
-                 (keydown)="onSearchKey($event)"
-                 class="bg-transparent text-sm outline-none w-full text-slate-700 dark:text-slate-300 placeholder:text-slate-400"
-                 data-testid="header-search-input">
+        <div class="hidden md:block relative" data-testid="search-wrapper">
+          <div class="flex items-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 gap-2 w-56">
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" [placeholder]="lang.t('searchPlaceholder')"
+                   [ngModel]="searchQuery()"
+                   (ngModelChange)="onSearchInput($event)"
+                   (keydown)="onSearchKey($event)"
+                   (focus)="searchResults().length && showDropdown.set(true)"
+                   autocomplete="off"
+                   class="bg-transparent text-sm outline-none w-full text-slate-700 dark:text-slate-300 placeholder:text-slate-400"
+                   data-testid="header-search-input">
+            @if (searchLoading()) {
+              <svg class="w-4 h-4 text-cyan-500 animate-spin flex-shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            }
+          </div>
+
+          <!-- Dropdown Results -->
+          @if (showDropdown() && (searchResults().length > 0 || searchLoading())) {
+            <div class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl z-50 min-w-[360px]"
+                 data-testid="search-dropdown">
+              @if (searchLoading()) {
+                <div class="flex items-center gap-3 px-4 py-3 text-sm text-slate-500">
+                  <svg class="w-4 h-4 animate-spin text-cyan-500" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  Searching...
+                </div>
+              } @else {
+                @for (product of searchResults(); track product.id) {
+                  <button (click)="selectProduct(product)"
+                          class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 text-left"
+                          [attr.data-testid]="'search-result-' + product.id">
+                    <img [src]="getProductImage(product)" [alt]="product.name"
+                         class="w-10 h-10 object-cover bg-slate-100 flex-shrink-0">
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{{product.name}}</p>
+                      @if (product.brandName) {
+                        <p class="text-xs text-cyan-500 truncate">{{product.brandName}}</p>
+                      }
+                    </div>
+                    <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </button>
+                }
+                <!-- View all results -->
+                <button (click)="search()"
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 transition-colors"
+                        data-testid="search-view-all">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                  View all results for "{{searchQuery()}}"
+                </button>
+              }
+            </div>
+          }
         </div>
 
         <!-- Lang Toggle -->
@@ -109,13 +163,40 @@
     <div class="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900" data-testid="mobile-menu">
       <div class="container mx-auto px-4 py-3 flex flex-col gap-1">
         <!-- Mobile Search -->
-        <div class="flex items-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 gap-2 mb-2">
-          <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-          <input type="text" [placeholder]="lang.t('searchPlaceholder')" [(ngModel)]="searchQuery"
-                 (keydown)="onSearchKey($event)"
-                 class="bg-transparent text-sm outline-none w-full text-slate-700 dark:text-slate-300">
+        <div class="relative mb-2">
+          <div class="flex items-center border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 gap-2">
+            <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input type="text" [placeholder]="lang.t('searchPlaceholder')"
+                   [ngModel]="searchQuery()"
+                   (ngModelChange)="onSearchInput($event)"
+                   (keydown)="onSearchKey($event)"
+                   autocomplete="off"
+                   class="bg-transparent text-sm outline-none w-full text-slate-700 dark:text-slate-300">
+            @if (searchLoading()) {
+              <svg class="w-4 h-4 text-cyan-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            }
+          </div>
+          @if (showDropdown() && searchResults().length > 0) {
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg z-50">
+              @for (product of searchResults(); track product.id) {
+                <button (click)="selectProduct(product)"
+                        class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-100 dark:border-slate-800 last:border-0 text-left">
+                  <img [src]="getProductImage(product)" [alt]="product.name"
+                       class="w-9 h-9 object-cover bg-slate-100 flex-shrink-0">
+                  <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate flex-1">{{product.name}}</p>
+                </button>
+              }
+              <button (click)="search()"
+                      class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold text-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 transition-colors">
+                View all results
+              </button>
+            </div>
+          }
         </div>
         @for (link of navLinks; track link.key) {
           <a [routerLink]="link.path" (click)="menuOpen.set(false)"
