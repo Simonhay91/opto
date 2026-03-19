@@ -138,6 +138,15 @@ export class CatalogComponent implements OnInit {
   }
 
   /** Load ALL products for a category (paginated internally up to 500) */
+  private shuffle<T>(arr: T[]): T[] {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   loadAllCategoryProducts(categoryId: number) {
     this.loading.set(true);
     this.fullCategoryLoaded.set(false);
@@ -150,7 +159,7 @@ export class CatalogComponent implements OnInit {
     this.ps.explore(criteria).subscribe({
       next: (r: any) => {
         const items: ProductDto[] = r?.products || r?.items || (Array.isArray(r) ? r : []);
-        this.allProducts.set(items);
+        this.allProducts.set(this.shuffle(items));
         this.fullCategoryLoaded.set(true);
         this.extractAttributes(items);
         this.applyClientFilters();
@@ -177,8 +186,8 @@ export class CatalogComponent implements OnInit {
     this.ps.explore(criteria).subscribe({
       next: (r: any) => {
         const items: ProductDto[] = r?.products || r?.items || (Array.isArray(r) ? r : []);
-        this.allProducts.set(items);
-        this.products.set(items);
+        this.allProducts.set(this.shuffle(items));
+        this.products.set(this.shuffle(items));
         this.totalItems.set(r?.total || items.length);
         this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / this.pageSize));
         this.loading.set(false);
