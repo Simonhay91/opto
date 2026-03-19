@@ -91,6 +91,14 @@ export class CatalogComponent implements OnInit {
       next: (category) => {
         this.selectedCategoryId.set(Number(category.id));
 
+        // Update SEO with category name
+        const catName = category.name || slug;
+        this.seo.setPage(
+          `${catName} Products`,
+          `Browse ${catName} products from Optowire — fiber optic cables, network equipment and more.`
+        );
+        this.seo.setCatalogSchema(catName, `Product catalog for ${catName}`);
+
         // Build breadcrumb: if slug has parent (contains '/'), find parent category too
         const fullSlug = category.slug || '';
         const slashIdx = fullSlug.lastIndexOf('/');

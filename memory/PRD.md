@@ -68,19 +68,27 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **FIXED (by testing agent):** Search param mismatch — header used `?q=` but catalog read `?search=`, now reads both `q` and `search`
 - **TESTED:** 8/8 features passing (100%), test report: `/app/test_reports/iteration_4.json`
 
+### Session 6 (2026-03-19)
+- **DELETED:** `/app/backend` directory (obsolete FastAPI proxy)
+- **SEO:** Added canonical URLs, og:type, og:url, og:image, og:site_name, Twitter Card to all pages via seo.service.ts
+- **SEO:** Added FAQ JSON-LD schema (FAQPage) on FAQ page
+- **SEO:** Catalog page now sets category-specific SEO title dynamically
+- **SEO:** JSON-LD Article schema for blog posts (already existed, confirmed working)
+- **SEO:** Default og:image pointing to optowire-logo.png
+- **FIX:** about.ts SSR bug — `document` replaced with Angular `DOCUMENT` inject
+- **FIX:** footer.html — lowercase `routerlink` attributes fixed to `routerLink`
+- **FIX:** index.html — removed hardcoded preview URL, added default og/twitter meta tags
+
 ## Prioritized Backlog
 
 ### P1 — Next Priority
-- **Delete `/app/backend/`** directory (FastAPI proxy no longer needed)
-- **FAQ Page Content:** Create proper FAQ content from optowire.net/faq
-- **About Us Page Update:** Update content with company information
-- **Footer Update:** Add company information
+- **FAQ Page Content:** Create proper FAQ content from optowire.net/faq (page exists but may need content update)
+- **Mega-menu:** Add mega-menu with category preview on "Products" hover (user suggested feature)
 
 ### P2 — Future
 - **Brand Detail Page:** Dedicated page for brand info and products
-- **Enhanced Product Filtering:** Attribute-based filtering (blocked on API returning attribute data)
+- **Enhanced Product Filtering:** Attribute-based filtering
 - **Search-as-you-type:** Live search suggestions dropdown
-- **SEO Improvements:** Proper meta tags per page
 
 ## API Notes (Production)
 - **API URL:** `https://api-prod.optowire.net`

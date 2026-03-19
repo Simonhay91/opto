@@ -1,7 +1,11 @@
-import { Injectable, inject, PLATFORM_ID, Inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
+import { Router } from '@angular/router';
 import { ProductDto, getImageUrl } from '../models/models';
+
+const SITE_BASE = 'https://optowire.net';
+const DEFAULT_OG_IMAGE = `${SITE_BASE}/assets/images/optowire-logo.png`;
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -9,12 +13,39 @@ export class SeoService {
   private title = inject(Title);
   private doc = inject(DOCUMENT);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
 
-  setPage(titleStr: string, description: string) {
-    this.title.setTitle(`${titleStr} | Optowire`);
+  setPage(titleStr: string, description: string, ogImage?: string) {
+    const fullTitle = `${titleStr} | Optowire`;
+    const image = ogImage || DEFAULT_OG_IMAGE;
+
+    this.title.setTitle(fullTitle);
     this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({ property: 'og:title', content: `${titleStr} | Optowire` });
+    this.meta.updateTag({ property: 'og:title', content: fullTitle });
     this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:image', content: image });
+    this.meta.updateTag({ property: 'og:site_name', content: 'Optowire' });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: fullTitle });
+    this.meta.updateTag({ name: 'twitter:description', content: description });
+    this.meta.updateTag({ name: 'twitter:image', content: image });
+    this.setCanonical();
+  }
+
+  setCanonical(path?: string) {
+    const cleanPath = (path || this.router.url || '/').split('?')[0];
+    const url = `${SITE_BASE}${cleanPath}`;
+    this.meta.updateTag({ property: 'og:url', content: url });
+
+    if (!this.doc?.head) return;
+    let link = this.doc.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!link) {
+      link = this.doc.createElement('link') as HTMLLinkElement;
+      link.rel = 'canonical';
+      this.doc.head.appendChild(link);
+    }
+    link.href = url;
   }
 
   setProductSchema(product: ProductDto) {
@@ -23,12 +54,17 @@ export class SeoService {
     this.meta.updateTag({ name: 'description', content: desc });
     this.meta.updateTag({ property: 'og:title', content: `${product.name} | Optowire` });
     this.meta.updateTag({ property: 'og:description', content: desc });
+    this.meta.updateTag({ property: 'og:type', content: 'product' });
 
     const mainImg = product.images?.find(i => i.id === product.mainImageId) || product.images?.[0];
     const imgUrl = getImageUrl(mainImg, 'large');
-    if (imgUrl && !imgUrl.includes('no-image')) {
-      this.meta.updateTag({ property: 'og:image', content: imgUrl });
-    }
+    const finalImg = (imgUrl && !imgUrl.includes('no-image')) ? imgUrl : DEFAULT_OG_IMAGE;
+    this.meta.updateTag({ property: 'og:image', content: finalImg });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: `${product.name} | Optowire` });
+    this.meta.updateTag({ name: 'twitter:description', content: desc });
+    this.meta.updateTag({ name: 'twitter:image', content: finalImg });
+    this.setCanonical();
 
     const schema: any = {
       '@context': 'https://schema.org',
@@ -103,6 +139,19 @@ export class SeoService {
       },
     };
     this.injectJsonLd(schema, 'article-schema');
+  }
+
+  setFaqSchema(faqs: { question: string; answer: string }[]) {
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map(f => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    };
+    this.injectJsonLd(schema, 'faq-schema');
   }
 
   /**

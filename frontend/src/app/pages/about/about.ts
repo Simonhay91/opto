@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 
@@ -12,6 +13,7 @@ import { SeoService } from '../../core/services/seo.service';
 export class AboutComponent implements OnInit {
   lang = inject(LangService);
   private seo = inject(SeoService);
+  private doc = inject(DOCUMENT);
 
   contact = {
     phone: '+86 150 9215 7630',
@@ -94,9 +96,10 @@ export class AboutComponent implements OnInit {
       telephone: '+8615092157630',
       email: 'info@optowire.net',
     };
-    const s = document.createElement('script');
+    if (!this.doc?.head) return;
+    const s = this.doc.createElement('script');
     s.type = 'application/ld+json';
     s.textContent = JSON.stringify(schema);
-    document.head.appendChild(s);
+    this.doc.head.appendChild(s);
   }
 }

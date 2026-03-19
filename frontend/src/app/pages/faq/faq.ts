@@ -50,8 +50,9 @@ export class FaqComponent implements OnInit {
 
   ngOnInit() {
     this.seo.setPage(
-      'Frequently Asked Questions | Optowire',
-      'Find answers to common questions about Optowire\'s services, orders, shipping, payments, and more.'
+      'Frequently Asked Questions',
+      'Find answers to common questions about Optowire\'s fiber optic products, orders, shipping, payments, and technical support.'
     );
+    this.seo.setFaqSchema(this.faqItems);
   }
 }
