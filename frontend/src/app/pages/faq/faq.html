@@ -18,22 +18,43 @@
     </div>
   </div>
 
-  <!-- FAQ Content -->
+  <!-- FAQ Accordion -->
   <div class="container mx-auto px-4 md:px-8 max-w-4xl py-12">
-    <div class="space-y-4">
+    <div class="space-y-3">
       @for (item of faqItems; track $index) {
-        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div class="p-6">
-            <h3 class="text-lg font-heading font-semibold text-slate-900 dark:text-slate-50 mb-3 flex items-start gap-3">
-              <span class="text-cyan-500 text-xl shrink-0">Q{{$index + 1}}.</span>
-              <span>{{item.question}}</span>
-            </h3>
-            <div class="ml-9">
-              <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+        <div
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200"
+          [class.border-cyan-400]="openIndex() === $index"
+          [attr.data-testid]="'faq-item-' + $index"
+        >
+          <!-- Question Button -->
+          <button
+            type="button"
+            class="w-full flex items-center justify-between gap-4 px-6 py-5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50"
+            (click)="toggle($index)"
+            [attr.data-testid]="'faq-toggle-' + $index"
+          >
+            <span class="flex items-center gap-3">
+              <span class="text-cyan-500 font-mono text-sm font-bold shrink-0">Q{{$index + 1}}</span>
+              <span class="text-base font-heading font-semibold text-slate-900 dark:text-slate-50">{{item.question}}</span>
+            </span>
+            <svg
+              class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300"
+              [class.rotate-180]="openIndex() === $index"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          <!-- Answer (accordion) -->
+          @if (openIndex() === $index) {
+            <div class="px-6 pb-5 border-t border-slate-100 dark:border-slate-800" [attr.data-testid]="'faq-answer-' + $index">
+              <p class="pt-4 text-slate-600 dark:text-slate-400 leading-relaxed ml-9">
                 {{item.answer}}
               </p>
             </div>
-          </div>
+          }
         </div>
       }
     </div>
@@ -42,7 +63,8 @@
     <div class="mt-12 bg-gradient-to-br from-cyan-500 to-cyan-600 p-8 text-center text-white">
       <h2 class="text-2xl font-heading font-bold mb-3">Still have questions?</h2>
       <p class="mb-6 text-cyan-50">Our team is here to help you with any inquiries.</p>
-      <a routerLink="/contact" 
+      <a routerLink="/contact"
+         data-testid="faq-contact-btn"
          class="inline-flex items-center gap-2 bg-white text-cyan-600 font-bold uppercase text-sm px-6 py-3 hover:bg-slate-50 transition-colors">
         Contact Us
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,3 +74,4 @@
     </div>
   </div>
 </div>
+

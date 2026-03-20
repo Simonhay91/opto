@@ -84,8 +84,9 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **FIX:** catalog.ts race condition — replaced separate paramMap + queryParamMap subscriptions with `combineLatest` so loadProducts() fires once with all resolved params
 - **TESTED:** 8/8 search features PASS (100%), test report: `/app/test_reports/iteration_5.json`
 
-### P1 — Next Priority
-- **FAQ Page Content:** Create proper FAQ content from optowire.net/faq (page exists but may need content update)
+### Session 8 (2026-03-20) — continued
+- **FAQ P1:** Updated all 7 FAQ answers with real content scraped from optowire.net/faq
+- **FAQ UX:** Added accordion (expand/collapse) behavior matching original site design
 - **Mega-menu:** Add mega-menu with category preview on "Products" hover (user suggested feature)
 
 ### P2 — Future
