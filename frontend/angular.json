@@ -63,14 +63,12 @@
             "outputMode": "server",
             "security": {
               "allowedHosts": [
-                "product-catalog-185.preview.emergentagent.com",
-                "optowire.preview.emergentagent.com",
-                "planet-catalog.preview.emergentagent.com",
-                "product-explorer-4.preview.emergentagent.com",
-                "api-direct-deploy.preview.emergentagent.com",
-                "api-prod.optowire.net",
                 "localhost",
-                "127.0.0.1"
+                "127.0.0.1",
+                "*.preview.emergentagent.com",
+                "*.emergent.host",
+                "*.optowire.net",
+                "optowire.net"
               ]
             },
             "ssr": {

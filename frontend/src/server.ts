@@ -14,9 +14,12 @@ const app = express();
 const angularApp = new AngularNodeAppEngine({
   allowedHosts: [
     'localhost',
+    '127.0.0.1',
     '*.preview.emergentagent.com',
+    '*.emergent.host',
     '*.optowire.net',
     'optowire.net',
+    'eqp-showcase.preview.emergentagent.com',
   ]
 });
 

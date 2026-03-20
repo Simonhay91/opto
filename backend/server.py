@@ -10,6 +10,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+def health_root():
+    return {"status": "ok"}
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
