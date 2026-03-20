@@ -43,13 +43,16 @@ app.use('/api', createProxyMiddleware({
 }));
 
 // Proxy for external Optowire API — avoids CORS issues in browser
+const API_BASE_URL = process.env['API_BASE_URL'] || 'https://api-prod.optowire.net';
+const PARTNER_KEY = process.env['PARTNER_KEY'] || '';
+
 app.use('/ext', createProxyMiddleware({
-  target: 'https://api-prod.optowire.net',
+  target: API_BASE_URL,
   changeOrigin: true,
   pathRewrite: { '^/ext': '' },
   on: {
     proxyReq: (proxyReq: any) => {
-      proxyReq.setHeader('x-partner-key', '94fa5fc3-9534-4bb5-8722-f724f84a5594');
+      proxyReq.setHeader('x-partner-key', PARTNER_KEY);
       // Remove browser-added headers that cause CORS rejection at external API
       proxyReq.removeHeader('origin');
       proxyReq.removeHeader('referer');
