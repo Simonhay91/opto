@@ -84,9 +84,10 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **FIX:** catalog.ts race condition — replaced separate paramMap + queryParamMap subscriptions with `combineLatest` so loadProducts() fires once with all resolved params
 - **TESTED:** 8/8 search features PASS (100%), test report: `/app/test_reports/iteration_5.json`
 
-### Session 8 (2026-03-20) — continued
-- **FAQ P1:** Updated all 7 FAQ answers with real content scraped from optowire.net/faq
-- **FAQ UX:** Added accordion (expand/collapse) behavior matching original site design
+### Session 9 (2026-03-20)
+- **Quote form:** Only `email` required; name/company/phone/quantity/message — optional; payload: `{ email, products: Partial<Stock>[], context }`
+- **Cart quote form:** Added optional fields (name, company, phone, message); same payload format
+- **Favicon:** Added Optowire logo as favicon.png/favicon.ico (served from /public/)
 - **Mega-menu:** Add mega-menu with category preview on "Products" hover (user suggested feature)
 
 ### P2 — Future

@@ -24,9 +24,13 @@ export class CartModalComponent {
   submitted = signal(false);
   error = signal('');
   
-  // Quote form - only email is required
+  // Quote form - only email is required, rest optional
   form = {
-    email: ''
+    email: '',
+    name: '',
+    companyName: '',
+    phone: '',
+    message: '',
   };
   
   close() {
@@ -65,22 +69,32 @@ export class CartModalComponent {
       this.error.set('Email is required');
       return;
     }
-    
+
     this.submitting.set(true);
     this.error.set('');
-    
-    // Format products according to API spec: { productId, stockAmount }
+
+    // Build products array as Partial<Stock>[]
     const products = this.cart.items().map(item => ({
-      productId: item.product.id,
-      stockAmount: item.quantity
+      id: item.product.id,
+      name: item.product.name,
+      model: item.product.model,
+      slug: item.product.slug,
+      stockAmount: item.quantity,
     }));
-    
+
+    // Build context from optional fields
+    const ctxParts: string[] = [];
+    if (this.form.name) ctxParts.push(`Name: ${this.form.name}`);
+    if (this.form.companyName) ctxParts.push(`Company: ${this.form.companyName}`);
+    if (this.form.phone) ctxParts.push(`Phone: ${this.form.phone}`);
+    if (this.form.message) ctxParts.push(`Message: ${this.form.message}`);
+
     const payload = {
       email: this.form.email,
-      products
+      products,
+      context: ctxParts.join('\n'),
     };
-    
-    // Use partner service
+
     this.partnerService.submitQuote(payload).subscribe(
       () => {
         this.submitting.set(false);

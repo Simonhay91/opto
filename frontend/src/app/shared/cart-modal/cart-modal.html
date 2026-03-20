@@ -54,28 +54,57 @@
         <!-- Quote Form -->
         <div class="p-4">
           <p class="text-sm text-slate-500 mb-4">Enter your email to receive a quote for {{cart.totalItems}} product(s).</p>
-          
+
           @if (error()) {
             <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-3 py-2 text-sm mb-4">
               {{error()}}
             </div>
           }
-          
-          <div class="space-y-4">
+
+          <div class="space-y-3">
+            <!-- Email (required) -->
             <div>
-              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Email *</label>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Email <span class="text-red-500">*</span></label>
               <input type="email" [(ngModel)]="form.email" required
                      class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:border-cyan-500 focus:outline-none"
                      placeholder="your@email.com"
                      data-testid="quote-email">
-              <p class="text-xs text-slate-400 mt-1">We'll send you a detailed quote with pricing</p>
+            </div>
+            <!-- Name (optional) -->
+            <div>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Name · 姓名</label>
+              <input type="text" [(ngModel)]="form.name"
+                     class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:border-cyan-500 focus:outline-none"
+                     placeholder="Your name">
+            </div>
+            <!-- Company + Phone -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Company</label>
+                <input type="text" [(ngModel)]="form.companyName"
+                       class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:border-cyan-500 focus:outline-none"
+                       placeholder="Company">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Phone</label>
+                <input type="tel" [(ngModel)]="form.phone"
+                       class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:border-cyan-500 focus:outline-none"
+                       placeholder="+1 234 567">
+              </div>
+            </div>
+            <!-- Message (optional) -->
+            <div>
+              <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Message</label>
+              <textarea [(ngModel)]="form.message" rows="2"
+                        class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:border-cyan-500 focus:outline-none resize-none"
+                        placeholder="Any additional requirements..."></textarea>
             </div>
           </div>
-          
+
           <!-- Products Summary -->
-          <div class="mt-6 border-t border-slate-200 dark:border-slate-700 pt-4">
+          <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4">
             <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">Products in Quote:</h4>
-            <div class="space-y-2 max-h-48 overflow-y-auto">
+            <div class="space-y-2 max-h-40 overflow-y-auto">
               @for (item of cart.items(); track item.product.id) {
                 <div class="flex items-center gap-2 text-xs">
                   <img [src]="getProductImage(item.product)" [alt]="item.product.name" class="w-10 h-10 object-cover">
