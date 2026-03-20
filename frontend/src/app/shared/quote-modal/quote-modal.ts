@@ -47,8 +47,9 @@ export class QuoteModalComponent {
     if (this.form.quantity) ctxParts.push(`Quantity: ${this.form.quantity}`);
     if (this.form.message) ctxParts.push(`Message: ${this.form.message}`);
 
+    // API expects { productId, stockAmount }
     const products = this.product
-      ? [{ id: this.product.id, name: this.product.name, model: this.product.model, slug: this.product.slug }]
+      ? [{ productId: this.product.id, stockAmount: 1 }]
       : [];
 
     const payload = {

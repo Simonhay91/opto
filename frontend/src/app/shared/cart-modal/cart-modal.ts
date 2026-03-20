@@ -73,12 +73,9 @@ export class CartModalComponent {
     this.submitting.set(true);
     this.error.set('');
 
-    // Build products array as Partial<Stock>[]
+    // Build products array: API expects { productId, stockAmount }
     const products = this.cart.items().map(item => ({
-      id: item.product.id,
-      name: item.product.name,
-      model: item.product.model,
-      slug: item.product.slug,
+      productId: item.product.id,
       stockAmount: item.quantity,
     }));
 
