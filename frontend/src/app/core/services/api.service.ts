@@ -11,10 +11,10 @@ export class ApiService {
 
   private get base(): string {
     // SSR (server-side): call external API directly — no CORS
-    // Browser (client-side): use /ext proxy on this server to avoid CORS
+    // Browser (client-side): use /api/ext proxy → FastAPI backend (port 8001, works in production K8s)
     return isPlatformServer(this.platformId)
       ? (process.env['API_BASE_URL'] || '')
-      : '/ext';
+      : '/api/ext';
   }
 
   /**
