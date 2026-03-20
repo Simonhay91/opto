@@ -26,6 +26,19 @@ export class App implements OnInit {
 
   ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) return;
+
+    // Inject chat widget color override (cyan to match site theme)
+    const style = this.doc.createElement('style');
+    style.textContent = `
+      .b24-widget-button-inner-block,
+      .b24-widget-button-inner-block:hover,
+      #bx-button-block .bx-btn,
+      .bx-livechat-btn { background-color: #06b6d4 !important; }
+      .b24-widget-button-pulse { background-color: rgba(6,182,212,0.4) !important; }
+      .b24-widget-button-inner-mask { background-color: #0891b2 !important; }
+    `;
+    this.doc.head.appendChild(style);
+
     const s = this.doc.createElement('script');
     s.async = true;
     s.src = `${CRM_LOADER_URL}?${Math.floor(Date.now() / 60000)}`;
