@@ -13,7 +13,7 @@ export class ApiService {
     // SSR (server-side): call external API directly — no CORS
     // Browser (client-side): use /ext proxy on this server to avoid CORS
     return isPlatformServer(this.platformId)
-      ? (process.env['API_BASE_URL'] || 'https://api-prod.optowire.net')
+      ? (process.env['API_BASE_URL'] || '')
       : '/ext';
   }
 
