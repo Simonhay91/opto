@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, Input, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { ProductService } from '../../core/services/product.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -35,16 +36,29 @@ export class ProductDetailComponent implements OnInit {
   addedToCart = signal(false);
 
   ngOnInit() {
-    // Subscribe to route parameter changes for SPA navigation
-    this.route.paramMap.subscribe(params => {
-      const slug = params.get('slug');
+    // Extract slug from full URL — supports both %2F-encoded and real / in slug
+    const extractSlug = (): string | null => {
+      const url = this.router.url;
+      const match = url.match(/^\/product\/(.*?)(\?|$)/);
+      return match ? decodeURIComponent(match[1]) : null;
+    };
+
+    const load = () => {
+      const slug = extractSlug();
       if (slug) {
-        // Reset state before loading new product
         this.activeImageIdx.set(0);
         this.activeTab.set('description');
         this.loadProduct(slug);
       }
-    });
+    };
+
+    // Initial load
+    load();
+
+    // Handle SPA navigation to another product
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe(() => load());
   }
 
   loadProduct(slug: string) {

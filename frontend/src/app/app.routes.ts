@@ -17,7 +17,7 @@ export const routes: Routes = [
     title: 'Products by Category - Optowire',
   },
   {
-    path: 'product/:slug',
+    path: 'product/**',
     loadComponent: () => import('./pages/product-detail/product-detail').then(m => m.ProductDetailComponent),
   },
   {
