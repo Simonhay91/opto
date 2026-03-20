@@ -268,7 +268,7 @@
         </button>
 
         <!-- Quote Button (desktop) -->
-        <button (click)="quoteOpen.set(true)" data-testid="header-quote-btn"
+        <button (click)="cartOpen.set(true)" data-testid="header-quote-btn"
            class="hidden md:flex items-center gap-1.5 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold uppercase tracking-wide px-4 py-2 transition-colors">
           {{lang.t('getQuote')}}
         </button>
@@ -335,7 +335,7 @@
             {{lang.t(link.key)}}
           </a>
         }
-        <button (click)="quoteOpen.set(true); menuOpen.set(false)"
+        <button (click)="cartOpen.set(true); menuOpen.set(false)"
            class="mt-2 flex justify-center bg-cyan-500 text-white text-sm font-bold uppercase py-2.5">
           {{lang.t('getQuote')}}
         </button>
@@ -346,11 +346,6 @@
 
 <!-- Header spacer -->
 <div class="h-16"></div>
-
-<!-- Global Quote Modal -->
-@if (quoteOpen()) {
-  <app-quote-modal [product]="null" (closed)="quoteOpen.set(false)" />
-}
 
 <!-- Cart Modal -->
 @if (cartOpen()) {

@@ -8,7 +8,6 @@ import { CategoryService } from '../../core/services/category.service';
 import { CartService } from '../../core/services/cart.service';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { QuoteModalComponent } from '../quote-modal/quote-modal';
 import { CartModalComponent } from '../cart-modal/cart-modal';
 import { getImageUrl, ProductDto, CategoryDto } from '../../core/models/models';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
@@ -25,7 +24,7 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, QuoteModalComponent, CartModalComponent],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule, CartModalComponent],
   templateUrl: './header.html',
   styles: [`
     :host { display: block; }
@@ -52,7 +51,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   menuOpen = signal(false);
   searchQuery = signal('');
   mobileSearchOpen = signal(false);
-  quoteOpen = signal(false);
   cartOpen = signal(false);
   megaMenuOpen = signal(false);
   navCategories = signal<CategoryDto[]>([]);
