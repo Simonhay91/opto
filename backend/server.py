@@ -43,8 +43,11 @@ async def proxy(path: str, request: Request):
     # Forward headers, injecting partner key
     headers = dict(request.headers)
     headers["x-partner-key"] = PARTNER_KEY
-    # Remove hop-by-hop headers
-    for h in ["host", "content-length", "transfer-encoding", "connection"]:
+    # Remove hop-by-hop headers and browser-specific headers that cause
+    # CORS/auth rejection at the external API
+    for h in ["host", "content-length", "transfer-encoding", "connection",
+              "origin", "referer", "sec-fetch-site", "sec-fetch-mode",
+              "sec-fetch-dest", "sec-ch-ua", "sec-ch-ua-mobile", "sec-ch-ua-platform"]:
         headers.pop(h, None)
 
     body = await request.body()
