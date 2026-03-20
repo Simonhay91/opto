@@ -110,15 +110,11 @@
             {{product()!.name}}
           </h1>
 
-          <!-- Article Number + Model -->
+          <!-- Model -->
           @if (product()!.model) {
             <div class="flex items-center gap-2">
-              <span class="text-xs text-slate-500 uppercase tracking-wider">Art. No.:</span>
-              <span class="text-sm font-mono font-semibold text-cyan-500" data-testid="product-model">{{product()!.model}}</span>
-            </div>
-            <div class="flex items-center gap-2">
               <span class="text-xs text-slate-500 uppercase tracking-wider">Model:</span>
-              <span class="text-sm font-mono text-slate-700 dark:text-slate-300">{{product()!.model}}</span>
+              <span class="text-sm font-mono font-semibold text-cyan-500" data-testid="product-model">{{product()!.model}}</span>
             </div>
           }
 
@@ -257,12 +253,8 @@
         }
         @if (product()!.model) {
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-center">
-            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Art. No.</p>
-            <p class="font-mono text-sm text-cyan-500 font-semibold">{{product()!.model}}</p>
-          </div>
-          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-center">
             <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Model</p>
-            <p class="font-mono text-sm text-slate-700 dark:text-slate-300">{{product()!.model}}</p>
+            <p class="font-mono text-sm text-cyan-500 font-semibold">{{product()!.model}}</p>
           </div>
         }
         @if (product()!.quantityUnit?.name) {
