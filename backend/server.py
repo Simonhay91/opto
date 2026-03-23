@@ -145,8 +145,17 @@ async def proxy(path: str, request: Request):
         )
 
     # resp.content is already decompressed by httpx — return plain JSON
-    excluded = {"content-encoding", "transfer-encoding", "connection"}
+    # Strip all caching headers from upstream + force no-cache so browsers
+    # never serve stale API data (prevents 304 with empty/broken cached responses)
+    excluded = {
+        "content-encoding", "transfer-encoding", "connection",
+        "etag", "last-modified", "expires", "cache-control", "pragma",
+        "vary",
+    }
     resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
+    resp_headers["cache-control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    resp_headers["pragma"] = "no-cache"
+    resp_headers["expires"] = "0"
     return Response(
         content=resp.content,
         status_code=resp.status_code,
