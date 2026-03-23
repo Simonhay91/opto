@@ -61,6 +61,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '',
+    loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFoundComponent),
+    title: '404 - Page Not Found | Optowire',
   },
 ];
