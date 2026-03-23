@@ -102,23 +102,28 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **Browser:** Uses `/ext` proxy to avoid CORS
 - **Important:** Proxy MUST remove `Origin` and `Referer` headers (API rejects with 401 otherwise)
 
-### Session 10 (2026-03-20) — Current
+### Session 10 (2026-03-20)
 - **ROOT CAUSE FOUND (P0 CRITICAL):** After proxy migration to FastAPI backend, APIs failing in production with 401
   1. `PARTNER_KEY=catalog-proxy-fix` (WRONG) in `frontend/.env` — fixed to `94fa5fc3-9534-4bb5-8722-f724f84a5594`
   2. `backend/.env` had no `PARTNER_KEY` or `API_BASE_URL` — added both
   3. **Main cause:** FastAPI proxy was forwarding browser `Origin`/`Referer`/`sec-*` headers to external API which rejected them with 401 — fixed by removing these headers in the proxy handler
 - **RESULT:** Catalog now shows 1138 products correctly ✅
 
+### Session 11 (2026-03-23) — Current
+- **FIXED: Brotli Encoding Bug (P0):** External API responded with Brotli when browser sent `Accept-Encoding: gzip, deflate, br`. FastAPI proxy can't decompress Brotli → frontend got binary instead of JSON. Fixed: force `Accept-Encoding: gzip, deflate` in proxy headers.
+- **FIXED: Slider placeholder images** — same root cause. Sliders now show 3 real product images from CDN.
+- **FIXED: Mobile Products dropdown** — added accordion with `mobileProductsOpen` signal and all 4 categories.
+- **Test result:** 20/20 backend + 8/8 frontend tests PASS ✅
+
 ## API Notes (Production — Current Architecture)
 - **API URL:** `https://api-prod.optowire.net`
 - **Proxy:** `/api/ext/**` in FastAPI backend (`backend/server.py`) proxies to external API
-- **SSR:** Angular calls `https://api-prod.optowire.net` directly (interceptor adds `x-partner-key`)
-- **Browser:** Uses `/api/ext/` proxy → FastAPI backend injects partner key
-- **CRITICAL:** Proxy MUST remove `Origin`, `Referer`, `sec-*` headers (external API rejects with 401 otherwise)
+- **CRITICAL #1:** Proxy MUST remove `Origin`, `Referer`, `sec-*` headers (external API rejects with 401)
+- **CRITICAL #2:** Proxy MUST force `Accept-Encoding: gzip, deflate` (no Brotli — httpx can't decompress)
 - **Keys:** `PARTNER_KEY` and `API_BASE_URL` must be set in `backend/.env`
 
 ## Test Status
-- **Last tested:** 2026-03-20
-- **Test result:** Catalog showing 1138 products ✅ (screenshot confirmed)
-- **API test:** `POST /api/ext/web/product/explore?customerId=0` with Origin header → 201 ✅
+- **Last tested:** 2026-03-23
+- **Test result:** 100% PASS (20/20 backend, 8/8 frontend) ✅
+- **Test report:** `/app/test_reports/iteration_8.json`
 
