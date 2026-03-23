@@ -53,6 +53,17 @@ export class CatalogComponent implements OnInit {
 
   searchQuery = '';
   sortBy = 'newest';
+
+  /** Normalize query: strip leading # and trim whitespace */
+  private normalizeQuery(q: string): string {
+    return q.replace(/^#/, '').trim();
+  }
+
+  /** True if query looks like a CRM code (pure digits or short alphanumeric ≤10 chars, no spaces) */
+  private isCrmSearch(q: string): boolean {
+    const norm = this.normalizeQuery(q);
+    return norm.length > 0 && norm.length <= 12 && /^[A-Za-z0-9\-]+$/.test(norm) && !/\s/.test(norm);
+  }
   readonly pageSize = 24;
 
   sortOptions = [
@@ -154,7 +165,8 @@ export class CatalogComponent implements OnInit {
       page: 1,
       limit: 500,
       categoryId,
-      productName: this.searchQuery || undefined,
+      productName: (this.searchQuery && !this.isCrmSearch(this.searchQuery))
+        ? this.searchQuery : undefined,
     };
     this.ps.explore(criteria).subscribe({
       next: (r: any) => {
@@ -177,19 +189,29 @@ export class CatalogComponent implements OnInit {
   loadFromServer() {
     this.loading.set(true);
     this.fullCategoryLoaded.set(false);
+
+    const isCrm = this.isCrmSearch(this.searchQuery);
+
     const criteria: any = {
-      page: this.currentPage(),
-      limit: this.pageSize,
-      productName: this.searchQuery || undefined,
+      page: isCrm ? 1 : this.currentPage(),
+      limit: isCrm ? 500 : this.pageSize,
+      // For CRM searches the API won't find by crmCode — load all and filter client-side
+      productName: (!isCrm && this.searchQuery) ? this.searchQuery : undefined,
       sortBy: this.sortBy !== 'newest' ? this.sortBy : undefined,
     };
     this.ps.explore(criteria).subscribe({
       next: (r: any) => {
         const items: ProductDto[] = r?.products || r?.items || (Array.isArray(r) ? r : []);
         this.allProducts.set(this.shuffle(items));
-        this.products.set(this.shuffle(items));
-        this.totalItems.set(r?.total || items.length);
-        this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / this.pageSize));
+        if (isCrm) {
+          // Filter client-side by crmCode
+          this.fullCategoryLoaded.set(true);
+          this.applyClientFilters();
+        } else {
+          this.products.set(this.shuffle(items));
+          this.totalItems.set(r?.total || items.length);
+          this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / this.pageSize));
+        }
         this.loading.set(false);
       },
       error: () => {
@@ -243,10 +265,16 @@ export class CatalogComponent implements OnInit {
     const selectedBrands = this.selectedBrandIds();
     const selectedAttrs = this.selectedAttributes();
     const sortBy = this.sortBy;
-    const search = this.searchQuery.toLowerCase();
+    const rawSearch = this.searchQuery;
+    const search = this.normalizeQuery(rawSearch).toLowerCase();
 
     let filtered = all.filter(p => {
-      if (search && !p.name.toLowerCase().includes(search)) return false;
+      if (search) {
+        const nameMatch = p.name.toLowerCase().includes(search);
+        const crmMatch = ((p as any).crmCode || '').toLowerCase().includes(search);
+        const modelMatch = ((p as any).model || '').toLowerCase().includes(search);
+        if (!nameMatch && !crmMatch && !modelMatch) return false;
+      }
       if (selectedBrands.length > 0) {
         const pBrandId = (p as any).brandId ?? (p as any).brand?.id;
         if (!selectedBrands.includes(pBrandId)) return false;
