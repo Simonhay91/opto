@@ -8,11 +8,13 @@
     <div class="flex items-center justify-between h-16">
 
       <!-- Logo -->
-      <a routerLink="/" class="flex items-center gap-2 group" data-testid="header-logo">
+      <a routerLink="/" class="flex items-center group" data-testid="header-logo">
         @if (theme.isDark()) {
-          <img src="/assets/images/optowire-logo-dark.svg" alt="Optowire" class="h-10 md:h-12 w-auto object-contain">
+          <img src="/assets/images/optowire-logo-dark.svg" alt="Optowire"
+               style="height:48px; width:auto; max-width:200px; object-fit:contain; display:block;">
         } @else {
-          <img [src]="partnerLogo()" [alt]="partnerName()" class="h-10 md:h-12 w-auto object-contain">
+          <img [src]="partnerLogo()" [alt]="partnerName()"
+               style="height:48px; width:auto; max-width:200px; object-fit:contain; display:block;">
         }
       </a>
 
