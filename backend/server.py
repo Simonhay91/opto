@@ -43,6 +43,8 @@ async def proxy(path: str, request: Request):
     # Forward headers, injecting partner key
     headers = dict(request.headers)
     headers["x-partner-key"] = PARTNER_KEY
+    # Force gzip only — avoids Brotli responses that httpx cannot decompress
+    headers["accept-encoding"] = "gzip, deflate"
     # Remove hop-by-hop headers and browser-specific headers that cause
     # CORS/auth rejection at the external API
     for h in ["host", "content-length", "transfer-encoding", "connection",
@@ -60,7 +62,7 @@ async def proxy(path: str, request: Request):
             content=body,
         )
 
-    # Return response
+    # resp.content is already decompressed by httpx — return plain JSON
     excluded = {"content-encoding", "transfer-encoding", "connection"}
     resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
     return Response(

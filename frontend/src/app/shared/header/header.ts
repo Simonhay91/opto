@@ -53,6 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mobileSearchOpen = signal(false);
   cartOpen = signal(false);
   megaMenuOpen = signal(false);
+  mobileProductsOpen = signal(false);
   navCategories = signal<CategoryDto[]>([]);
   private megaTimer: any = null;
 
