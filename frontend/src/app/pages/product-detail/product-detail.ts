@@ -6,6 +6,7 @@ import { ProductService } from '../../core/services/product.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { CartService } from '../../core/services/cart.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
 import { QuoteModalComponent } from '../../shared/quote-modal/quote-modal';
 import { ProductDto, getImageUrl, getFileUrl } from '../../core/models/models';
@@ -23,6 +24,7 @@ export class ProductDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  private tracking = inject(TrackingService);
   lang = inject(LangService);
   cart = inject(CartService);
 
@@ -79,6 +81,7 @@ export class ProductDetailComponent implements OnInit {
         if (p) {
           this.seo.setProductSchema(p);
           this.loadRelated(p);
+          this.tracking.trackProductView(p);
         }
       },
       error: () => { this.loading.set(false); this.error.set(true); }

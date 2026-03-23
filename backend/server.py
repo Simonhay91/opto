@@ -1,10 +1,12 @@
 import os
 import httpx
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
+import motor.motor_asyncio
 
 # Load env from backend/.env first, then frontend/.env as fallback
 load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
@@ -23,6 +25,10 @@ API_BASE_URL = os.environ.get("API_BASE_URL", "https://api-prod.optowire.net")
 PARTNER_KEY = os.environ.get("PARTNER_KEY", "")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+# --- MongoDB ---
+_mongo_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ.get("MONGO_URL", "mongodb://localhost:27017"))
+_db = _mongo_client[os.environ.get("DB_NAME", "optowire")]
 
 # --- Telegram helpers ---
 
@@ -111,6 +117,92 @@ async def partner_inquiry(data: PartnerInquiry):
     chat_id = TELEGRAM_CHAT_ID or await tg_get_chat_id() or ""
     sent = await tg_send(text, chat_id=chat_id)
     return {"ok": True, "telegram_sent": sent}
+
+
+# ── Tracking models ──────────────────────────────────────────────────────────
+
+class ProductViewEvent(BaseModel):
+    product_id: int
+    product_name: str
+    slug: Optional[str] = ""
+
+class SearchEvent(BaseModel):
+    query: str
+    results_found: int
+
+
+@app.post("/api/track/product-view")
+async def track_product_view(event: ProductViewEvent):
+    """Record a product page view."""
+    doc = {
+        "product_id": event.product_id,
+        "product_name": event.product_name,
+        "slug": event.slug,
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "ts": datetime.now(timezone.utc),
+    }
+    await _db["product_views"].insert_one(doc)
+    return {"ok": True}
+
+
+@app.post("/api/track/search")
+async def track_search(event: SearchEvent):
+    """Record a search query."""
+    if not event.query or len(event.query.strip()) < 2:
+        return {"ok": False}
+    doc = {
+        "query": event.query.strip().lower(),
+        "results_found": event.results_found,
+        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "ts": datetime.now(timezone.utc),
+    }
+    await _db["search_queries"].insert_one(doc)
+    return {"ok": True}
+
+
+@app.get("/api/stats/product-views")
+async def stats_product_views(date: str = ""):
+    """Top 10 most viewed products for a given date (YYYY-MM-DD)."""
+    if not date:
+        date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    pipeline = [
+        {"$match": {"date": date}},
+        {"$group": {
+            "_id": "$product_id",
+            "product_name": {"$first": "$product_name"},
+            "slug": {"$first": "$slug"},
+            "clicks": {"$sum": 1},
+        }},
+        {"$sort": {"clicks": -1}},
+        {"$limit": 10},
+        {"$project": {"_id": 0, "product_id": "$_id",
+                      "product_name": 1, "slug": 1, "clicks": 1}},
+    ]
+    cursor = _db["product_views"].aggregate(pipeline)
+    results = await cursor.to_list(length=10)
+    return {"date": date, "data": results}
+
+
+@app.get("/api/stats/searches")
+async def stats_searches(date: str = ""):
+    """Top 10 search queries for a given date (YYYY-MM-DD)."""
+    if not date:
+        date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    pipeline = [
+        {"$match": {"date": date}},
+        {"$group": {
+            "_id": "$query",
+            "count": {"$sum": 1},
+            "results_found": {"$last": "$results_found"},
+        }},
+        {"$sort": {"count": -1}},
+        {"$limit": 10},
+        {"$project": {"_id": 0, "query": "$_id",
+                      "count": 1, "results_found": 1}},
+    ]
+    cursor = _db["search_queries"].aggregate(pipeline)
+    results = await cursor.to_list(length=10)
+    return {"date": date, "data": results}
 
 
 @app.api_route("/api/ext/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])

@@ -8,6 +8,7 @@ import { CategoryService } from '../../core/services/category.service';
 import { BrandService } from '../../core/services/brand.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
 import { ProductDto, CategoryDto, BrandDto } from '../../core/models/models';
 
@@ -27,6 +28,7 @@ export class CatalogComponent implements OnInit {
   private bs = inject(BrandService);
   private seo = inject(SeoService);
   private platformId = inject(PLATFORM_ID);
+  private tracking = inject(TrackingService);
   lang = inject(LangService);
 
   // All loaded products (server page or full category set)
@@ -204,13 +206,14 @@ export class CatalogComponent implements OnInit {
         const items: ProductDto[] = r?.products || r?.items || (Array.isArray(r) ? r : []);
         this.allProducts.set(this.shuffle(items));
         if (isCrm) {
-          // Filter client-side by crmCode
           this.fullCategoryLoaded.set(true);
           this.applyClientFilters();
+          if (this.searchQuery) this.tracking.trackSearch(this.searchQuery, this.products().length);
         } else {
           this.products.set(this.shuffle(items));
           this.totalItems.set(r?.total || items.length);
           this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / this.pageSize));
+          if (this.searchQuery) this.tracking.trackSearch(this.searchQuery, r?.total || items.length);
         }
         this.loading.set(false);
       },
