@@ -13,10 +13,24 @@ module.exports = {
         chinese: ['Noto Sans SC', 'sans-serif'],
       },
       colors: {
+        // Override cyan palette to use brand primary rgb(132,162,166) = #84A2A6
+        cyan: {
+          50:  '#f3f7f8',
+          100: '#e5eef0',
+          200: '#c9dde1',
+          300: '#a9cace',
+          400: '#93b5b9',
+          500: '#84a2a6',
+          600: '#6d8d91',
+          700: '#566d70',
+          800: '#3f5052',
+          900: '#2a3638',
+          950: '#161e1f',
+        },
         brand: {
-          DEFAULT: '#06B6D4',
-          glow: '#22D3EE',
-          dim: '#0891B2',
+          DEFAULT: '#84A2A6',
+          glow: '#93b5b9',
+          dim:  '#6d8d91',
         },
       },
       animation: {
