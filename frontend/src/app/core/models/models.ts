@@ -188,6 +188,7 @@ export interface BrandDto {
   name: string;
   slug?: string;
   logo?: string;
+  logoImage?: any;
   description?: string;
 }
 

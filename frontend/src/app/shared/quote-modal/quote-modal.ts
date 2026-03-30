@@ -30,24 +30,58 @@ export class QuoteModalComponent {
     name: '',
     email: '',
     companyName: '',
-    phone: '',
+    phoneCode: '+374',
+    phoneNumber: '',
     quantity: '',
     message: '',
   };
 
+  countryCodes = [
+    { code: '+374', flag: '🇦🇲', name: 'Armenia' },
+    { code: '+7',   flag: '🇷🇺', name: 'Russia' },
+    { code: '+1',   flag: '🇺🇸', name: 'USA/Canada' },
+    { code: '+44',  flag: '🇬🇧', name: 'UK' },
+    { code: '+49',  flag: '🇩🇪', name: 'Germany' },
+    { code: '+33',  flag: '🇫🇷', name: 'France' },
+    { code: '+39',  flag: '🇮🇹', name: 'Italy' },
+    { code: '+34',  flag: '🇪🇸', name: 'Spain' },
+    { code: '+31',  flag: '🇳🇱', name: 'Netherlands' },
+    { code: '+48',  flag: '🇵🇱', name: 'Poland' },
+    { code: '+380', flag: '🇺🇦', name: 'Ukraine' },
+    { code: '+994', flag: '🇦🇿', name: 'Azerbaijan' },
+    { code: '+995', flag: '🇬🇪', name: 'Georgia' },
+    { code: '+998', flag: '🇺🇿', name: 'Uzbekistan' },
+    { code: '+86',  flag: '🇨🇳', name: 'China' },
+    { code: '+81',  flag: '🇯🇵', name: 'Japan' },
+    { code: '+82',  flag: '🇰🇷', name: 'South Korea' },
+    { code: '+91',  flag: '🇮🇳', name: 'India' },
+    { code: '+971', flag: '🇦🇪', name: 'UAE' },
+    { code: '+966', flag: '🇸🇦', name: 'Saudi Arabia' },
+    { code: '+90',  flag: '🇹🇷', name: 'Turkey' },
+    { code: '+972', flag: '🇮🇱', name: 'Israel' },
+    { code: '+61',  flag: '🇦🇺', name: 'Australia' },
+    { code: '+55',  flag: '🇧🇷', name: 'Brazil' },
+    { code: '+52',  flag: '🇲🇽', name: 'Mexico' },
+  ];
+
   submit(ngForm: NgForm) {
-    if (ngForm.invalid) return;
+    if (ngForm.invalid) {
+      ngForm.form.markAllAsTouched();
+      return;
+    }
     this.state.set('loading');
 
-    // Build context from optional fields
+    const fullPhone = this.form.phoneNumber
+      ? `${this.form.phoneCode} ${this.form.phoneNumber}`
+      : '';
+
     const ctxParts: string[] = [];
     if (this.form.name) ctxParts.push(`Name: ${this.form.name}`);
     if (this.form.companyName) ctxParts.push(`Company: ${this.form.companyName}`);
-    if (this.form.phone) ctxParts.push(`Phone: ${this.form.phone}`);
+    if (fullPhone) ctxParts.push(`Phone: ${fullPhone}`);
     if (this.form.quantity) ctxParts.push(`Quantity: ${this.form.quantity}`);
     if (this.form.message) ctxParts.push(`Message: ${this.form.message}`);
 
-    // API expects { productId, stockAmount }
     const products = this.product
       ? [{ productId: this.product.id, stockAmount: 1 }]
       : [];

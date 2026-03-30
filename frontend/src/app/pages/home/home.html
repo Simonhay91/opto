@@ -44,12 +44,12 @@
           <!-- Desktop Image -->
           <img [src]="getSliderImage(slider, 'desktop')" 
                [alt]="'Slide ' + (i + 1)"
-               class="hidden md:block w-full h-full object-cover" 
+               class="hidden md:block w-full h-full object-contain bg-slate-900" 
                loading="lazy">
           <!-- Mobile Image -->
           <img [src]="getSliderImage(slider, 'mobile')" 
                [alt]="'Slide ' + (i + 1)"
-               class="md:hidden w-full h-full object-cover" 
+               class="md:hidden w-full h-full object-contain bg-slate-900" 
                loading="lazy">
           <!-- Overlay -->
           <div class="absolute inset-0 bg-gradient-to-r from-slate-900/60 via-slate-900/30 to-transparent"></div>
@@ -108,6 +108,37 @@
     }
   </div>
 </section>
+
+<!-- BRANDS SECTION -->
+@if (brands().length > 0) {
+  <section class="py-10 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800" data-testid="brands-section">
+    <div class="container mx-auto px-4 md:px-8 max-w-7xl">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="h-px w-6 bg-cyan-500"></div>
+        <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">Our Brands · 品牌</span>
+      </div>
+      <div class="flex items-center gap-6 overflow-x-auto pb-2 scrollbar-none" data-testid="brands-list">
+        @for (brand of brands(); track brand.id) {
+          <a [routerLink]="['/catalog']" [queryParams]="{brand: brand.id}"
+             class="flex-shrink-0 flex flex-col items-center gap-2 group"
+             [attr.data-testid]="'brand-' + brand.id">
+            @if (brand.logoImage) {
+              <div class="w-24 h-14 flex items-center justify-center rounded border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 group-hover:border-cyan-400 transition-colors overflow-hidden">
+                <img [src]="getImageUrl(brand.logoImage, 'thumb')"
+                     [alt]="brand.name"
+                     class="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300">
+              </div>
+            } @else {
+              <div class="w-24 h-14 flex items-center justify-center rounded border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 group-hover:border-cyan-400 transition-colors">
+                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-cyan-500 text-center leading-tight transition-colors">{{brand.name}}</span>
+              </div>
+            }
+          </a>
+        }
+      </div>
+    </div>
+  </section>
+}
 
 <!-- CATEGORIES BENTO GRID -->
 <section class="py-16 bg-slate-50 dark:bg-slate-950" data-testid="categories-section">

@@ -3,11 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
+import { BrandService } from '../../core/services/brand.service';
 import { SliderService } from '../../core/services/slider.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
-import { Slider, ProductDto, CategoryDto, getImageUrl } from '../../core/models/models';
+import { Slider, ProductDto, CategoryDto, BrandDto, getImageUrl } from '../../core/models/models';
 import { SUPPORTED_CATEGORIES } from '../../core/config/categories.config';
 
 interface ProductSection {
@@ -25,6 +26,7 @@ interface ProductSection {
 export class HomeComponent implements OnInit, OnDestroy {
   private ps = inject(ProductService);
   private cs = inject(CategoryService);
+  private bs = inject(BrandService);
   private sliderService = inject(SliderService);
   private seo = inject(SeoService);
   private platformId = inject(PLATFORM_ID);
@@ -34,8 +36,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentSlide = signal(0);
   slidersLoading = signal(true);
   categories = signal<CategoryDto[]>([]);
+  brands = signal<BrandDto[]>([]);
   sections = signal<ProductSection[]>([]);
   promoUnits = signal<any[]>([]);
+  getImageUrl = getImageUrl;
   private slideInterval: any;
 
   // Supported categories with icons
@@ -46,6 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.seo.setPage('Fiber Optic & Network Equipment', 'Leading fiber optic manufacturer in Qingdao, China. Shop telecom cables, network equipment, IoT & security solutions.');
     this.loadSliders();
     this.loadCategories();
+    this.loadBrands();
     this.loadSections();
     this.loadPromoUnits();
   }
@@ -54,8 +59,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.slidersLoading.set(true);
     this.sliderService.getAll().subscribe({
       next: (data: Slider[]) => {
-        // Sort by priority descending (higher priority first)
-        const sorted = [...data].sort((a, b) => b.priority - a.priority);
+        // Sort by priority ascending (1 → 2 → 3)
+        const sorted = [...data].sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99));
         this.sliders.set(sorted);
         this.slidersLoading.set(false);
         if (isPlatformBrowser(this.platformId)) this.startAutoSlide();
@@ -84,6 +89,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       slug: c.slug,
       icon: c.icon
     } as any)));
+  }
+
+  loadBrands() {
+    this.bs.getAll().subscribe({
+      next: (data) => this.brands.set(data || []),
+      error: () => {}
+    });
   }
 
   loadSections() {

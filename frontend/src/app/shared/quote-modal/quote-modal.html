@@ -41,33 +41,45 @@
 
     <!-- Form Body -->
     @if (state() === 'form' || state() === 'loading') {
-      <form #f="ngForm" (ngSubmit)="submit(f)" class="px-6 py-5 space-y-4">
+      <form #f="ngForm" (ngSubmit)="submit(f)" novalidate class="px-6 py-5 space-y-4">
 
         <!-- Row: Name + Email -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Name (required) -->
           <div>
             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Name · 姓名
+              Name · 姓名 <span class="text-red-500">*</span>
             </label>
-            <input type="text" name="name"
-                   [(ngModel)]="form.name"
+            <input type="text" name="name" required
+                   [(ngModel)]="form.name" #nameCtrl="ngModel"
                    placeholder="Your full name"
-                   class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400"
+                   [class]="'w-full border bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400 ' + (nameCtrl.invalid && nameCtrl.touched ? 'border-red-400' : 'border-slate-200 dark:border-slate-700')"
                    data-testid="quote-name-input">
+            @if (nameCtrl.invalid && nameCtrl.touched) {
+              <p class="text-xs text-red-500 mt-1" data-testid="name-error">Name is required</p>
+            }
           </div>
+          <!-- Email (required + email format) -->
           <div>
             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
               Email <span class="text-red-500">*</span>
             </label>
-            <input type="email" name="email" required
-                   [(ngModel)]="form.email"
+            <input type="email" name="email" required email
+                   [(ngModel)]="form.email" #emailCtrl="ngModel"
                    placeholder="your@company.com"
-                   class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400"
+                   [class]="'w-full border bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400 ' + (emailCtrl.invalid && emailCtrl.touched ? 'border-red-400' : 'border-slate-200 dark:border-slate-700')"
                    data-testid="quote-email-input">
+            @if (emailCtrl.invalid && emailCtrl.touched) {
+              @if (emailCtrl.errors?.['required']) {
+                <p class="text-xs text-red-500 mt-1" data-testid="email-error">Email is required</p>
+              } @else if (emailCtrl.errors?.['email']) {
+                <p class="text-xs text-red-500 mt-1" data-testid="email-format-error">Enter a valid email address</p>
+              }
+            }
           </div>
         </div>
 
-        <!-- Row: Company + Phone -->
+        <!-- Row: Company + Phone with country code -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
@@ -79,15 +91,29 @@
                    class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400"
                    data-testid="quote-company-input">
           </div>
+          <!-- Phone (required) with country code selector -->
           <div>
             <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
-              Phone · 电话
+              Phone · 电话 <span class="text-red-500">*</span>
             </label>
-            <input type="tel" name="phone"
-                   [(ngModel)]="form.phone"
-                   placeholder="+1 234 567 890"
-                   class="w-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400"
-                   data-testid="quote-phone-input">
+            <div class="flex gap-0">
+              <select name="phoneCode"
+                      [(ngModel)]="form.phoneCode"
+                      class="border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-2 py-2 text-sm outline-none focus:border-cyan-500 transition-colors shrink-0 max-w-[110px]"
+                      data-testid="quote-phone-code">
+                @for (c of countryCodes; track c.code) {
+                  <option [value]="c.code">{{c.flag}} {{c.code}}</option>
+                }
+              </select>
+              <input type="tel" name="phoneNumber" required
+                     [(ngModel)]="form.phoneNumber" #phoneCtrl="ngModel"
+                     placeholder="XX XXX XXX"
+                     [class]="'flex-1 min-w-0 border bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm outline-none focus:border-cyan-500 transition-colors placeholder:text-slate-400 ' + (phoneCtrl.invalid && phoneCtrl.touched ? 'border-red-400' : 'border-slate-200 dark:border-slate-700')"
+                     data-testid="quote-phone-input">
+            </div>
+            @if (phoneCtrl.invalid && phoneCtrl.touched) {
+              <p class="text-xs text-red-500 mt-1" data-testid="phone-error">Phone number is required</p>
+            }
           </div>
         </div>
 
