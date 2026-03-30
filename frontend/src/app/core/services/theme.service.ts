@@ -6,25 +6,19 @@ import { DOCUMENT } from '@angular/common';
 export class ThemeService {
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
+  // Light mode only — dark mode toggle is hidden
   isDark = signal(false);
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      const stored = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const dark = stored === 'dark' || (!stored && prefersDark);
-      this.isDark.set(dark);
-      this.applyTheme(dark);
+      // Always force light mode
+      localStorage.setItem('theme', 'light');
+      this.applyTheme(false);
     }
   }
 
   toggle() {
-    const next = !this.isDark();
-    this.isDark.set(next);
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('theme', next ? 'dark' : 'light');
-    }
-    this.applyTheme(next);
+    // No-op: dark mode disabled
   }
 
   private applyTheme(dark: boolean) {

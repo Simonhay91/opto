@@ -111,27 +111,34 @@
 
 <!-- BRANDS SECTION -->
 @if (brands().length > 0) {
-  <section class="py-10 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800" data-testid="brands-section">
+  <section class="py-16 bg-white" data-testid="brands-section">
     <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="h-px w-6 bg-cyan-500"></div>
-        <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">Our Brands · 品牌</span>
+      <!-- Section header -->
+      <div class="mb-10">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="h-px w-6 bg-cyan-500"></div>
+          <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">Our Brands · 品牌</span>
+        </div>
+        <h2 class="text-3xl font-heading font-bold text-slate-900">Our Brands</h2>
       </div>
-      <div class="flex items-center gap-6 overflow-x-auto pb-2 scrollbar-none" data-testid="brands-list">
-        @for (brand of brands(); track brand.id) {
+      <!-- Brand cards grid — match design: large white cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 border border-slate-200" data-testid="brands-list">
+        @for (brand of brands(); track brand.id; let last = $last) {
           <a [routerLink]="['/catalog']" [queryParams]="{brand: brand.id}"
-             class="flex-shrink-0 flex flex-col items-center gap-2 group"
-             [attr.data-testid]="'brand-' + brand.id">
+             class="flex items-center justify-center p-10 bg-white hover:bg-slate-50 transition-colors border-r border-b border-slate-200 group"
+             [class.border-r-0]="(brands().indexOf(brand) + 1) % 3 === 0"
+             [attr.data-testid]="'brand-card-' + brand.id">
             @if (brand.logoImage) {
-              <div class="w-24 h-14 flex items-center justify-center rounded border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 group-hover:border-cyan-400 transition-colors overflow-hidden">
-                <img [src]="getImageUrl(brand.logoImage, 'thumb')"
-                     [alt]="brand.name"
-                     class="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300">
-              </div>
+              <img [src]="getImageUrl(brand.logoImage, 'thumb')"
+                   [alt]="brand.name"
+                   class="max-h-16 max-w-[200px] w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                   style="filter: grayscale(30%) opacity(0.8); transition: filter 0.3s;"
+                   onmouseenter="this.style.filter='grayscale(0%) opacity(1)'"
+                   onmouseleave="this.style.filter='grayscale(30%) opacity(0.8)'">
             } @else {
-              <div class="w-24 h-14 flex items-center justify-center rounded border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 group-hover:border-cyan-400 transition-colors">
-                <span class="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-cyan-500 text-center leading-tight transition-colors">{{brand.name}}</span>
-              </div>
+              <span class="text-2xl font-heading font-bold text-slate-400 group-hover:text-cyan-500 transition-colors tracking-tight">
+                {{brand.name}}
+              </span>
             }
           </a>
         }
@@ -211,7 +218,7 @@
         <div>
           <div class="flex items-center gap-2 mb-1">
             <div class="h-px w-6 bg-cyan-500"></div>
-            <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">{{section.name}}</span>
+            <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">{{section.name}} · {{getSectionZh(section.name)}}</span>
           </div>
           <h2 class="text-3xl font-heading font-bold text-slate-900 dark:text-slate-50">{{section.name}}</h2>
         </div>

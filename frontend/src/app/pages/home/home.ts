@@ -98,6 +98,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
   }
 
+  getSectionZh(name: string): string {
+    const map: Record<string, string> = {
+      'New Arrivals': '新品', 'new arrivals': '新品', 'новинки': '新品',
+      'Best Sellers': '畅销品', 'best sellers': '畅销品', 'bestsellers': '畅销品',
+      'Featured': '精选', 'featured': '精选',
+      'Top Products': '热门产品', 'top products': '热门产品',
+      'Popular': '热门', 'popular': '热门',
+      'Sale': '促销', 'sale': '促销',
+      'Recommended': '推荐', 'recommended': '推荐',
+      'Trending': '趋势', 'trending': '趋势',
+    };
+    return map[name] || map[name.toLowerCase()] || '精选';
+  }
+
   loadSections() {
     // Use explore with sortBy: newest for product sections
     const sections: ProductSection[] = [
