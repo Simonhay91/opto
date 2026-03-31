@@ -253,3 +253,110 @@ async def proxy(path: str, request: Request):
         status_code=resp.status_code,
         headers=resp_headers,
     )
+
+
+# ── Sitemap ──────────────────────────────────────────────────────────────────
+
+SITE_URL = os.environ.get("SITE_URL", "https://optowire.net")
+ALLOWED_CATEGORY_IDS = {1, 91, 188, 212}
+
+def flatten_categories(cats: list, result: list = None) -> list:
+    if result is None:
+        result = []
+    for cat in cats:
+        result.append(cat)
+        if cat.get("children"):
+            flatten_categories(cat["children"], result)
+    return result
+
+@app.get("/sitemap.xml", response_class=Response)
+async def sitemap():
+    urls = []
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    static_routes = [
+        ("", "1.0", "daily"),
+        ("/brands", "0.8", "weekly"),
+        ("/new-arrivals", "0.8", "weekly"),
+        ("/about", "0.6", "monthly"),
+        ("/contact", "0.6", "monthly"),
+        ("/partner", "0.6", "monthly"),
+    ]
+    for path, priority, changefreq in static_routes:
+        urls.append({
+            "loc": f"{SITE_URL}{path}",
+            "lastmod": today,
+            "changefreq": changefreq,
+            "priority": priority,
+        })
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        headers = {"x-partner-key": PARTNER_KEY, "accept-encoding": "gzip, deflate"}
+
+        try:
+            r = await client.get(f"{API_BASE_URL}/web/category",
+                                 params={"customerId": "0"}, headers=headers)
+            if r.status_code == 200:
+                all_cats = flatten_categories(r.json())
+                for cat in all_cats:
+                    if cat.get("id") and int(cat["id"]) in ALLOWED_CATEGORY_IDS:
+                        slug = cat.get("slug", "")
+                        if slug:
+                            urls.append({
+                                "loc": f"{SITE_URL}/category/{slug}",
+                                "lastmod": today,
+                                "changefreq": "weekly",
+                                "priority": "0.8",
+                            })
+        except Exception:
+            pass
+
+        try:
+            page, page_size = 1, 100
+            while True:
+                r = await client.post(
+                    f"{API_BASE_URL}/web/product/explore",
+                    params={"customerId": "0"},
+                    headers=headers,
+                    json={"page": page, "limit": page_size},
+                )
+                if r.status_code not in (200, 201):
+                    break
+                data = r.json()
+                items = data.get("products") or data.get("items") or (data if isinstance(data, list) else [])
+                if not items:
+                    break
+                for product in items:
+                    slug = product.get("slug", "")
+                    if slug:
+                        urls.append({
+                            "loc": f"{SITE_URL}/product/{slug}",
+                            "lastmod": today,
+                            "changefreq": "weekly",
+                            "priority": "0.7",
+                        })
+                total = data.get("total", 0) if isinstance(data, dict) else 0
+                if page * page_size >= total:
+                    break
+                page += 1
+        except Exception:
+            pass
+
+    xml_parts = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for u in urls:
+        xml_parts.append(
+            f"  <url>\n"
+            f"    <loc>{u['loc']}</loc>\n"
+            f"    <lastmod>{u['lastmod']}</lastmod>\n"
+            f"    <changefreq>{u['changefreq']}</changefreq>\n"
+            f"    <priority>{u['priority']}</priority>\n"
+            f"  </url>"
+        )
+    xml_parts.append("</urlset>")
+
+    return Response(
+        content="\n".join(xml_parts),
+        media_type="application/xml",
+        headers={"Cache-Control": "public, max-age=3600"},
+    )

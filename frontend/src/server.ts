@@ -45,6 +45,13 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
+// Proxy /sitemap.xml to backend for SEO
+app.use('/sitemap.xml', createProxyMiddleware({
+  target: `http://localhost:${backendPort}`,
+  changeOrigin: true,
+  pathRewrite: { '^/': '/sitemap.xml' },
+}));
+
 // Proxy for external Optowire API — avoids CORS issues in browser
 const API_BASE_URL = process.env['API_BASE_URL'] || 'https://api-prod.optowire.net';
 const PARTNER_KEY = process.env['PARTNER_KEY'] || '';
