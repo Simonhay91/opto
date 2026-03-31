@@ -49,7 +49,6 @@ app.use('/api', createProxyMiddleware({
 app.use('/sitemap.xml', createProxyMiddleware({
   target: `http://localhost:${backendPort}`,
   changeOrigin: true,
-  pathRewrite: { '^/': '/sitemap.xml' },
 }));
 
 // Proxy for external Optowire API — avoids CORS issues in browser
