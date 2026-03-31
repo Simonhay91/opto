@@ -123,7 +123,18 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **Keys:** `PARTNER_KEY` and `API_BASE_URL` must be set in `backend/.env`
 
 ## Test Status
-- **Last tested:** 2026-03-23
-- **Test result:** 100% PASS (20/20 backend, 8/8 frontend) ✅
-- **Test report:** `/app/test_reports/iteration_8.json`
+- **Last tested:** 2026-03-31
+- **Test result:** 100% PASS (6/6 frontend) ✅
+- **Test report:** `/app/test_reports/iteration_9.json`
+
+### Session 12 (2026-03-31)
+- **FIXED: Brand filtering in catalog (P0):** Products from API don't include `brandId`. Now uses server-side `brandId` parameter in `/web/product/explore` for general catalog (no category).
+- **FIXED: Brand URL param:** `/catalog?brand=ID` correctly filters products via server-side.
+- **FIXED: Brands sidebar visibility:** Brands shown in catalog sidebar regardless of category selection.
+- **UI: Brands section (home page):** Removed brand names and "Browse >" buttons. Logos enlarged to w-28 h-28.
+
+### Backlog
+- P2: Dynamic Price Range Filter
+- P2: Enhanced Mega-menu (image + description on hover)
+- P2: Brand Detail Page
 
