@@ -36,7 +36,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentSlide = signal(0);
   slidersLoading = signal(true);
   categories = signal<CategoryDto[]>([]);
-  brands = signal<BrandDto[]>([]);
+ brands = signal<BrandDto[]>([]);
   sections = signal<ProductSection[]>([]);
   promoUnits = signal<any[]>([]);
   getImageUrl = getImageUrl;

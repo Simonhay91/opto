@@ -113,31 +113,43 @@
 @if (brands().length > 0) {
   <section class="py-16 bg-white" data-testid="brands-section">
     <div class="container mx-auto px-4 md:px-8 max-w-7xl">
-      <!-- Section header -->
-      <div class="mb-10">
-        <div class="flex items-center gap-2 mb-2">
-          <div class="h-px w-6 bg-cyan-500"></div>
-          <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">Our Brands · 品牌</span>
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <div class="h-px w-6 bg-cyan-500"></div>
+            <span class="text-xs font-mono text-cyan-500 uppercase tracking-widest">Our Brands · 品牌</span>
+          </div>
+          <h2 class="text-3xl font-heading font-bold text-slate-900">Our Brands</h2>
         </div>
-        <h2 class="text-3xl font-heading font-bold text-slate-900">Our Brands</h2>
       </div>
-      <!-- Brand cards grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-[10px]" data-testid="brands-list">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-testid="brands-list">
         @for (brand of brands(); track brand.id) {
           <a [routerLink]="['/catalog']" [queryParams]="{brand: brand.id}"
-             class="flex items-center justify-center p-10 bg-white border border-slate-200 hover:border-cyan-400 transition-colors group"
+             class="group relative bg-white border border-slate-200 p-6 hover:border-cyan-400 transition-all duration-300 flex flex-col items-center text-center gap-4"
              [attr.data-testid]="'brand-card-' + brand.id">
             @if (brand.logoImage) {
               <img [src]="getImageUrl(brand.logoImage, 'thumb')"
                    [alt]="brand.name"
-                   class="max-h-16 max-w-[200px] w-auto object-contain"
-                   style="filter: grayscale(1) sepia(0.4) hue-rotate(163deg) saturate(0.5) brightness(0.85);">
+                   class="w-16 h-16 object-contain"
+                   style="filter: brightness(0) saturate(100%) invert(67%) sepia(14%) saturate(400%) hue-rotate(148deg) brightness(97%) contrast(87%);">
             } @else {
-              <span class="text-2xl font-heading font-bold tracking-tight transition-colors"
-                    style="color: rgb(132,162,166);">
-                {{brand.name}}
-              </span>
+              <div class="w-16 h-16 flex items-center justify-center">
+                <span class="text-4xl font-heading font-black" style="color: rgb(132,162,166);">
+                  {{brand.name.charAt(0)}}
+                </span>
+              </div>
             }
+            <div>
+              <h3 class="font-heading font-semibold text-slate-900 text-sm">{{brand.name}}</h3>
+            </div>
+            <div class="mt-auto">
+              <span class="text-xs font-bold uppercase text-cyan-500 group-hover:text-cyan-600 flex items-center gap-1">
+                Browse
+                <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </span>
+            </div>
           </a>
         }
       </div>
