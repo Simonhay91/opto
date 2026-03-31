@@ -97,9 +97,14 @@ export class CatalogComponent implements OnInit {
     combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, queryParams]) => {
       const categorySlug = params.get('categorySlug');
       const search = queryParams.get('q') || queryParams.get('search') || '';
+      const brandParam = queryParams.get('brand');
       this.searchQuery = search;
       this.currentPage.set(1);
       this.clearFiltersInternal();
+
+      if (brandParam) {
+        this.selectedBrandIds.set([Number(brandParam)]);
+      }
 
       if (categorySlug) {
         this.selectedCategorySlug.set(categorySlug);
@@ -111,6 +116,7 @@ export class CatalogComponent implements OnInit {
         this.fullCategoryLoaded.set(false);
         this.extractedAttrs.set([]);
         this.loadCategories();
+        // loadFromServer() picks up selectedBrandIds() and passes brandId to API
         this.loadFromServer();
       }
     });
@@ -193,6 +199,7 @@ export class CatalogComponent implements OnInit {
     this.fullCategoryLoaded.set(false);
 
     const isCrm = this.isCrmSearch(this.searchQuery);
+    const selectedBrands = this.selectedBrandIds();
 
     const criteria: any = {
       page: isCrm ? 1 : this.currentPage(),
@@ -200,6 +207,8 @@ export class CatalogComponent implements OnInit {
       // For CRM searches the API won't find by crmCode — load all and filter client-side
       productName: (!isCrm && this.searchQuery) ? this.searchQuery : undefined,
       sortBy: this.sortBy !== 'newest' ? this.sortBy : undefined,
+      // Pass single brandId to API for server-side filtering
+      brandId: selectedBrands.length === 1 ? selectedBrands[0] : undefined,
     };
     this.ps.explore(criteria).subscribe({
       next: (r: any) => {
@@ -279,8 +288,11 @@ export class CatalogComponent implements OnInit {
         if (!nameMatch && !crmMatch && !modelMatch) return false;
       }
       if (selectedBrands.length > 0) {
-        const pBrandId = (p as any).brandId ?? (p as any).brand?.id;
-        if (!selectedBrands.includes(pBrandId)) return false;
+        // Products from API don't include brandId — match by brand name prefix in product name
+        const brandNames = selectedBrands.map(id => this.getBrandName(id).toLowerCase());
+        const nameLC = p.name.toLowerCase();
+        const hasMatch = brandNames.some(bn => bn.length > 1 && nameLC.includes(bn));
+        if (!hasMatch) return false;
       }
       for (const [attrIdStr, values] of Object.entries(selectedAttrs)) {
         if (!values.length) continue;
@@ -368,7 +380,13 @@ export class CatalogComponent implements OnInit {
     const next = cur.includes(brandId) ? cur.filter(id => id !== brandId) : [...cur, brandId];
     this.selectedBrandIds.set(next);
     this.currentPage.set(1);
-    this.applyClientFilters();
+    if (this.fullCategoryLoaded()) {
+      // Category mode: products already loaded, filter client-side by brand name
+      this.applyClientFilters();
+    } else {
+      // General catalog mode: use server-side brand filter
+      this.loadFromServer();
+    }
   }
 
   onAttributeChange(attrId: number, value: string, checked: boolean) {

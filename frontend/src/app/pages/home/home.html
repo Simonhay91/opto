@@ -125,31 +125,20 @@
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4" data-testid="brands-list">
         @for (brand of brands(); track brand.id) {
           <a [routerLink]="['/catalog']" [queryParams]="{brand: brand.id}"
-             class="group relative bg-white border border-slate-200 p-6 hover:border-cyan-400 transition-all duration-300 flex flex-col items-center text-center gap-4"
+             class="group relative bg-white border border-slate-200 p-6 hover:border-cyan-400 transition-all duration-300 flex items-center justify-center"
              [attr.data-testid]="'brand-card-' + brand.id">
             @if (brand.logoImage) {
               <img [src]="getImageUrl(brand.logoImage, 'thumb')"
                    [alt]="brand.name"
-                   class="w-16 h-16 object-contain"
+                   class="w-28 h-28 object-contain"
                    style="filter: brightness(0) saturate(100%) invert(67%) sepia(14%) saturate(400%) hue-rotate(148deg) brightness(97%) contrast(87%);">
             } @else {
-              <div class="w-16 h-16 flex items-center justify-center">
-                <span class="text-4xl font-heading font-black" style="color: rgb(132,162,166);">
+              <div class="w-28 h-28 flex items-center justify-center">
+                <span class="text-5xl font-heading font-black" style="color: rgb(132,162,166);">
                   {{brand.name.charAt(0)}}
                 </span>
               </div>
             }
-            <div>
-              <h3 class="font-heading font-semibold text-slate-900 text-sm">{{brand.name}}</h3>
-            </div>
-            <div class="mt-auto">
-              <span class="text-xs font-bold uppercase text-cyan-500 group-hover:text-cyan-600 flex items-center gap-1">
-                Browse
-                <svg class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </span>
-            </div>
           </a>
         }
       </div>

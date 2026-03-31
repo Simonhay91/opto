@@ -94,7 +94,7 @@
           }
 
           <!-- Brands (client-side) -->
-          @if (fullCategoryLoaded() && brands().length > 0) {
+          @if (brands().length > 0) {
             <div class="mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('brands')}}</h4>
               <div class="space-y-1.5">
@@ -265,7 +265,7 @@
               }
 
               <!-- Brands Mobile - client-side -->
-              @if (fullCategoryLoaded() && brands().length > 0) {
+              @if (brands().length > 0) {
                 <div class="mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
                   <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">{{lang.t('brands')}}</h4>
                   @for (brand of brands(); track brand.id) {

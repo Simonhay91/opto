@@ -1,0 +1,38 @@
+{
+  "summary": "Frontend-only testing of brand filtering features on Optowire Angular SSR catalog app. All 6 required features verified and passing. Home page brands: logos shown at w-28 h-28, no brand name labels, no Browse buttons. Catalog: 1146 products shown initially, brands sidebar visible without category selected. URL brand param /catalog?brand=34 shows 157 Vivio products with Vivio checkbox checked. Sidebar brand checkbox click filters server-side to 157 Vivio products. Home page brand card click navigates to /catalog?brand=34 and shows 157 products.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/ext/web/promotional-unit?customerId=0", "issue": "Returns HTTP 500 - external API endpoint not supported. Non-blocking, no UI impact."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_9.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "MINOR: /api/ext/web/promotional-unit?customerId=0 returns 500 on every home page load. This is the external API returning an error - backend proxy may want to swallow this error or frontend can handle gracefully. Not blocking current feature set."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend-only testing)",
+    "frontend": "6/6 features PASS (100%)"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "App at catalog-proxy-fix.preview.emergentagent.com. Angular SSR. Brands: Yixing(id=3), Vivio(id=34), Optowire(id=4). All brand filtering features verified. Catalog without category shows 1146 products + brand sidebar. /catalog?brand=34 = 157 Vivio results. Home page brand cards link to /catalog?brand=ID. Minor: promotional-unit API returns 500 (non-critical).",
+  "test_details": {
+    "1_home_brands_no_browse_buttons": "PASS - No Browse buttons in brands section HTML",
+    "2_home_brands_no_name_labels": "PASS - brands_list inner text is empty (only logos visible)",
+    "3_home_brands_logos_w28_h28": "PASS - img classes include 'w-28 h-28 object-contain'",
+    "4_catalog_1146_products": "PASS - Catalog page shows '1146 Results' without any filter",
+    "5_catalog_brands_sidebar_no_category": "PASS - All 3 brand checkboxes (Yixing/Vivio/Optowire) visible in sidebar without selecting a category",
+    "6_catalog_brand_url_param_34": "PASS - /catalog?brand=34 shows 157 Results with Vivio checkbox checked",
+    "7_catalog_vivio_sidebar_click": "PASS - Clicking Vivio checkbox filters from 1146 to 157 results (server-side)",
+    "8_home_brand_card_click_navigation": "PASS - Clicking Vivio card navigates to /catalog?brand=34 and shows 157 products"
+  }
+}
