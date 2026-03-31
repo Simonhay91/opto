@@ -45,11 +45,18 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
-// Proxy /sitemap.xml to backend for SEO
-app.get('/sitemap.xml', createProxyMiddleware({
-  target: `http://localhost:${backendPort}`,
-  changeOrigin: true,
-}));
+// Serve /sitemap.xml directly from FastAPI backend
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const response = await fetch(`http://localhost:${backendPort}/sitemap.xml`);
+    const xml = await response.text();
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch (e) {
+    res.status(500).send('Sitemap error');
+  }
+});
 
 // Proxy for external Optowire API — avoids CORS issues in browser
 const API_BASE_URL = process.env['API_BASE_URL'] || 'https://api-prod.optowire.net';
