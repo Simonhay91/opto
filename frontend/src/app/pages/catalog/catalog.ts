@@ -389,6 +389,19 @@ export class CatalogComponent implements OnInit {
     }
   }
 
+  /** Single-select brand: clicking same brand deselects it */
+  onBrandSelect(brandId: number) {
+    const cur = this.selectedBrandIds();
+    const next = cur.includes(brandId) ? [] : [brandId];
+    this.selectedBrandIds.set(next);
+    this.currentPage.set(1);
+    if (this.fullCategoryLoaded()) {
+      this.applyClientFilters();
+    } else {
+      this.loadFromServer();
+    }
+  }
+
   onAttributeChange(attrId: number, value: string, checked: boolean) {
     const cur = { ...this.selectedAttributes() };
     const existing = cur[attrId] || [];
