@@ -9,7 +9,6 @@ export interface QuoteProduct {
   name: string;
   model?: string;
   slug?: string;
-  crmCode?: string;
 }
 
 @Component({
