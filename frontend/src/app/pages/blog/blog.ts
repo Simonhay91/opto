@@ -1,7 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { BlogService } from '../../core/services/blog.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
@@ -10,7 +9,7 @@ import { getImageUrl } from '../../core/models/models';
 
 @Component({
   selector: 'app-blog',
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './blog.html',
 })
 export class BlogComponent implements OnInit {
@@ -20,7 +19,6 @@ export class BlogComponent implements OnInit {
 
   blogs = signal<BlogDto[]>([]);
   loading = signal(true);
-  searchQuery = '';
   currentPage = 1;
   totalPages = signal(1);
   totalItems = signal(0);
@@ -49,11 +47,6 @@ export class BlogComponent implements OnInit {
         this.blogs.set([]);
       }
     });
-  }
-
-  onSearch() {
-    this.currentPage = 1;
-    this.loadBlogs();
   }
 
   goToPage(page: number) {
