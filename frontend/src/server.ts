@@ -46,7 +46,7 @@ app.use('/api', createProxyMiddleware({
 }));
 
 // Proxy /sitemap.xml to backend for SEO
-app.use('/sitemap.xml', createProxyMiddleware({
+app.get('/sitemap.xml', createProxyMiddleware({
   target: `http://localhost:${backendPort}`,
   changeOrigin: true,
 }));
