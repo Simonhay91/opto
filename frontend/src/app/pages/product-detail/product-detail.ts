@@ -3,13 +3,14 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { ProductService } from '../../core/services/product.service';
+import { BrandService } from '../../core/services/brand.service';
 import { LangService } from '../../core/services/lang.service';
 import { SeoService } from '../../core/services/seo.service';
 import { CartService } from '../../core/services/cart.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ProductCardComponent } from '../../shared/product-card/product-card';
 import { QuoteModalComponent } from '../../shared/quote-modal/quote-modal';
-import { ProductDto, getImageUrl, getFileUrl } from '../../core/models/models';
+import { ProductDto, BrandDto, getImageUrl, getFileUrl } from '../../core/models/models';
 
 @Component({
   selector: 'app-product-detail',
@@ -20,6 +21,7 @@ export class ProductDetailComponent implements OnInit {
   @Input() slug!: string;
 
   private ps = inject(ProductService);
+  private bs = inject(BrandService);
   private seo = inject(SeoService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -29,6 +31,7 @@ export class ProductDetailComponent implements OnInit {
   cart = inject(CartService);
 
   product = signal<any | null>(null);
+  brands = signal<BrandDto[]>([]);
   loading = signal(true);
   error = signal(false);
   activeImageIdx = signal(0);
@@ -38,6 +41,7 @@ export class ProductDetailComponent implements OnInit {
   addedToCart = signal(false);
 
   ngOnInit() {
+    this.bs.getAll().subscribe({ next: (d) => this.brands.set(d || []), error: () => {} });
     // Extract slug from full URL — supports both %2F-encoded and real / in slug
     const extractSlug = (): string | null => {
       const url = this.router.url;
@@ -138,6 +142,20 @@ export class ProductDetailComponent implements OnInit {
 
   get isInCart(): boolean {
     return this.cart.isInCart(this.product()?.id);
+  }
+
+  getBrandName(): string | null {
+    const p = this.product();
+    if (!p) return null;
+    const brandId = p.brand_id ?? p.brandId ?? p.brand?.id;
+    if (!brandId) return null;
+    return this.brands().find((b: any) => b.id === brandId)?.name || null;
+  }
+
+  getBrandId(): number | null {
+    const p = this.product();
+    if (!p) return null;
+    return p.brand_id ?? p.brandId ?? p.brand?.id ?? null;
   }
 
   addToCart() {
