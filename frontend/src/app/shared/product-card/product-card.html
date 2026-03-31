@@ -23,11 +23,11 @@
 
   <!-- Info -->
   <div class="p-3 flex flex-col flex-1 gap-1">
-    <!-- Article Code -->
-    @if (product.articleCode || product.model) {
+    <!-- Model -->
+    @if (product.model) {
       <p class="text-xs font-mono text-slate-400 dark:text-slate-500 truncate">
-        <span class="text-slate-400 dark:text-slate-500">Article:</span>
-        <span class="text-cyan-500 font-semibold ml-1">{{product.articleCode || product.model}}</span>
+        <span class="text-slate-400 dark:text-slate-500">Model:</span>
+        <span class="text-cyan-500 font-semibold ml-1">{{product.model}}</span>
       </p>
     }
     <!-- Name -->
