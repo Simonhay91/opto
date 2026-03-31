@@ -1,155 +1,133 @@
-<analysis>**original_problem_statement:**
-The initial task was to build a product catalog website using an external REST API. The project evolved, eventually settling on an Angular SSR application with a FastAPI backend acting as a proxy. The core requirement is to create a fully functional, SEO-optimized product catalog for .
-
-Throughout the session, the user requested multiple bug fixes, UI enhancements, and critical deployment-related fixes. This included resolving API errors (400, 500), updating the FAQ page, modifying the Request a Quote flow, adding a favicon, fixing deep-linking to product pages, and a major architectural change to move the API proxy from the frontend's Express server to the backend FastAPI service to solve production deployment blockers.
-
+<analysis>**original_problem_statement:** 
+The core requirement is to create a fully functional, SEO-optimized product catalog for an external REST API (). The application uses an Angular SSR frontend and a FastAPI backend that proxies requests to handle headers and CORS. 
 **PRODUCT REQUIREMENTS:**
-- The application is an SEO-optimized product catalog pulling data from an external API.
-- All API requests must include a partner key, loaded from environment variables.
-- The UI must only display four main product categories: , , , and .
-- Core features: Product catalog, product details, blog, Get Quote (via cart), search-as-you-type, and a live chat widget.
-- URLs must be SEO-friendly, using slugs, and support deep linking.
-- The application consists of an Angular SSR frontend and a FastAPI backend. The backend handles all proxying to the external production API.
+- SEO-optimized product catalog.
+- FastAPI backend proxy for external API requests (injecting ).
+- Specific UI requirements: particular primary colors, multi-language (Chinese/English) subtitles, Light Mode only.
+- Seamless brand filtering.
+- Dynamic Sitemap generation and robots.txt for SEO.
+- Telegram bot integration for daily statistics and partner forms.
 
-**User's preferred language**: Russian. The next agent MUST respond in Russian.
+**User's preferred language**: Russian (User often types Russian using Latin characters, e.g., delay etot plan). **INSTRUCT NEXT AGENT: RESPOND IN RUSSIAN ONLY.**
 
-**what currently exists?**
-The project is an Angular 21 SSR application with a FastAPI backend. A major refactoring was completed to move the API proxy logic from the Angular  to the FastAPI . This was done to resolve a  error in the production environment's ingress. The FastAPI backend now handles all requests to  and forwards them to the external API, injecting the necessary .
+**what currently exists?** 
+An Angular 21 SSR app with a FastAPI backend. The FastAPI service successfully proxies external API requests. The frontend features a Home page with a customized Brands section, a Catalog page with single-select brand filtering, and dynamic Product Details pages that resolve brand names. The backend dynamically generates a  containing over 600 static, category, and product URLs, which is successfully proxied through the frontend Express server.
 
-However, this refactoring introduced a new critical bug: the product catalog page is broken again, this time due to a  error when the frontend tries to fetch products.
+**Last working item**: 
+    - **Last item agent was working**: Updating the  file to reflect all the recent UI, logic, and SEO changes completed during the session.
+    - **Status**: NONE (Session tasks are fully completed and documented).
+    - **Agent Testing Done**: Y
+    - **Which testing method agent to use?**: NA
+    - **User Testing Done**: N/A
 
-**Last working item**:
-- **Last item agent was working:** The agent was debugging why the product catalog page is failing to load after the proxy was moved to the FastAPI backend. The user reported product explore ne rabotayut. Investigation revealed a  error in the browser console for requests to .
-- **Status:** IN PROGRESS
-- **Agent Testing Done:** N
-- **Which testing method agent to use?** Manual testing by . The agent should first verify the fix in  allows the header to be injected, then use the screenshot tool to confirm the catalog page loads products.
-- **User Testing Done:** N
+**All Pending/In progress Issue list**: 
+  Issue 1: Minor search race condition in Catalog (P2)
+  
+  Issues Detail:
+  - Issue 1: Minor search race condition in Catalog
+     - **Attempted fixes**: None yet.
+     - **Next debug checklist**: Check the  or debounce logic on the search input in  to ensure rapid typing doesn't resolve in out-of-order API rendering.
+     - **Why fix this issue and what will be achieved with the fix?**: Ensures search stability and prevents UI flickering.
+     - **Status**: NOT STARTED
+     - **Is recurring issue?**: N
+     - **Should Test frontend/backend/both after fix?**: Frontend
+     - **Blocked on other issue**: None
 
-**All Pending/In progress Issue list**:
-- **Issue 1: Product catalog fails to load due to 401 Proxy Error (P0 - CRITICAL BLOCKER)**
-    - **Description:** After moving the proxy to the FastAPI backend, the frontend no longer correctly sends the  header. The browser's network tab shows  for . The backend proxy itself works when tested directly with , but the Angular frontend call fails.
-    - **Attempted fixes:** The agent confirmed the new backend proxy works correctly. Console logs confirmed the  error. The agent identified that the  is still configured to only add the key for paths starting with , not .
-    - **Next debug checklist:**
-        1.  **Edit **.
-        2.  Change the condition  to . This will ensure the  header is added to requests going to the new backend proxy.
-        3.  Rebuild the application (yarn run v1.22.22
-info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.) and restart the frontend server.
-        4.  Verify the fix by taking a screenshot of the  page.
-    - **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. The core feature of the application is non-functional. Fixing this will restore the product catalog.
-    - **Status:** IN PROGRESS
-    - **Is recurring issue?** N (This is a new issue caused by a recent refactor).
-    - **Should Test frontend/backend/both after fix?** Both. A backend  test to ensure the proxy is still running, and a frontend screenshot to confirm the UI loads data.
-    - **Blocked on other issue:** No, this is the main blocker.
-
-**In progress Task List**:
-None. The critical bug is the only active item.
+**In progress Task List**: 
+None.
 
 **Upcoming and Future Tasks**
-**Upcoming Tasks:**
-- **P1: Populate FAQ Page:** (Completed in this session, but was an upcoming task).
-
-**Future Tasks:**
-- **P2: Brand Detail Page:** Create a dedicated page for brand information.
-- **P2: Dynamic Price Range Filter:** Add a client-side price range slider to the catalog page filters.
-- **P2: Enhanced Mega-menu:** Add a large image and description for the hovered category within the mega-menu.
+  Upcoming Tasks:
+  - P2: Dynamic Price Range Filter: Add a client-side price range slider to the catalog page filters.
+  
+  Future Tasks:
+  - P2: Enhanced Mega-menu: Add a large image and description for the hovered category within the mega-menu.
+  - P2: Brand Detail Page: Create a dedicated page for brand information.
 
 **Completed work in this session**
-- **Architecture: Proxy Migration (Backend):** Moved the entire API proxy logic from Angular's Express server () to the FastAPI backend () to resolve a  ingress error in production. This involved adding  and  to the backend.
-- **Deployment: Multiple Fixes:** Resolved numerous deployment blockers:
-    - Created a missing  file.
-    - Removed hardcoded URLs from  and .
-    - Fixed  in  and  to use wildcards for dynamic environments.
-    - Fixed  by adding a  endpoint to the FastAPI backend.
-    - Replaced an unreliable   script in  with a direct  command.
-- **Bug Fix: Critical 500 Proxy Error:** Fixed the initial  on the product catalog by correcting the  and ensuring  was used correctly.
-- **Bug Fix: 400/500 Quote Errors:**
-    - Resolved a  by changing the header Get A Quote button to open the cart modal instead of the quote modal (which had no products).
-    - Resolved a  by changing the quote payload to send  instead of uid=0(root) gid=0(root) groups=0(root).
-- **Bug Fix: Deep Link Routing:** Fixed a critical bug where direct links to product pages with slashes () in the slug (e.g., ) were redirected to the homepage. This was fixed by changing the Angular route from  to .
-- **Feature: FAQ Page:** Scraped content from the production website and populated the  page, implementing an accordion UI.
-- **Enhancement: Quote Modal:** Updated the Request a Quote modal to make only the  field required.
-- **Enhancement: Favicon:** Added the company logo as a favicon.
-- **Enhancement: Product Model Display:** Added the Model field to product cards and the product detail page, and later removed the redundant Art. No. label as requested.
+- **Catalog Brand Filtering (DONE):** Fixed logic where  is now correctly sent to the API payload, and handled client-side name-filtering when inside categories.
+- **Home Page Brands UI (DONE):** Removed brand names and Browse buttons. Enlarged brand SVG logos by ~50% ().
+- **Catalog UI Updates (DONE):** Hid the Sort By dropdown entirely. Converted Brand filter from multi-select checkboxes to single-select radio buttons.
+- **Product Detail Page (DONE):** Added dynamic display of the Brand name on the single product page (injected  to map  to name).
+- **SEO & Sitemap (DONE):** Added dynamic  generation in FastAPI, properly proxied through Angular's Express . Fixed API behavior logic ( parameter instead of , and checking for  status code instead of ). Created .
+- **Documentation (DONE):** Updated .
 
 **Earlier issues found/mentioned but not fixed**
-- **Catalog Race Condition:** A previously reported minor race condition in the catalog's search functionality may still exist. The  implementation should be checked if any new issues arise with filtering/searching.
+   - None beyond the search race condition listed in the Issues section.
 
 **Known issue recurrence from previous fork**
-N/A
+  - Recurrence count: 0
+  - Status: RESOLVED
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Frontend:** Angular 21, TypeScript, Server-Side Rendering (Angular Universal).
-- **Backend:** FastAPI, Python.
-- **Proxy:** A FastAPI service () proxies requests from  to the external API (), handling header and body forwarding.
-- **Environment Management:** Both frontend and backend load environment variables from their respective  files. The backend uses .
-- **Deployment:** The application is deployed via Docker/Kubernetes. The ingress routes  to the backend and all other paths to the frontend.
+- Frontend: Angular 21, TypeScript, Server-Side Rendering (Angular Universal).
+- Backend: FastAPI, Python, Async HTTPX for proxying and sitemap generation.
+- Data mapping: Product API responses include  but *not* brand names.  on the frontend must be used to resolve the ID to a human-readable string.
 
 **key DB schema**
-N/A. The application is a client to an external REST API and has no database of its own.
+- MongoDB tracking schemas:
+  - : 
+  - : 
 
 **changes in tech stack**
-- The backend has been enhanced with  for proxying and  for environment variable management.
+- None.
 
 **All files of reference**
-- **Critical/Broken Files:**
-  - : The source of the current  error. The path check is outdated.
-- **Key Files for Context:**
-  - : The new location for all API proxy logic.
-  - : Defines the base URL logic, now points to  on the browser.
-  - : Defines the  route for deep linking.
-  - : The proxy logic here is now obsolete and should be cleaned up.
+-  &  (Updated single-select brand logic and hidden sort UI).
+-  (Updated Brand SVG UI).
+-  &  (Updated to display brand info dynamically).
+-  (Contains the dynamic  builder script).
+-  (Contains the proxy intercept for ).
+-  (Newly created).
 
-**Areas that need refactoring**:
-- The old proxy logic and related configurations in  should be completely removed to avoid confusion and future bugs.
-- The  file is still a candidate for refactoring due to its complexity.
+**Areas that need refactoring**: 
+-  manages heavy client-side filtering combined with server-side pagination. It is functional but complex and a prime candidate for future refactoring.
 
 **key api endpoints**
-- **External API:** 
-- **Internal Proxy Route:**  (handled by the FastAPI backend)
-- **Broken Endpoint Call:** Frontend call to  is failing with 401.
+- External Proxy: 
+- Sitemap Internal:  (Backend)
+- Sitemap Public:  (Proxied by Frontend Express server)
+- Product Explore:  (Note: returns  on success, not ).
 
 **Critical Info for New Agent**
-- **Communicate in Russian.**
-- **Your absolute first priority is to fix the  error.** The problem is in . The URL check must be updated from  to .
-- **The API proxy has been moved to the FastAPI backend.** Do not try to fix proxy issues in the Angular  file. All proxy logic now resides in .
+- **Language:** Always respond in **Russian**.
+- **Sitemap Quirks:** The external API  returns a  status code and uses  (not ). If the sitemap needs editing in , remember this.
+- **Brand Data:** The product object from the API lacks a brand name but provides . You must inject and use  on the frontend to get the actual name.
+- **Backend/Frontend Proxy:** All external API requests must go through FastAPI to avoid CORS/Brotli errors. Do not try to bypass the backend proxy. 
 
 **documents and test reports created in this job**
--  (updated multiple times)
+  - /app/test_reports/iteration_9.json
+  - /app/memory/PRD.md
 
-**Last 10 User Messages and any pending HUMAN messages**
-1.  **product explore ne rabotayut:** User reported the current critical bug that the product catalog is broken. (IN PROGRESS)
-2.  **in producione, ne raborayet APIs:** User reported that APIs are not working in the production deployment, which led to the major proxy refactor. (Completed)
-3.  **Use deployment agent to identify the issues... (x4):** User repeatedly requested deployment checks, leading to several iterative fixes for production deployment. (Completed)
-4.  **udali articul number, ostav model i vsyo:** User asked to remove the Articul number label, leaving only Model. (Completed)
-5.  **kogda eto url xochu otkirt, na home page redirect delayet:** User reported that direct links to product pages were breaking. (Completed)
-6.  **doobav esho product Model v prodcut single page-e:** User asked to add the Model field again to the product page. (Completed)
-7.  **gdee articul numbers?????...:** User asked where the article numbers were, which led to adding the Art. No. label. (Completed)
-8.  **Request URL ... 500 Internal Server Error:** User reported a 500 error when submitting a quote. (Completed)
-9.  **Request URL ... 400 Bad Request:** User reported a 400 error when opening the quote modal from the header. (Completed)
-10. **Request a Quote ... i yesho dobav faicon:** User requested changes to the quote form and the addition of a favicon. (Completed)
+**Last 10 User Messages and any pending HUMAN messages** 
+ 1. update delay v PRD (Update PRD) -> *Completed*
+ 2. Prompt Ագնետի համար: -ի վերջում ավելացրու հետևյալ կոդը... (Add provided sitemap code to backend and create robots.txt) -> *Completed*
+ 3. v singlle producte dobav Product brand (Add product brand to single product page) -> *Completed*
+ 4. hide delya Sort By:... v filtere search by brand tolko odin brand mojet select delat... (Hide sort by, make brand filter single select) -> *Completed*
+ 5. brands logo 50% delay po bolshe (Make brand logos 50% larger) -> *Completed*
+ 6. delay etot plan (Execute the plan) -> *Completed*
+ 7. udali name i browse button, delay pobolshe logos... (Remove brand name/button, make logos larger) -> *Completed*
 
 **Project Health Check:**
-- **Broken:** The primary feature (product catalog) is non-functional due to a  authorization error originating from the frontend.
-- **Mocked:** N/A.
+- Broken: None
+- Mocked: None
 
 **3rd Party Integrations**
-- **Custom REST API:** 
-- **Bitrix24:** Live chat widget.
+- Custom External REST API ()
+- Telegram Bot API — requires User API Key (, present in backend )
+- Bitrix24 (Live Chat widget)
 
 **Testing status**
-- **Testing agent used after significant changes:** NO (in this session)
-- **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:** None.
-- **Known regressions:** The entire product catalog functionality is a major regression caused by the recent proxy refactor.
+  - Testing agent used after significant changes: YES (Generated )
+  - Troubleshoot agent used after agent stuck in loop: NO
+  - Test files created: None
+  - Known regressions: None
 
 **Credentials to test flow:**
-- Credentials are now stored as environment variables in  and :
-  - 
-  - 
+Available via environment variables in  and .
 
 **What agent forgot to execute**
-- The agent correctly diagnosed the  issue but did not implement the simple fix in .
-- The agent did not clean up the now-obsolete proxy code in  after migrating the functionality to the backend. This could cause confusion for future agents.</analysis>
+None. All requests from the user were fully implemented, tested, and documented in the PRD.</analysis>
