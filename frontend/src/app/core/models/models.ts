@@ -100,6 +100,7 @@ export interface ProductDto {
   slug?: string;
   name: string;
   model?: string;
+  articleCode?: string;
   crmCode?: string;
   description?: string;
   images?: Image[];

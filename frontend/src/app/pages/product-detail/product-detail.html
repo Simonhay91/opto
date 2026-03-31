@@ -110,11 +110,11 @@
             {{product()!.name}}
           </h1>
 
-          <!-- Model -->
-          @if (product()!.model) {
+          <!-- Article Code -->
+          @if (product()!.articleCode) {
             <div class="flex items-center gap-2">
-              <span class="text-xs text-slate-500 uppercase tracking-wider">Model:</span>
-              <span class="text-sm font-mono font-semibold text-cyan-500" data-testid="product-model">{{product()!.model}}</span>
+              <span class="text-xs text-slate-500 uppercase tracking-wider">Article:</span>
+              <span class="text-sm font-mono font-semibold text-cyan-500" data-testid="product-article-code">{{product()!.articleCode}}</span>
             </div>
           }
 
@@ -263,10 +263,10 @@
             <p class="font-mono text-sm text-slate-700 dark:text-slate-300">{{product()!.id}}</p>
           </div>
         }
-        @if (product()!.model) {
+        @if (product()!.articleCode) {
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 text-center">
-            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Model</p>
-            <p class="font-mono text-sm text-cyan-500 font-semibold">{{product()!.model}}</p>
+            <p class="text-xs text-slate-500 uppercase tracking-wider mb-1">Article</p>
+            <p class="font-mono text-sm text-cyan-500 font-semibold">{{product()!.articleCode}}</p>
           </div>
         }
         @if (getBrandName()) {
