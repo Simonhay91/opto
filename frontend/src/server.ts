@@ -45,19 +45,6 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
-// Serve sitemap.xml dynamically from FastAPI backend
-app.get('/sitemap.xml', async (req, res) => {
-  try {
-    const response = await fetch(`http://localhost:${backendPort}/sitemap.xml`);
-    const xml = await response.text();
-    res.setHeader('Content-Type', 'application/xml');
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.send(xml);
-  } catch (e) {
-    res.status(500).send('Sitemap error');
-  }
-});
-
 // Serve robots.txt as plain text (must come before Angular SSR handler)
 app.get('/robots.txt', (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
