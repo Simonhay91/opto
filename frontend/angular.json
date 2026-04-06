@@ -55,6 +55,11 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "/assets"
+              },
+              {
+                "glob": "robots.txt",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": [

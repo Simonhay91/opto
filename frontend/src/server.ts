@@ -45,7 +45,7 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
-// Serve /sitemap.xml directly from FastAPI backend
+// Serve sitemap.xml dynamically from FastAPI backend
 app.get('/sitemap.xml', async (req, res) => {
   try {
     const response = await fetch(`http://localhost:${backendPort}/sitemap.xml`);
@@ -56,6 +56,12 @@ app.get('/sitemap.xml', async (req, res) => {
   } catch (e) {
     res.status(500).send('Sitemap error');
   }
+});
+
+// Serve robots.txt as plain text (must come before Angular SSR handler)
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.sendFile(join(browserDistFolder, 'robots.txt'));
 });
 
 // Proxy for external Optowire API — avoids CORS issues in browser
