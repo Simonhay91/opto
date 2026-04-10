@@ -113,36 +113,39 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadSections() {
-    // Use explore with sortBy: newest for product sections
+    // Section IDs managed in planetworkspace admin dashboard
+    const SECTION_TOP_PRODUCTS = '8';
+    const SECTION_NEW_ARRIVALS = '9';
+
     const sections: ProductSection[] = [
-      { id: 'newest', name: this.lang.t('newArrivals'), products: [], loading: true },
-      { id: 'popular', name: this.lang.t('topProducts'), products: [], loading: true },
+      { id: SECTION_TOP_PRODUCTS, name: this.lang.t('topProducts'), products: [], loading: true },
+      { id: SECTION_NEW_ARRIVALS, name: this.lang.t('newArrivals'), products: [], loading: true },
     ];
     this.sections.set(sections);
-    
-    // Load newest products
-    this.ps.explore({ page: 1, limit: 8, sortBy: 'newest' }).subscribe({
+
+    // Top Products — section 8
+    this.ps.getSectionProducts(SECTION_TOP_PRODUCTS, { page: 1, limit: 8 }).subscribe({
       next: (r: any) => {
-        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
-        this.sections.update(s => { 
-          s[0].products = Array.isArray(items) ? items.slice(0, 8) : []; 
-          s[0].loading = false; 
-          return [...s]; 
+        const items = Array.isArray(r) ? r : (r?.items || r?.products || []);
+        this.sections.update(s => {
+          s[0].products = items.slice(0, 8);
+          s[0].loading = false;
+          return [...s];
         });
       },
       error: () => { this.sections.update(s => { s[0].loading = false; return [...s]; }); }
     });
-    
-    // Load popular products (use different page for variety)
-    this.ps.explore({ page: 2, limit: 8, sortBy: 'newest' }).subscribe({
+
+    // New Arrivals — section 9
+    this.ps.getSectionProducts(SECTION_NEW_ARRIVALS, { page: 1, limit: 8 }).subscribe({
       next: (r: any) => {
-        const items = r?.items || r?.products || (Array.isArray(r) ? r : []);
-        this.sections.update(s => { 
-          if (s[1]) { 
-            s[1].products = Array.isArray(items) ? items.slice(0, 8) : []; 
-            s[1].loading = false; 
-          } 
-          return [...s]; 
+        const items = Array.isArray(r) ? r : (r?.items || r?.products || []);
+        this.sections.update(s => {
+          if (s[1]) {
+            s[1].products = items.slice(0, 8);
+            s[1].loading = false;
+          }
+          return [...s];
         });
       },
       error: () => { this.sections.update(s => { if (s[1]) s[1].loading = false; return [...s]; }); }
