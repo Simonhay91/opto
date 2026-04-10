@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductDto, getImageUrl } from '../../core/models/models';
 import { LangService } from '../../core/services/lang.service';
@@ -9,14 +9,13 @@ import { QuoteModalComponent } from '../quote-modal/quote-modal';
 
 @Component({
   selector: 'app-product-card',
-  imports: [CommonModule, QuoteModalComponent],
+  imports: [CommonModule, RouterLink, QuoteModalComponent],
   templateUrl: './product-card.html',
 })
 export class ProductCardComponent {
   @Input() product!: ProductDto;
   lang = inject(LangService);
   cart = inject(CartService);
-  private router = inject(Router);
   quoteOpen = signal(false);
   addedToCart = signal(false);
 
@@ -36,14 +35,5 @@ export class ProductCardComponent {
     this.cart.addItem(this.product, 1);
     this.addedToCart.set(true);
     setTimeout(() => this.addedToCart.set(false), 1500);
-  }
-  
-  navigateToProduct(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-    if (this.product?.slug) {
-      // Use Angular Router for SPA navigation
-      this.router.navigate(['/product', this.product.slug]);
-    }
   }
 }

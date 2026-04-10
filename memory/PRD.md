@@ -143,6 +143,7 @@ The project uses **Angular 21 with SSR** (no FastAPI backend - direct API calls 
 - **FIXED: Attribute/Spec filters on parent categories (P1):** Parent categories (with children) were showing Specifications filter block derived from mixed subcategory products — confusing and incorrect. Added `showSpecFilters` signal in `catalog.ts`: `false` when selected category has `children.length > 0`, `true` on leaf categories. `extractAttributes()` is now only called for leaf categories. Template guards updated in both desktop and mobile sidebars. Committed and pushed to GitHub (`main`).
 - **FIXED: Home page sections now use API section endpoints:** `loadSections()` in `home.ts` was using `explore` with `sortBy: newest` (page 1 & 2) — not real sections. Switched to `GET /web/product/section/{id}`: **section 8 = Top Products (17 products)**, **section 9 = New Arrivals (11 products)**. Sections are managed from planetworkspace admin dashboard and will update automatically on the home page.
 - **API NOTE:** `GET /web/section` returns 404 on prod. Use `GET /web/product/section/{id}` with known IDs. Section IDs: `8` = Top Products, `9` = New Arrivals.
+- **FIXED: Product card — open in new tab:** Image and title links used `href="#"` and `router.navigate` with `preventDefault`, so Ctrl/Cmd+click and "Open in new tab" opened the wrong page. Switched to `[routerLink]="['/product', product.slug]"` in `product-card.html` (same pattern as `cart-modal`).
 
 ### Backlog
 - P2: Dynamic Price Range Filter
