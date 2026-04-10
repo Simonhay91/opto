@@ -60,6 +60,18 @@ export const routes: Routes = [
     title: 'FAQ - Optowire',
   },
   {
+    path: 'top-products',
+    loadComponent: () => import('./pages/section-page/section-page').then(m => m.SectionPageComponent),
+    title: 'Top Products - Optowire',
+    data: { sectionId: '8', title: 'Top Products', zhTitle: '热门产品' },
+  },
+  {
+    path: 'new-arrivals',
+    loadComponent: () => import('./pages/section-page/section-page').then(m => m.SectionPageComponent),
+    title: 'New Arrivals - Optowire',
+    data: { sectionId: '9', title: 'New Arrivals', zhTitle: '新品' },
+  },
+  {
     path: '**',
     loadComponent: () => import('./pages/not-found/not-found').then(m => m.NotFoundComponent),
     title: '404 - Page Not Found | Optowire',

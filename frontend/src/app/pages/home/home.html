@@ -221,7 +221,8 @@
           </div>
           <h2 class="text-3xl font-heading font-bold text-slate-900 dark:text-slate-50">{{section.name}}</h2>
         </div>
-        <a routerLink="/catalog" class="text-sm font-bold text-cyan-500 hover:text-cyan-600 uppercase tracking-wide flex items-center gap-1">
+        <a [routerLink]="section.id === '8' ? '/top-products' : '/new-arrivals'"
+           class="text-sm font-bold text-cyan-500 hover:text-cyan-600 uppercase tracking-wide flex items-center gap-1">
           {{lang.t('viewAll')}}
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
