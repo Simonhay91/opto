@@ -112,8 +112,8 @@
             </div>
           }
 
-          <!-- Extracted Attributes (client-side) -->
-          @if (extractedAttrs().length > 0) {
+          <!-- Extracted Attributes (client-side) — only on leaf categories -->
+          @if (showSpecFilters() && extractedAttrs().length > 0) {
             <div>
               <div class="flex items-center justify-between mb-3">
                 <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Specifications</h4>
@@ -271,8 +271,8 @@
                 </div>
               }
 
-              <!-- Attributes Mobile -->
-              @if (extractedAttrs().length > 0) {
+              <!-- Attributes Mobile — only on leaf categories -->
+              @if (showSpecFilters() && extractedAttrs().length > 0) {
                 <div>
                   <div class="flex items-center justify-between mb-3">
                     <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Specifications</h4>

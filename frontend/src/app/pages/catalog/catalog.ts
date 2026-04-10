@@ -52,6 +52,8 @@ export class CatalogComponent implements OnInit {
   totalPages = signal(0);
   sidebarOpen = signal(false);
   fullCategoryLoaded = signal(false);
+  /** False on parent categories (has children): no spec filters derived from mixed subcategory products */
+  showSpecFilters = signal(true);
 
   searchQuery = '';
   sortBy = 'newest';
@@ -115,6 +117,7 @@ export class CatalogComponent implements OnInit {
         this.categoryBreadcrumb.set([]);
         this.fullCategoryLoaded.set(false);
         this.extractedAttrs.set([]);
+        this.showSpecFilters.set(true);
         this.loadCategories();
         // loadFromServer() picks up selectedBrandIds() and passes brandId to API
         this.loadFromServer();
@@ -146,11 +149,19 @@ export class CatalogComponent implements OnInit {
           this.categories.set(category.children);
         }
 
-        // Load all products for category to enable attribute filtering
+        const isParent = !!(category.children && category.children.length > 0);
+        this.showSpecFilters.set(!isParent);
+        if (isParent) {
+          this.extractedAttrs.set([]);
+        }
+
+        // Load all products for category; spec filters only on leaf categories
         this.loadAllCategoryProducts(Number(category.id));
       },
       error: () => {
         this.selectedCategoryId.set(null);
+        this.extractedAttrs.set([]);
+        this.showSpecFilters.set(true);
         this.loadFromServer();
       }
     });
@@ -181,7 +192,11 @@ export class CatalogComponent implements OnInit {
         const items: ProductDto[] = r?.products || r?.items || (Array.isArray(r) ? r : []);
         this.allProducts.set(this.shuffle(items));
         this.fullCategoryLoaded.set(true);
-        this.extractAttributes(items);
+        if (this.showSpecFilters()) {
+          this.extractAttributes(items);
+        } else {
+          this.extractedAttrs.set([]);
+        }
         this.applyClientFilters();
         this.loading.set(false);
       },
