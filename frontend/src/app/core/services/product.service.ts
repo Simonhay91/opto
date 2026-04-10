@@ -19,8 +19,8 @@ export class ProductService {
     return this.api.get<SectionDto[]>('/web/section');
   }
 
-  getSectionProducts(sectionId: string, criteria: ProductCriteriaDto = {}): Observable<PagedResult<ProductDto> | ProductDto[]> {
-    return this.api.post<any>(`/web/product/section/${sectionId}`, criteria);
+  getSectionProducts(sectionId: string, _criteria: ProductCriteriaDto = {}): Observable<PagedResult<ProductDto> | ProductDto[]> {
+    return this.api.get<any>(`/web/product/section/${sectionId}`);
   }
 
   explore(criteria: ProductCriteriaDto): Observable<PagedResult<ProductDto>> {
