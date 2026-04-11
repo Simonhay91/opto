@@ -75,6 +75,13 @@ app.get('/sitemap.xml', createProxyMiddleware({
   changeOrigin: true,
 }));
 
+// 301 redirects for legacy language-prefixed URLs (/am/..., /ge/...) → canonical URL
+app.use(/^\/(am|ge)(\/.*)?$/, (req: express.Request, res: express.Response) => {
+  const rest = req.params[1] || '/';
+  const qs = Object.keys(req.query).length ? '?' + new URLSearchParams(req.query as Record<string, string>).toString() : '';
+  res.redirect(301, rest + qs);
+});
+
 /**
  * Serve static files from /browser
  */
