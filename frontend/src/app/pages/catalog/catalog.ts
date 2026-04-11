@@ -150,6 +150,8 @@ export class CatalogComponent implements OnInit {
 
         if (category.children && category.children.length > 0) {
           this.categories.set(category.children);
+        } else {
+          this.categories.set([]);
         }
 
         const isParent = !!(category.children && category.children.length > 0);
