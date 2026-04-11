@@ -278,9 +278,13 @@ async def sitemap():
         ("", "1.0", "daily"),
         ("/brands", "0.8", "weekly"),
         ("/new-arrivals", "0.8", "weekly"),
+        ("/top-products", "0.8", "weekly"),
         ("/about", "0.6", "monthly"),
         ("/contact", "0.6", "monthly"),
-        ("/partner", "0.6", "monthly"),
+        ("/become-partner", "0.6", "monthly"),
+        ("/faq", "0.6", "monthly"),
+        ("/blog", "0.7", "weekly"),
+        ("/terms", "0.5", "monthly"),
     ]
     for path, priority, changefreq in static_routes:
         urls.append({
@@ -303,7 +307,7 @@ async def sitemap():
                         slug = cat.get("slug", "")
                         if slug:
                             urls.append({
-                                "loc": f"{SITE_URL}/category/{slug}",
+                                "loc": f"{SITE_URL}/catalog/{slug}",
                                 "lastmod": today,
                                 "changefreq": "weekly",
                                 "priority": "0.8",
