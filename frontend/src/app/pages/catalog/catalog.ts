@@ -96,7 +96,7 @@ export class CatalogComponent implements OnInit {
 
   ngOnInit() {
     this.seo.setPage('Product Catalog', 'Browse our complete catalog of fiber optic and network equipment.');
-    this.loadCategories();
+    this.loadRootCategories();
     this.loadBrands();
 
     combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, queryParams]) => {
@@ -365,17 +365,19 @@ export class CatalogComponent implements OnInit {
     return info.tiers?.[0]?.price || info.basePrice || 0;
   }
 
+  /** Load root categories once for the accordion — never overwrites categories() */
+  private loadRootCategories() {
+    this.cs.getAll().subscribe({
+      next: (data) => this.rootCategories.set(data || []),
+      error: () => this.rootCategories.set([])
+    });
+  }
+
+  /** Load root categories into the visible list (used only at /catalog root) */
   loadCategories() {
     this.cs.getAll().subscribe({
-      next: (data) => {
-        const cats = data || [];
-        this.rootCategories.set(cats);
-        this.categories.set(cats);
-      },
-      error: () => {
-        this.rootCategories.set([]);
-        this.categories.set([]);
-      }
+      next: (data) => this.categories.set(data || []),
+      error: () => this.categories.set([])
     });
   }
 
