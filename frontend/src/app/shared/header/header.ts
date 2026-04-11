@@ -167,7 +167,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   selectProduct(product: ProductDto) {
-    this.router.navigate(['/product', product.slug || product.id]);
+    const slug = product.slug || String(product.id);
+    this.router.navigate(['/product', ...slug.split('/')]);
     this.closeDropdown();
     this.searchQuery.set('');
     this.menuOpen.set(false);
