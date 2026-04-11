@@ -54,6 +54,8 @@ export class CatalogComponent implements OnInit {
   fullCategoryLoaded = signal(false);
   /** False on parent categories (has children): no spec filters derived from mixed subcategory products */
   showSpecFilters = signal(true);
+  /** API `total` for current category/search — not capped by limit:500 */
+  apiTotal = signal<number | null>(null);
 
   searchQuery = '';
   sortBy = 'newest';
@@ -118,6 +120,7 @@ export class CatalogComponent implements OnInit {
         this.fullCategoryLoaded.set(false);
         this.extractedAttrs.set([]);
         this.showSpecFilters.set(true);
+        this.apiTotal.set(null);
         this.loadCategories();
         // loadFromServer() picks up selectedBrandIds() and passes brandId to API
         this.loadFromServer();
@@ -177,6 +180,13 @@ export class CatalogComponent implements OnInit {
     return a;
   }
 
+  private extractTotal(r: any): number | null {
+    const t = r?.total;
+    if (t == null) return null;
+    const n = Number(t);
+    return Number.isFinite(n) ? n : null;
+  }
+
   loadAllCategoryProducts(categoryId: number) {
     this.loading.set(true);
     this.fullCategoryLoaded.set(false);
@@ -190,6 +200,7 @@ export class CatalogComponent implements OnInit {
     this.ps.explore(criteria).subscribe({
       next: (r: any) => {
         const items: ProductDto[] = r?.products || r?.items || (Array.isArray(r) ? r : []);
+        this.apiTotal.set(this.extractTotal(r));
         this.allProducts.set(this.shuffle(items));
         this.fullCategoryLoaded.set(true);
         if (this.showSpecFilters()) {
@@ -202,6 +213,7 @@ export class CatalogComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
+        this.apiTotal.set(null);
         this.allProducts.set([]);
         this.products.set([]);
       }
@@ -235,9 +247,12 @@ export class CatalogComponent implements OnInit {
           if (this.searchQuery) this.tracking.trackSearch(this.searchQuery, this.products().length);
         } else {
           this.products.set(this.shuffle(items));
-          this.totalItems.set(r?.total || items.length);
-          this.totalPages.set(r?.totalPages || Math.ceil((r?.total || items.length) / this.pageSize));
-          if (this.searchQuery) this.tracking.trackSearch(this.searchQuery, r?.total || items.length);
+          const t = this.extractTotal(r) ?? items.length;
+          this.totalItems.set(t);
+          const tp = typeof r?.totalPages === 'number' && r.totalPages > 0
+            ? r.totalPages : Math.ceil(t / this.pageSize) || 1;
+          this.totalPages.set(tp);
+          if (this.searchQuery) this.tracking.trackSearch(this.searchQuery, t);
         }
         this.loading.set(false);
       },
@@ -328,14 +343,19 @@ export class CatalogComponent implements OnInit {
       filtered = filtered.sort((a, b) => this.getPrice(b) - this.getPrice(a));
     }
 
-    const total = filtered.length;
-    const totalPgs = Math.ceil(total / this.pageSize) || 1;
+    const filteredCount = filtered.length;
+    const totalPgs = Math.ceil(filteredCount / this.pageSize) || 1;
     const page = Math.min(this.currentPage(), totalPgs);
     this.currentPage.set(page);
     const start = (page - 1) * this.pageSize;
     this.products.set(filtered.slice(start, start + this.pageSize));
-    this.totalItems.set(total);
     this.totalPages.set(totalPgs);
+
+    // Show API total when no client-only filters narrowing the result,
+    // otherwise show the narrowed count so user sees accurate filtered count.
+    const hasClientFilters = selectedBrands.length > 0 || Object.keys(selectedAttrs).length > 0;
+    const displayTotal = hasClientFilters ? filteredCount : (this.apiTotal() ?? filteredCount);
+    this.totalItems.set(displayTotal);
   }
 
   private getPrice(p: ProductDto): number {
