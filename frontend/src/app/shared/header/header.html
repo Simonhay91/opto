@@ -33,7 +33,7 @@
         <div class="relative" (mouseenter)="onProductsEnter()" (mouseleave)="onProductsLeave()" data-testid="nav-products-wrapper">
           <button
             class="flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors"
-            [class]="megaMenuOpen() ? 'text-cyan-500' : 'text-slate-700 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400'"
+            [class]="(megaMenuOpen() || onProductsRoute()) ? 'text-cyan-500' : 'text-slate-700 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400'"
             data-testid="nav-products-btn">
             Products
             <svg class="w-3.5 h-3.5 transition-transform duration-200" [class.rotate-180]="megaMenuOpen()"
