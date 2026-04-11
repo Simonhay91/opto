@@ -36,7 +36,6 @@ export class CatalogComponent implements OnInit {
   // Visible on current page after client-side filtering
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
-  rootCategories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
   // Extracted from loaded products
   extractedAttrs = signal<ExtractedAttr[]>([]);
@@ -367,20 +366,9 @@ export class CatalogComponent implements OnInit {
 
   loadCategories() {
     this.cs.getAll().subscribe({
-      next: (data) => {
-        const cats = data || [];
-        this.rootCategories.set(cats);
-        this.categories.set(cats);
-      },
-      error: () => {
-        this.rootCategories.set([]);
-        this.categories.set([]);
-      }
+      next: (data) => this.categories.set(data || []),
+      error: () => this.categories.set([])
     });
-  }
-
-  isRootActive(cat: CategoryDto): boolean {
-    return this.categoryBreadcrumb().some(b => +b.id === +cat.id);
   }
 
   loadBrands() {
