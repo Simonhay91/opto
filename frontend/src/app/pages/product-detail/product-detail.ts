@@ -80,6 +80,11 @@ export class ProductDetailComponent implements OnInit {
       next: (resp: any) => {
         // API returns { product: {...} }, extract the product object
         const p = resp?.product || resp;
+        // If loaded via legacy numeric ID URL, redirect to canonical slug URL
+        if (p?.slug && /^\d+$/.test(slug) && p.slug !== slug) {
+          this.router.navigate(['/product', ...p.slug.split('/')], { replaceUrl: true });
+          return;
+        }
         this.product.set(p);
         this.loading.set(false);
         if (p) {
