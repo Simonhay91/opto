@@ -69,6 +69,12 @@ app.use('/ext', createProxyMiddleware({
   }
 }));
 
+// Dynamic sitemap from backend — must be before express.static
+app.get('/sitemap.xml', createProxyMiddleware({
+  target: `http://localhost:${backendPort}`,
+  changeOrigin: true,
+}));
+
 /**
  * Serve static files from /browser
  */
