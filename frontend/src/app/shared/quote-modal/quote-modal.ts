@@ -29,7 +29,7 @@ export class QuoteModalComponent {
     name: '',
     email: '',
     companyName: '',
-    phoneCode: '+374',
+    phoneCode: '',
     phoneNumber: '',
     quantity: '',
     message: '',
