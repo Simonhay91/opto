@@ -1,5 +1,5 @@
-import { Component, inject, signal, computed, HostListener, OnInit, OnDestroy, ElementRef, PLATFORM_ID } from '@angular/core';
-import { RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Component, inject, signal, HostListener, OnInit, OnDestroy, ElementRef, PLATFORM_ID } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { LangService } from '../../core/services/lang.service';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartModalComponent } from '../cart-modal/cart-modal';
 import { getImageUrl, ProductDto, CategoryDto } from '../../core/models/models';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, switchMap, of, filter } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 
 const RECENT_KEY = 'optowire_recent_searches';
 const MAX_RECENT = 5;
@@ -56,13 +56,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   mobileProductsOpen = signal(false);
   navCategories = signal<CategoryDto[]>([]);
   private megaTimer: any = null;
-  private urlSub?: Subscription;
-  currentUrl = signal('');
-  onProductsRoute = computed(() => {
-    const url = this.currentUrl();
-    return url.startsWith('/catalog') || url.startsWith('/product') ||
-           url.startsWith('/top-products') || url.startsWith('/new-arrivals');
-  });
 
   // Search-as-you-type
   searchResults = signal<ProductDto[]>([]);
@@ -79,11 +72,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
-    this.currentUrl.set(this.router.url);
-    this.urlSub = this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe(e => this.currentUrl.set((e as NavigationEnd).url));
-
     this.loadRecentSearches();
     this.loadNavCategories();
 
@@ -253,6 +241,5 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.searchInput$.complete();
     clearTimeout(this.megaTimer);
-    this.urlSub?.unsubscribe();
   }
 }

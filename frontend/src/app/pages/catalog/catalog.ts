@@ -36,7 +36,6 @@ export class CatalogComponent implements OnInit {
   // Visible on current page after client-side filtering
   products = signal<ProductDto[]>([]);
   categories = signal<CategoryDto[]>([]);
-  rootCategories = signal<CategoryDto[]>([]);
   brands = signal<BrandDto[]>([]);
   // Extracted from loaded products
   extractedAttrs = signal<ExtractedAttr[]>([]);
@@ -96,7 +95,7 @@ export class CatalogComponent implements OnInit {
 
   ngOnInit() {
     this.seo.setPage('Product Catalog', 'Browse our complete catalog of fiber optic and network equipment.');
-    this.loadRootCategories();
+    this.loadCategories();
     this.loadBrands();
 
     combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, queryParams]) => {
@@ -138,34 +137,24 @@ export class CatalogComponent implements OnInit {
         this.seo.setCatalogSchema(catName, `Product catalog for ${catName}`);
 
         const fullSlug = category.slug || '';
-        const isParent = !!(category.children && category.children.length > 0);
         const slashIdx = fullSlug.lastIndexOf('/');
-
-        if (isParent) {
-          // Parent category: show its children in accordion, breadcrumb = [category]
-          this.categories.set(category.children!);
-          this.categoryBreadcrumb.set([category]);
-        } else if (slashIdx > 0) {
-          // Leaf subcategory: fetch parent to get siblings for accordion + build breadcrumb
+        if (slashIdx > 0) {
           const parentSlug = fullSlug.substring(0, slashIdx);
           this.cs.getBySlug(parentSlug).subscribe({
-            next: (parent) => {
-              this.categoryBreadcrumb.set([parent, category]);
-              if (parent.children && parent.children.length > 0) {
-                this.categories.set(parent.children);
-              }
-            },
-            error: () => {
-              this.categoryBreadcrumb.set([category]);
-              this.categories.set([]);
-            }
+            next: (parent) => this.categoryBreadcrumb.set([parent, category]),
+            error: () => this.categoryBreadcrumb.set([category])
           });
         } else {
-          // Leaf at root level (no parent path in slug)
           this.categoryBreadcrumb.set([category]);
+        }
+
+        if (category.children && category.children.length > 0) {
+          this.categories.set(category.children);
+        } else {
           this.categories.set([]);
         }
 
+        const isParent = !!(category.children && category.children.length > 0);
         this.showSpecFilters.set(!isParent);
         if (isParent) {
           this.extractedAttrs.set([]);
@@ -377,24 +366,11 @@ export class CatalogComponent implements OnInit {
     return info.tiers?.[0]?.price || info.basePrice || 0;
   }
 
-  /** Load root categories for accordion — never overwrites categories() */
-  private loadRootCategories() {
-    this.cs.getAll().subscribe({
-      next: (data) => this.rootCategories.set(data || []),
-      error: () => this.rootCategories.set([])
-    });
-  }
-
-  /** Load root categories into the visible list (used only at /catalog root) */
   loadCategories() {
     this.cs.getAll().subscribe({
       next: (data) => this.categories.set(data || []),
       error: () => this.categories.set([])
     });
-  }
-
-  isRootActive(cat: CategoryDto): boolean {
-    return this.categoryBreadcrumb().some(b => +b.id === +cat.id);
   }
 
   loadBrands() {
