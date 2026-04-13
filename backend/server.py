@@ -1,4 +1,5 @@
 import os
+import time
 import httpx
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -25,6 +26,11 @@ API_BASE_URL = os.environ.get("API_BASE_URL", "https://api-prod.optowire.net")
 PARTNER_KEY = os.environ.get("PARTNER_KEY", "")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+# In-memory cache for slow-changing GET endpoints (category tree, brands, sections)
+_proxy_cache: dict[str, tuple[bytes, int, dict, float]] = {}  # key → (content, status, headers, expiry)
+PROXY_CACHE_TTL = 300  # 5 minutes
+CACHEABLE_PATHS = {"web/category", "web/brand", "web/section"}
 
 # --- MongoDB ---
 _mongo_client = motor.motor_asyncio.AsyncIOMotorClient(os.environ.get("MONGO_URL", "mongodb://localhost:27017"))
@@ -208,11 +214,19 @@ async def stats_searches(date: str = ""):
 @app.api_route("/api/ext/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"])
 async def proxy(path: str, request: Request):
     """Proxy all /api/ext/** requests to the external API."""
-    # Build target URL
     query = request.url.query
     target_url = f"{API_BASE_URL}/{path}"
     if query:
         target_url = f"{target_url}?{query}"
+
+    # Serve from in-memory cache for slow-changing GET endpoints
+    is_cacheable = request.method == "GET" and path in CACHEABLE_PATHS
+    if is_cacheable:
+        cache_key = f"{path}?{query}"
+        cached = _proxy_cache.get(cache_key)
+        if cached and time.monotonic() < cached[3]:
+            content, status, headers, _ = cached
+            return Response(content=content, status_code=status, headers=dict(headers))
 
     # Forward headers, injecting partner key
     headers = dict(request.headers)
@@ -236,18 +250,23 @@ async def proxy(path: str, request: Request):
             content=body,
         )
 
-    # resp.content is already decompressed by httpx — return plain JSON
-    # Strip all caching headers from upstream + force no-cache so browsers
-    # never serve stale API data (prevents 304 with empty/broken cached responses)
+    # Strip all caching headers from upstream
     excluded = {
         "content-encoding", "transfer-encoding", "connection",
         "etag", "last-modified", "expires", "cache-control", "pragma",
         "vary",
     }
     resp_headers = {k: v for k, v in resp.headers.items() if k.lower() not in excluded}
-    resp_headers["cache-control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    resp_headers["pragma"] = "no-cache"
-    resp_headers["expires"] = "0"
+
+    if is_cacheable and resp.status_code == 200:
+        # Cache successful responses for cacheable paths; allow browser to reuse for same TTL
+        resp_headers["cache-control"] = f"public, max-age={PROXY_CACHE_TTL}"
+        _proxy_cache[cache_key] = (resp.content, resp.status_code, resp_headers, time.monotonic() + PROXY_CACHE_TTL)
+    else:
+        resp_headers["cache-control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        resp_headers["pragma"] = "no-cache"
+        resp_headers["expires"] = "0"
+
     return Response(
         content=resp.content,
         status_code=resp.status_code,

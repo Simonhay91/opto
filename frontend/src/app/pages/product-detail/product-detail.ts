@@ -41,7 +41,6 @@ export class ProductDetailComponent implements OnInit {
   addedToCart = signal(false);
 
   ngOnInit() {
-    this.bs.getAll().subscribe({ next: (d) => this.brands.set(d || []), error: () => {} });
     // Extract slug from full URL — supports both %2F-encoded and real / in slug
     const extractSlug = (): string | null => {
       const url = this.router.url;
@@ -91,6 +90,11 @@ export class ProductDetailComponent implements OnInit {
           this.seo.setProductSchema(p);
           this.loadRelated(p);
           this.tracking.trackProductView(p);
+          // Only fetch full brand list when the product doesn't carry brand name already
+          const hasBrandName = p.brand?.name || p.brandName;
+          if (!hasBrandName && (p.brand_id ?? p.brandId ?? p.brand?.id)) {
+            this.bs.getAll().subscribe({ next: (d) => this.brands.set(d || []), error: () => {} });
+          }
         }
       },
       error: () => { this.loading.set(false); this.error.set(true); }
@@ -152,6 +156,9 @@ export class ProductDetailComponent implements OnInit {
   getBrandName(): string | null {
     const p = this.product();
     if (!p) return null;
+    // Use embedded brand data when available (avoids extra API call)
+    if (p.brand?.name) return p.brand.name;
+    if (p.brandName) return p.brandName;
     const brandId = p.brand_id ?? p.brandId ?? p.brand?.id;
     if (!brandId) return null;
     return this.brands().find((b: any) => b.id === brandId)?.name || null;

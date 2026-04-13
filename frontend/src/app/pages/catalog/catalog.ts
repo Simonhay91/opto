@@ -158,10 +158,12 @@ export class CatalogComponent implements OnInit {
         this.showSpecFilters.set(!isParent);
         if (isParent) {
           this.extractedAttrs.set([]);
+          // Parent categories don't need spec filters — use server-side pagination
+          this.loadFromServer();
+        } else {
+          // Leaf categories: load all products to enable client-side spec filter extraction
+          this.loadAllCategoryProducts(Number(category.id));
         }
-
-        // Load all products for category; spec filters only on leaf categories
-        this.loadAllCategoryProducts(Number(category.id));
       },
       error: () => {
         this.selectedCategoryId.set(null);
@@ -232,7 +234,8 @@ export class CatalogComponent implements OnInit {
 
     const criteria: any = {
       page: isCrm ? 1 : this.currentPage(),
-      limit: isCrm ? 500 : this.pageSize,
+      limit: isCrm ? 200 : this.pageSize,
+      categoryId: this.selectedCategoryId() || undefined,
       // For CRM searches the API won't find by crmCode — load all and filter client-side
       productName: (!isCrm && this.searchQuery) ? this.searchQuery : undefined,
       sortBy: this.sortBy !== 'newest' ? this.sortBy : undefined,

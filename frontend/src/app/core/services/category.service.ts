@@ -1,20 +1,28 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, shareReplay } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CategoryDto } from '../models/models';
 
-// Only these 4 categories are supported across the entire application
 const ALLOWED_CATEGORY_IDS = new Set([1, 91, 188, 212]);
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
   private api = inject(ApiService);
+  private cache$: Observable<CategoryDto[]> | null = null;
+  private cacheTime = 0;
 
   getAll(): Observable<CategoryDto[]> {
-    return this.api.get<CategoryDto[]>('/web/category').pipe(
-      map(cats => cats.filter(c => ALLOWED_CATEGORY_IDS.has(Number(c.id))))
-    );
+    const now = Date.now();
+    if (!this.cache$ || now - this.cacheTime > CACHE_TTL_MS) {
+      this.cacheTime = now;
+      this.cache$ = this.api.get<CategoryDto[]>('/web/category').pipe(
+        map(cats => cats.filter(c => ALLOWED_CATEGORY_IDS.has(Number(c.id)))),
+        shareReplay(1)
+      );
+    }
+    return this.cache$;
   }
 
   /**
