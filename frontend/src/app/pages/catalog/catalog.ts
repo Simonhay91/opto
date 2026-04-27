@@ -1,8 +1,8 @@
 import { Component, inject, signal, OnInit, PLATFORM_ID, computed } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink, NavigationEnd } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { filter } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 import { CategoryService } from '../../core/services/category.service';
 import { BrandService } from '../../core/services/brand.service';
@@ -98,12 +98,11 @@ export class CatalogComponent implements OnInit {
     this.loadCategories();
     this.loadBrands();
 
-    const load = () => {
+    combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([_params, queryParams]) => {
       const urlMatch = this.router.url.match(/^\/catalog\/([^?#]+)/);
       const categorySlug = urlMatch ? decodeURIComponent(urlMatch[1]) : null;
-      const params = new URLSearchParams(this.router.url.split('?')[1] || '');
-      const search = params.get('q') || params.get('search') || '';
-      const brandParam = params.get('brand');
+      const search = queryParams.get('q') || queryParams.get('search') || '';
+      const brandParam = queryParams.get('brand');
       this.searchQuery = search;
       this.currentPage.set(1);
       this.clearFiltersInternal();
@@ -124,15 +123,10 @@ export class CatalogComponent implements OnInit {
         this.showSpecFilters.set(true);
         this.apiTotal.set(null);
         this.loadCategories();
+        // loadFromServer() picks up selectedBrandIds() and passes brandId to API
         this.loadFromServer();
       }
-    };
-
-    load();
-
-    this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe(() => load());
+    });
   }
 
   loadCategoryBySlug(slug: string) {
