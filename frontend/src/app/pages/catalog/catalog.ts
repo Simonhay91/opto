@@ -98,8 +98,9 @@ export class CatalogComponent implements OnInit {
     this.loadCategories();
     this.loadBrands();
 
-    combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([params, queryParams]) => {
-      const categorySlug = params.get('categorySlug');
+    combineLatest([this.route.paramMap, this.route.queryParamMap]).subscribe(([_params, queryParams]) => {
+      const urlMatch = this.router.url.match(/^\/catalog\/([^?#]+)/);
+      const categorySlug = urlMatch ? decodeURIComponent(urlMatch[1]) : null;
       const search = queryParams.get('q') || queryParams.get('search') || '';
       const brandParam = queryParams.get('brand');
       this.searchQuery = search;
@@ -385,13 +386,12 @@ export class CatalogComponent implements OnInit {
 
   navigateToCategory(category: CategoryDto) {
     if (category.slug) {
-      const urlSlug = category.slug.split('/').pop()!;
-      this.router.navigate(['/catalog', urlSlug]);
+      this.router.navigate(['/catalog', ...category.slug.split('/')]);
     }
   }
 
   onBreadcrumbClick(cat: CategoryDto, _index: number) {
-    if (cat.slug) this.router.navigate(['/catalog', cat.slug]);
+    if (cat.slug) this.router.navigate(['/catalog', ...cat.slug.split('/')]);
   }
 
   goBackToRoot() { this.router.navigate(['/catalog']); }

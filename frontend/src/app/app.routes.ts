@@ -12,7 +12,7 @@ export const routes: Routes = [
     title: 'Product Catalog - Optowire',
   },
   {
-    path: 'catalog/:categorySlug',
+    path: 'catalog/**',
     loadComponent: () => import('./pages/catalog/catalog').then(m => m.CatalogComponent),
     title: 'Products by Category - Optowire',
   },

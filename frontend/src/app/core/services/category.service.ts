@@ -42,9 +42,7 @@ export class CategoryService {
           }, []);
 
         const flat = flattenCategories(categories);
-        // Try exact match first, then match by last slug segment
-        const found = flat.find(c => c.slug === slug)
-          ?? flat.find(c => c.slug?.split('/').pop() === slug);
+        const found = flat.find(c => c.slug === slug);
         if (!found) throw new Error(`Category with slug '${slug}' not found`);
         return found;
       }),
