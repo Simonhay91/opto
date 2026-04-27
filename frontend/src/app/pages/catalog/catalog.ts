@@ -385,8 +385,7 @@ export class CatalogComponent implements OnInit {
 
   navigateToCategory(category: CategoryDto) {
     if (category.slug) {
-      const urlSlug = category.slug.split('/').pop()!;
-      this.router.navigate(['/catalog', urlSlug]);
+      this.router.navigate(['/catalog', category.slug]);
     }
   }
 
