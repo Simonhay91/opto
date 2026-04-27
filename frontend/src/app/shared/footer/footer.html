@@ -54,7 +54,7 @@
           @if (categories().length) {
             @for (cat of categories(); track cat.id) {
               <li>
-                <a [routerLink]="['/catalog'].concat((cat.slug||'').split('/'))"
+                <a [routerLink]="['/catalog', cat.slug]"
                    class="text-sm text-slate-400 hover:text-cyan-400 transition-colors">
                   {{cat.name}}
                 </a>
