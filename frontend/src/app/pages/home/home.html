@@ -166,7 +166,7 @@
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       @for (cat of categories(); track cat.id) {
-        <a [routerLink]="['/catalog', $any(cat).slug]"
+        <a [routerLink]="['/catalog'].concat(($any(cat).slug||'').split('/'))"
            class="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all duration-300 flex flex-col items-center text-center gap-4"
            [attr.data-testid]="'category-card-' + cat.id">
           <img [src]="$any(cat).icon" [alt]="cat.name" class="w-16 h-16 object-contain">

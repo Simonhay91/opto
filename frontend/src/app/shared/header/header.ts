@@ -115,12 +115,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getCategoryRoute(cat: CategoryDto): string[] {
-    return ['/catalog', cat.slug || String(cat.id)];
+    return ['/catalog', ...(cat.slug || String(cat.id)).split('/')];
   }
 
   getSubcategoryRoute(sub: CategoryDto): string[] {
-    const slug = (sub.slug || '').split('/').pop() || String(sub.id);
-    return ['/catalog', slug];
+    return ['/catalog', ...(sub.slug || String(sub.id)).split('/')];
   }
 
   onProductsEnter() {
