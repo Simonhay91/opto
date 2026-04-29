@@ -4,7 +4,8 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { appConfig } from './app.config';
 
 const serverRoutes: ServerRoute[] = [
-  { path: 'product/:slug', renderMode: RenderMode.Server },
+  { path: 'product/**', renderMode: RenderMode.Server },
+  { path: 'catalog/:categorySlug', renderMode: RenderMode.Server },
   { path: '**', renderMode: RenderMode.Server },
 ];
 

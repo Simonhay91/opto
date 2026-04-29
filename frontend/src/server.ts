@@ -106,6 +106,17 @@ app.use((req, res, next) => {
 });
 
 /**
+ * Express error handler — catches unhandled SSR errors and returns 500
+ * instead of crashing the process or leaking stack traces.
+ */
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('SSR unhandled error:', err?.message || err);
+  if (!res.headersSent) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+/**
  * Start the server if this module is the main entry point, or it is ran via PM2.
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */

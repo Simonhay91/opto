@@ -2,7 +2,9 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformServer } from '@angular/common';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, timeout } from 'rxjs/operators';
+
+const SSR_TIMEOUT_MS = 8000;
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -33,7 +35,9 @@ export class ApiService {
       });
     }
     
+    const isServer = isPlatformServer(this.platformId);
     return this.http.get<T>(`${this.base}${path}`, { params: p }).pipe(
+      ...(isServer ? [timeout(SSR_TIMEOUT_MS)] : []),
       catchError((error: HttpErrorResponse) => {
         // If 400 or 422, retry without customerId
         if (error.status === 400 || error.status === 422) {
@@ -44,6 +48,7 @@ export class ApiService {
             });
           }
           return this.http.get<T>(`${this.base}${path}`, { params: retryParams }).pipe(
+            ...(isServer ? [timeout(SSR_TIMEOUT_MS)] : []),
             catchError(() => throwError(() => error))
           );
         }
@@ -67,7 +72,9 @@ export class ApiService {
       });
     }
     
+    const isServerPost = isPlatformServer(this.platformId);
     return this.http.post<T>(`${this.base}${path}`, body, { params: p }).pipe(
+      ...(isServerPost ? [timeout(SSR_TIMEOUT_MS)] : []),
       catchError((error: HttpErrorResponse) => {
         // If 400 or 422, retry without customerId
         if (error.status === 400 || error.status === 422) {
@@ -78,6 +85,7 @@ export class ApiService {
             });
           }
           return this.http.post<T>(`${this.base}${path}`, body, { params: retryParams }).pipe(
+            ...(isServerPost ? [timeout(SSR_TIMEOUT_MS)] : []),
             catchError(() => throwError(() => error))
           );
         }

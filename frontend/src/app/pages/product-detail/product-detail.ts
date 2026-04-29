@@ -97,7 +97,11 @@ export class ProductDetailComponent implements OnInit {
           }
         }
       },
-      error: () => { this.loading.set(false); this.error.set(true); }
+      error: () => {
+        this.loading.set(false);
+        this.error.set(true);
+        this.seo.setNoIndex();
+      }
     });
   }
 

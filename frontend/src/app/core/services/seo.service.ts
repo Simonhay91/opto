@@ -141,6 +141,10 @@ export class SeoService {
     this.injectJsonLd(schema, 'article-schema');
   }
 
+  setNoIndex() {
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
   setFaqSchema(faqs: { question: string; answer: string }[]) {
     const schema = {
       '@context': 'https://schema.org',
