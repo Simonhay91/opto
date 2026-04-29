@@ -36,10 +36,14 @@ export class ApiService {
     }
     
     const isServer = isPlatformServer(this.platformId);
-    return this.http.get<T>(`${this.base}${path}`, { params: p }).pipe(
-      ...(isServer ? [timeout(SSR_TIMEOUT_MS)] : []),
+    const retryGet = (retryParams: HttpParams): Observable<T> => {
+      const r$ = this.http.get<T>(`${this.base}${path}`, { params: retryParams })
+        .pipe(catchError(() => throwError(() => new Error('retry failed'))));
+      return isServer ? r$.pipe(timeout(SSR_TIMEOUT_MS)) : r$;
+    };
+
+    const req$ = this.http.get<T>(`${this.base}${path}`, { params: p }).pipe(
       catchError((error: HttpErrorResponse) => {
-        // If 400 or 422, retry without customerId
         if (error.status === 400 || error.status === 422) {
           let retryParams = new HttpParams();
           if (params) {
@@ -47,14 +51,12 @@ export class ApiService {
               if (v !== undefined && v !== null) retryParams = retryParams.set(k, String(v));
             });
           }
-          return this.http.get<T>(`${this.base}${path}`, { params: retryParams }).pipe(
-            ...(isServer ? [timeout(SSR_TIMEOUT_MS)] : []),
-            catchError(() => throwError(() => error))
-          );
+          return retryGet(retryParams).pipe(catchError(() => throwError(() => error)));
         }
         return throwError(() => error);
       })
     );
+    return isServer ? req$.pipe(timeout(SSR_TIMEOUT_MS)) : req$;
   }
 
   /**
@@ -73,10 +75,14 @@ export class ApiService {
     }
     
     const isServerPost = isPlatformServer(this.platformId);
-    return this.http.post<T>(`${this.base}${path}`, body, { params: p }).pipe(
-      ...(isServerPost ? [timeout(SSR_TIMEOUT_MS)] : []),
+    const retryPost = (retryParams: HttpParams): Observable<T> => {
+      const r$ = this.http.post<T>(`${this.base}${path}`, body, { params: retryParams })
+        .pipe(catchError(() => throwError(() => new Error('retry failed'))));
+      return isServerPost ? r$.pipe(timeout(SSR_TIMEOUT_MS)) : r$;
+    };
+
+    const post$ = this.http.post<T>(`${this.base}${path}`, body, { params: p }).pipe(
       catchError((error: HttpErrorResponse) => {
-        // If 400 or 422, retry without customerId
         if (error.status === 400 || error.status === 422) {
           let retryParams = new HttpParams();
           if (params) {
@@ -84,13 +90,11 @@ export class ApiService {
               if (v !== undefined && v !== null) retryParams = retryParams.set(k, String(v));
             });
           }
-          return this.http.post<T>(`${this.base}${path}`, body, { params: retryParams }).pipe(
-            ...(isServerPost ? [timeout(SSR_TIMEOUT_MS)] : []),
-            catchError(() => throwError(() => error))
-          );
+          return retryPost(retryParams).pipe(catchError(() => throwError(() => error)));
         }
         return throwError(() => error);
       })
     );
+    return isServerPost ? post$.pipe(timeout(SSR_TIMEOUT_MS)) : post$;
   }
 }
