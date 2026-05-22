@@ -37,6 +37,7 @@
               @if (getBrandLogo(brand)) {
                 <img [src]="getBrandLogo(brand)" [alt]="brand.name"
                      class="max-w-full max-h-full object-contain"
+                     style="filter: brightness(0) saturate(100%) invert(67%) sepia(14%) saturate(400%) hue-rotate(148deg) brightness(97%) contrast(87%);"
                      (error)="$any($event.target).style.display='none'">
               } @else {
                 <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-cyan-500/10 to-slate-200 dark:to-slate-700">

@@ -130,7 +130,8 @@
             @if (getLocalBrandLogo(brand)) {
               <img [src]="getLocalBrandLogo(brand)"
                    [alt]="brand.name"
-                   class="w-44 h-44 object-contain">
+                   class="w-44 h-44 object-contain"
+                   style="filter: brightness(0) saturate(100%) invert(67%) sepia(14%) saturate(400%) hue-rotate(148deg) brightness(97%) contrast(87%);">
             } @else if (brand.logoImage) {
               <img [src]="getImageUrl(brand.logoImage, 'thumb')"
                    [alt]="brand.name"
