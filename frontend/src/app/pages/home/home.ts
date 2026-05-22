@@ -42,6 +42,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   getImageUrl = getImageUrl;
   private slideInterval: any;
 
+  private readonly BRAND_LOGOS: Record<string, string> = {
+    'yixing': '/assets/images/yixing-brand.svg',
+    'optowire': '/assets/images/optowire-brand.svg',
+    'vivio': '/assets/images/vivio-brand.svg',
+  };
+
+  getLocalBrandLogo(brand: BrandDto): string | null {
+    const key = (brand.slug || brand.name)?.toLowerCase().split(' ')[0];
+    return this.BRAND_LOGOS[key ?? ''] ?? null;
+  }
+
   // Supported categories with icons
   supportedCategories = SUPPORTED_CATEGORIES;
 

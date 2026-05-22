@@ -31,7 +31,16 @@ export class BrandsComponent implements OnInit {
     });
   }
 
+  private readonly BRAND_LOGOS: Record<string, string> = {
+    'yixing': '/assets/images/yixing-brand.svg',
+    'optowire': '/assets/images/optowire-brand.svg',
+    'vivio': '/assets/images/vivio-brand.svg',
+  };
+
   getBrandLogo(brand: BrandDto): string {
+    const key = ((brand as any).slug || brand.name)?.toLowerCase().split(' ')[0];
+    if (key && this.BRAND_LOGOS[key]) return this.BRAND_LOGOS[key];
+
     const logo = (brand as any).logo || (brand as any).logoImage;
     if (!logo) return '';
     if (typeof logo === 'string') return logo;
